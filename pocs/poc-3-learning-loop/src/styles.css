@@ -1,0 +1,497 @@
+:root {
+  color: #e9eef5;
+  background: #10151b;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  overflow-x: hidden;
+  background: radial-gradient(circle at 75% 0%, #3b3041 0%, #10151b 48%);
+}
+
+button {
+  font: inherit;
+}
+
+.poc-shell {
+  width: min(980px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 5vw, 4rem) clamp(1rem, 5vw, 2.5rem) 4rem;
+}
+
+.poc-header {
+  max-width: 720px;
+  position: relative;
+}
+
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #f6bf62;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 11ch;
+  margin-bottom: 1rem;
+  color: #fff8e9;
+  font-size: clamp(2.3rem, 9vw, 5.4rem);
+  letter-spacing: -0.07em;
+  line-height: 0.92;
+}
+
+h2 {
+  margin-bottom: 0.5rem;
+  color: #fff8e9;
+}
+
+h3 {
+  color: #fff8e9;
+  font-size: 1rem;
+}
+
+.settings-trigger {
+  flex: 0 0 auto;
+  width: 44px;
+  min-height: 40px;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #526b79;
+  border-radius: 0.6rem;
+  color: #fff8e9;
+  background: #294958;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 750;
+  line-height: 1;
+}
+
+dialog {
+  width: min(360px, calc(100% - 2rem));
+  padding: 0;
+  border: 1px solid #526b79;
+  border-radius: 1rem;
+  color: #e9eef5;
+  background: #19252d;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+dialog::backdrop {
+  background: rgba(9, 13, 17, 0.68);
+}
+
+.settings-form {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.25rem;
+}
+
+.settings-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-heading h2 {
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 1px solid #526b79;
+  border-radius: 50%;
+  color: #fff8e9;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.settings-form label {
+  color: #a9b8c7;
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.settings-form select {
+  min-height: 44px;
+  padding: 0.6rem;
+  border: 1px solid #526b79;
+  border-radius: 0.6rem;
+  color: #fff8e9;
+  background: #294958;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: end;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.settings-actions button {
+  min-height: 40px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #526b79;
+  border-radius: 0.6rem;
+  color: #fff8e9;
+  background: #294958;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.intro,
+.prompt,
+.reveal-card p,
+.transfer-card p,
+.complete-card p {
+  color: #a9b8c7;
+  line-height: 1.6;
+}
+
+.reveal-context {
+  margin-bottom: 0.5rem;
+  color: #f6bf62 !important;
+  font-weight: 750;
+}
+
+.degree-intro {
+  margin-bottom: 0;
+  color: #a9b8c7;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.degree-example {
+  margin: 0.25rem 0 0;
+  color: #7f93a4;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.progress-card,
+.exercise-card,
+.reveal-card,
+.transfer-card,
+.complete-card {
+  border: 1px solid #4a3c4c;
+  border-radius: 1.25rem;
+  background: rgba(25, 25, 34, 0.9);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
+}
+
+.progress-card {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+  margin: clamp(2rem, 7vw, 5rem) 0 1rem;
+  padding: 0.4rem;
+}
+
+.progress-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.7rem 0.25rem;
+  border-radius: 0.7rem;
+  color: #7f93a4;
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-align: center;
+}
+
+.control-with-help,
+.help-cluster {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.help-button {
+  width: 22px;
+  min-height: 22px;
+  padding: 0;
+  border: 1px solid #8ee6c5;
+  border-radius: 50%;
+  color: #8ee6c5;
+  background: transparent;
+  cursor: help;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 20px;
+}
+
+.help-cluster .help-button {
+  flex: 0 0 22px;
+}
+
+.progress-step .help-cluster {
+  flex: 0 0 17px;
+}
+
+.progress-step .help-button {
+  width: 17px;
+  min-height: 17px;
+  font-size: 0.62rem;
+  line-height: 15px;
+}
+
+.help-copy {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  display: none;
+  width: min(240px, 70vw);
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #526b79;
+  border-radius: 0.55rem;
+  color: #e9eef5;
+  background: #18232c;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  transform: translateX(-50%);
+}
+
+.help-copy.is-open {
+  display: block;
+}
+
+.section-help {
+  margin-bottom: 0.8rem;
+}
+
+.progress-step.active {
+  color: #fff8e9;
+  background: #604252;
+}
+
+.exercise-card,
+.reveal-card,
+.transfer-card,
+.complete-card {
+  margin-top: 1rem;
+  padding: clamp(1rem, 4vw, 1.75rem);
+}
+
+.exercise-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+#audio-status {
+  color: #8ee6c5;
+  font-size: 0.84rem;
+  text-align: right;
+}
+
+.prompt {
+  margin: 1.5rem 0 0.8rem;
+  color: #fff8e9;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.audio-actions,
+#answer-area,
+#transfer-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+#answer-area {
+  margin-top: 1rem;
+  padding-top: 0.35rem;
+  row-gap: 0.8rem;
+}
+
+.audio-actions {
+  align-items: center;
+}
+
+.audio-actions .control-with-help > button,
+.candidate-button,
+.secondary-button,
+#start-transfer,
+#restart {
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  border: 1px solid #526b79;
+  border-radius: 0.6rem;
+  color: #fff8e9;
+  background: #294958;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.candidate-button {
+  border-color: #f6bf62;
+  background: #855039;
+}
+
+.candidate-button {
+  min-width: 74px;
+  font-size: 1.1rem;
+}
+
+.secondary-button {
+  flex-basis: 100%;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+button:focus-visible {
+  outline: 3px solid #8ee6c5;
+  outline-offset: 3px;
+}
+
+.feedback {
+  min-height: 1.5rem;
+  margin: 1rem 0 0;
+  color: #f6bf62;
+}
+
+.comparison-notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.comparison-notes div {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border-radius: 0.7rem;
+  background: #18232c;
+}
+
+.comparison-notes span {
+  color: #a9b8c7;
+  font-size: 0.8rem;
+}
+
+.comparison-notes strong {
+  color: #8ee6c5;
+  font-size: 1.5rem;
+}
+
+.instrument-maps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.instrument-maps > div {
+  padding: 1rem;
+  border-radius: 0.7rem;
+  background: #18232c;
+}
+
+.piano-map,
+.guitar-map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.map-key,
+.map-position {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.4rem;
+  color: #fff8e9;
+  background: #266257;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.map-key.altered {
+  background: #163f38;
+}
+
+.map-position {
+  background: #84503a;
+}
+
+@media (max-width: 600px) {
+  .title-row {
+    align-items: flex-start;
+  }
+
+  .title-row .settings-trigger {
+    margin-top: 0;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.82rem;
+  }
+
+  .progress-step {
+    font-size: 0.68rem;
+  }
+
+  .help-copy {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+
+  .exercise-heading,
+  .instrument-maps,
+  .comparison-notes {
+    display: block;
+  }
+
+  #audio-status {
+    display: block;
+    margin-top: 0.7rem;
+    text-align: left;
+  }
+
+  .instrument-maps > div,
+  .comparison-notes div {
+    margin-top: 0.75rem;
+  }
+}
