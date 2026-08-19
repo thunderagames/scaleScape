@@ -1,0 +1,20 @@
+{
+  "name": "scalescape",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "check:boundaries": "node scripts/check-module-boundaries.mjs",
+    "check": "npm run check:boundaries && npm run test:run && npm run build"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.4"
+  }
+}
