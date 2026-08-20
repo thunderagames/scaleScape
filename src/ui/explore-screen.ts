@@ -38,7 +38,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
         <span id="audio-status" class="audio-status" role="status" aria-live="polite"></span>
         <span id="generation-status" role="status"></span>
       </section>
-       <section class="scale-card" aria-labelledby="scale-title">
+        <section class="scale-card" aria-labelledby="scale-title">
         <p class="eyebrow" id="generated-scale-label"></p>
         <h2 id="scale-title"></h2>
         <p id="scale-caption" class="scale-caption"></p>

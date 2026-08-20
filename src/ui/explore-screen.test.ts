@@ -68,6 +68,8 @@ describe('explore screen', () => {
     expect(note_button?.getAttribute('aria-label')).toContain('degree 1')
     expect(note_button?.textContent).toBe('E')
     expect(note_button?.parentElement?.querySelector('.scale-degree')?.textContent).toBe('1')
+    expect(note_button?.textContent).toBe('E')
+    expect(note_button?.parentElement?.querySelector('.scale-degree')?.textContent).toBe('1')
   })
 
   it('given_dorian_scale_when_rendering_generated_scale_then_shows_tone_and_semitone_steps', () => {
