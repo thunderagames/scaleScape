@@ -105,6 +105,19 @@ describe('application shell', () => {
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
   })
 
+  it('given_returning_user_when_opening_guided_start_navigation_then_shows_guided_start_without_resetting_completion', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createCompletedSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#navigate-guided-start')?.click()
+
+    expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(false)
+    expect(container.querySelector('#navigate-guided-start')?.getAttribute('aria-current')).toBe('page')
+    expect(settings.getSettings().guided_start_completed).toBe(true)
+  })
+
   it('given_diagnostics_button_when_not_clicked_then_does_not_export', () => {
     const container = document.createElement('div')
     document.body.append(container)

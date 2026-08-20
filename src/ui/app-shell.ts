@@ -15,6 +15,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
         <nav id="app-navigation" class="app-navigation" aria-label="Application navigation">
           <button id="navigate-explore" type="button" aria-controls="explore-screen" aria-current="page"></button>
           <button id="navigate-ear-gym" type="button" aria-controls="ear-gym-screen"></button>
+          <button id="navigate-guided-start" type="button" aria-controls="guided-start-screen"></button>
         </nav>
         <div id="audio-controls" class="audio-controls" role="group">
           <label id="context-label" for="context-control"></label>
@@ -52,6 +53,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const guided_start_screen = container.querySelector<HTMLElement>('#guided-start-screen')
   const navigate_explore = container.querySelector<HTMLButtonElement>('#navigate-explore')
   const navigate_ear_gym = container.querySelector<HTMLButtonElement>('#navigate-ear-gym')
+  const navigate_guided_start = container.querySelector<HTMLButtonElement>('#navigate-guided-start')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
   const audio_controls = container.querySelector<HTMLElement>('#audio-controls')
   const context_label = container.querySelector<HTMLElement>('#context-label')
@@ -71,8 +73,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const start_guided = container.querySelector<HTMLButtonElement>('#start-guided')
   const explore_directly = container.querySelector<HTMLButtonElement>('#explore-directly')
   const guided_start_status = container.querySelector<HTMLElement>('#guided-start-status')
-  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !shell_label || !audio_controls || !context_label || !context_control || !volume_label || !volume_control || !mute_audio || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status) throw new Error('Application shell elements were not found')
-  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, shell_label, audio_controls, context_label, context_control, volume_label, volume_control, mute_audio, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status }
+  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !shell_label || !audio_controls || !context_label || !context_control || !volume_label || !volume_control || !mute_audio || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status) throw new Error('Application shell elements were not found')
+  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, shell_label, audio_controls, context_label, context_control, volume_label, volume_control, mute_audio, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status }
 
   let current_screen: AppScreen = 'guided_start'
 
@@ -81,8 +83,10 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.shell_label.textContent = translation.app_label
     ui.navigate_explore.textContent = translation.nav_explore
     ui.navigate_ear_gym.textContent = translation.nav_ear_gym
+    ui.navigate_guided_start.textContent = translation.nav_guided_start
     ui.navigate_explore.setAttribute('aria-label', translation.nav_explore)
     ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
+    ui.navigate_guided_start.setAttribute('aria-label', translation.nav_guided_start)
     ui.audio_controls.setAttribute('aria-label', translation.audio_controls)
     ui.context_label.textContent = translation.context
     ui.context_control.setAttribute('aria-label', translation.context)
@@ -109,16 +113,20 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     current_screen = screen
     ui.guided_start_screen.hidden = current_screen !== 'guided_start'
     const is_explore = current_screen === 'explore'
+    const is_guided_start = current_screen === 'guided_start'
     ui.explore_screen.hidden = !is_explore
     ui.ear_gym_screen.hidden = is_explore
+    ui.guided_start_screen.hidden = !is_guided_start
     ui.navigate_explore.setAttribute('aria-current', is_explore ? 'page' : 'false')
-    ui.navigate_ear_gym.setAttribute('aria-current', is_explore ? 'false' : 'page')
-    const active_control = current_screen === 'guided_start' ? ui.start_guided : is_explore ? ui.navigate_explore : ui.navigate_ear_gym
+    ui.navigate_ear_gym.setAttribute('aria-current', current_screen === 'ear_gym' ? 'page' : 'false')
+    ui.navigate_guided_start.setAttribute('aria-current', is_guided_start ? 'page' : 'false')
+    const active_control = is_guided_start ? ui.start_guided : is_explore ? ui.navigate_explore : ui.navigate_ear_gym
     active_control.focus()
   }
 
   ui.navigate_explore.addEventListener('click', () => show_screen('explore'))
   ui.navigate_ear_gym.addEventListener('click', () => show_screen('ear_gym'))
+  ui.navigate_guided_start.addEventListener('click', () => show_screen('guided_start'))
   ui.explore_directly.addEventListener('click', () => show_screen('explore'))
   ui.start_guided.addEventListener('click', async () => {
     const state = application.getState()

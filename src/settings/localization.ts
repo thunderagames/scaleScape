@@ -15,6 +15,7 @@ export interface TranslationDictionary {
   readonly app_label: string
   readonly nav_explore: string
   readonly nav_ear_gym: string
+  readonly nav_guided_start: string
   readonly ear_gym_title: string
   readonly ear_gym_intro: string
   readonly ear_gym_placeholder: string
@@ -99,6 +100,7 @@ const ENGLISH: TranslationDictionary = {
   app_label: 'ScaleScape MVP',
   nav_explore: 'Explore',
   nav_ear_gym: 'Ear Gym',
+  nav_guided_start: 'Guided Start',
   ear_gym_title: 'Ear Gym',
   ear_gym_intro: 'Train your ear by comparing related scales and modes.',
   ear_gym_placeholder: 'The first comparison exercise is the next step.',
@@ -183,6 +185,7 @@ const SPANISH: TranslationDictionary = {
   app_label: 'ScaleScape MVP',
   nav_explore: 'Explorar',
   nav_ear_gym: 'Gimnasio auditivo',
+  nav_guided_start: 'Inicio guiado',
   ear_gym_title: 'Gimnasio auditivo',
   ear_gym_intro: 'Entrená el oído comparando escalas y modos relacionados.',
   ear_gym_placeholder: 'El primer ejercicio de comparación es el próximo paso.',
