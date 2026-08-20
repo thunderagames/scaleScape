@@ -1,0 +1,8 @@
+{
+  "default_screen": "explore",
+  "modules": {
+    "explore": true,
+    "ear_gym": false,
+    "guided_start": false
+  }
+}

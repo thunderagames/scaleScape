@@ -60,10 +60,10 @@ describe('application shell', () => {
   it('given_first_visit_when_rendering_shell_then_shows_guided_start_and_keeps_explore_available', () => {
     const container = document.createElement('div')
     document.body.append(container)
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true } })
 
-    expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(false)
-    expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
     expect(container.querySelector<HTMLElement>('#ear-gym-screen')?.hidden).toBe(true)
     expect(container.querySelector('#explore-directly')?.textContent).toBe('Explore directly')
   })
@@ -82,6 +82,18 @@ describe('application shell', () => {
 
     expect(toggle?.getAttribute('aria-expanded')).toBe('false')
     expect(navigation?.getAttribute('data-open')).toBe('false')
+  })
+
+  it('given_disabled_modules_when_rendering_shell_then_hides_optional_navigation_and_screens', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false } })
+
+    expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
+    expect(container.querySelector<HTMLButtonElement>('#navigate-ear-gym')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLButtonElement>('#navigate-guided-start')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#ear-gym-screen')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
   })
 
   it('given_narrow_viewport_when_rendering_shell_then_keeps_guided_content_within_container', () => {
@@ -161,7 +173,7 @@ describe('application shell', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createCompletedSettings()
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true } })
 
     container.querySelector<HTMLButtonElement>('#navigate-guided-start')?.click()
 
@@ -245,7 +257,7 @@ describe('application shell', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createSettings()
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true } })
 
     settings.setLanguage('es')
 

@@ -5,10 +5,9 @@ import { createDiagnosticsLogger, type DiagnosticsPort } from '../observability/
 import { renderExploreScreen, type ExploreGuidedStartPort } from './explore-screen'
 import { renderEarGymScreen } from './ear-gym-screen'
 import { getVisiblePlaybackInstruments } from './visible-instruments'
+import type { AppConfig, AppModuleFlags, AppScreen } from '../app-config'
 
-export type AppScreen = 'guided_start' | 'explore' | 'ear_gym'
-
-export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger()): void {
+export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false } }): void {
   container.innerHTML = `
     <div class="app-shell">
       <header class="app-shell-header">
@@ -87,6 +86,14 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const guided_start_status = container.querySelector<HTMLElement>('#guided-start-status')
   if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
   const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, audio_settings, diagnostics_settings, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+
+  const modules: AppModuleFlags = config.modules
+  const default_screen: AppScreen = modules[config.default_screen] ? config.default_screen : modules.explore ? 'explore' : modules.ear_gym ? 'ear_gym' : 'guided_start'
+  ui.navigate_explore.hidden = !modules.explore
+  ui.navigate_ear_gym.hidden = !modules.ear_gym
+  ui.navigate_guided_start.hidden = !modules.guided_start
+  ui.guided_start_screen.hidden = !modules.guided_start
+  ui.ear_gym_screen.hidden = !modules.ear_gym
 
   let current_screen: AppScreen = 'guided_start'
   let is_guided_progress_active = false
@@ -239,7 +246,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   playback.subscribePlaybackState(apply_translations)
   application.subscribe((state) => { const context = playback.getPlaybackState().context; void playback.setContext(state.root_pitch_class, context) })
   apply_translations()
-  show_screen(settings.getSettings().guided_start_completed ? 'explore' : 'guided_start')
+  show_screen(default_screen)
   const guided_start_port: ExploreGuidedStartPort = {
     on_characteristic_note_selected: () => {
       if (!is_guided_progress_active || !guided_progress_text || !guided_progress_action) return
@@ -253,5 +260,5 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   guided_progress_action = ui.explore_screen.querySelector<HTMLButtonElement>('#guided-progress-action')
   guided_progress = ui.explore_screen.querySelector<HTMLElement>('#guided-progress')
   guided_progress_action?.addEventListener('click', () => show_screen('ear_gym'))
-  renderEarGymScreen(ui.ear_gym_screen, playback, settings, diagnostics)
+  if (modules.ear_gym) renderEarGymScreen(ui.ear_gym_screen, playback, settings, diagnostics)
 }

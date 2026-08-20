@@ -3,6 +3,7 @@ import { createBrowserPlayback } from './audio/browser-playback'
 import { createSettingsStore } from './settings/settings-store'
 import { createDiagnosticsLogger } from './observability/event-logger'
 import { renderAppShell } from './ui/app-shell'
+import { APP_CONFIG } from './app-config'
 import './styles.css'
 
 const app = document.querySelector<HTMLElement>('#app')
@@ -12,4 +13,4 @@ if (!app) {
 
 const diagnostics = createDiagnosticsLogger()
 const settings = createSettingsStore('en', diagnostics)
-renderAppShell(app, createExploreApplication(settings.getSettings().last_root, settings.getSettings().last_formula), createBrowserPlayback(diagnostics), settings, diagnostics)
+renderAppShell(app, createExploreApplication(settings.getSettings().last_root, settings.getSettings().last_formula), createBrowserPlayback(diagnostics), settings, diagnostics, APP_CONFIG)

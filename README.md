@@ -45,6 +45,10 @@ Start with these documents:
 
 The remaining release work is validation: manual P0 browser/device checks, usability feedback, and documenting known browser limitations.
 
+## Runtime Configuration
+
+Module availability and the initial screen are configured in [`settings.json`](settings.json). The current configuration exposes Explore and starts there; Ear Gym and Guided Start remain implemented but disabled until they are enabled in that file.
+
 ## Product Boundary
 
 ScaleScape does not initially include microphone pitch detection, MIDI performance grading, user accounts, social features, generated backing tracks, or a full music notation editor. Those areas can be evaluated after the core learning loop is validated.
