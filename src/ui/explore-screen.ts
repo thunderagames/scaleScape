@@ -91,11 +91,14 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   }
 
   function select_note(pitch_class: number, focus_target: 'scale' | 'piano' | 'guitar' | null = null): void {
+    const guitar_scroll_left = ui.guitar_view.querySelector<HTMLElement>('.guitar-scroll')?.scrollLeft ?? 0
     selected_pitch_class = pitch_class
     render(application.getState())
+    const next_guitar_scroll = ui.guitar_view.querySelector<HTMLElement>('.guitar-scroll')
+    if (next_guitar_scroll) next_guitar_scroll.scrollLeft = guitar_scroll_left
     const selected_note = application.getState().scale_instance.notes.find((note) => note.pitch_class === pitch_class)
     if (selected_note?.primary_role === 'characteristic') guided_start?.on_characteristic_note_selected()
-    if (focus_target) container.querySelector<HTMLButtonElement>(`#${focus_target === 'scale' ? 'scale-notes' : `${focus_target}-view`} .selected`)?.focus()
+    if (focus_target) container.querySelector<HTMLButtonElement>(`#${focus_target === 'scale' ? 'scale-notes' : `${focus_target}-view`} .selected`)?.focus({ preventScroll: true })
   }
 
   function note_accessible_label(note: { readonly label: string; readonly degree: number | null; readonly primary_role: NoteRole | null }, translation: TranslationDictionary): string {

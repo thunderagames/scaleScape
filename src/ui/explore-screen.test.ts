@@ -155,6 +155,19 @@ describe('explore screen', () => {
     expect(playback_fake.previewed_instruments).toEqual([['guitar']])
   })
 
+  it('given_guitar_scroll_position_when_selecting_note_then_preserves_horizontal_scroll', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+    const guitar_scroll = container.querySelector<HTMLElement>('.guitar-scroll')
+    const guitar_note = container.querySelector<HTMLButtonElement>('#guitar-view .guitar-position.tonic')
+    if (guitar_scroll && guitar_note) {
+      guitar_scroll.scrollLeft = 240
+      guitar_note.click()
+    }
+
+    expect(container.querySelector<HTMLElement>('.guitar-scroll')?.scrollLeft).toBe(240)
+  })
+
   it('given_initial_explore_screen_when_moving_piano_focus_then_advances_to_next_scale_note', () => {
     const container = createContainer()
     const playback_fake = createPlaybackFake()
