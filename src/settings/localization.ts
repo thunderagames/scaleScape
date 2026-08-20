@@ -18,6 +18,8 @@ export interface TranslationDictionary {
   readonly nav_guided_start: string
   readonly ear_gym_title: string
   readonly ear_gym_intro: string
+  readonly ear_gym_audio_required: string
+  readonly ear_gym_visual_fallback: string
   readonly ear_gym_placeholder: string
   readonly guided_comparison: string
   readonly comparison_selector: string
@@ -107,6 +109,8 @@ const ENGLISH: TranslationDictionary = {
   nav_guided_start: 'Guided Start',
   ear_gym_title: 'Ear Gym',
   ear_gym_intro: 'Train your ear by comparing related scales and modes.',
+  ear_gym_audio_required: 'Audio is required for scored listening exercises.',
+  ear_gym_visual_fallback: 'You can still inspect the two scales visually while audio is unavailable.',
   ear_gym_placeholder: 'The first comparison exercise is the next step.',
   guided_comparison: 'Guided comparison',
   comparison_selector: 'Comparison',
@@ -196,6 +200,8 @@ const SPANISH: TranslationDictionary = {
   nav_guided_start: 'Inicio guiado',
   ear_gym_title: 'Gimnasio auditivo',
   ear_gym_intro: 'Entrená el oído comparando escalas y modos relacionados.',
+  ear_gym_audio_required: 'El audio es necesario para puntuar los ejercicios auditivos.',
+  ear_gym_visual_fallback: 'Mientras el audio no esté disponible, podés inspeccionar visualmente las dos escalas.',
   ear_gym_placeholder: 'El primer ejercicio de comparación es el próximo paso.',
   guided_comparison: 'Comparación guiada',
   comparison_selector: 'Comparación',

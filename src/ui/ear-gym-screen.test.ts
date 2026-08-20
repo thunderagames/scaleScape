@@ -20,6 +20,10 @@ function createPlaybackFake() {
   return { playback, played_formulas }
 }
 
+function createUnavailablePlaybackFake(): PlaybackPort {
+  return { ...createPlaybackFake().playback, playScale: async () => ({ ok: false }) }
+}
+
 function createSettings() {
   Object.defineProperty(window, 'localStorage', {
     configurable: true,
@@ -155,5 +159,17 @@ describe('ear gym screen', () => {
 
     expect(() => container.querySelector<HTMLButtonElement>('#play-example-a')?.click()).not.toThrow()
     expect(container.querySelector('#playback-status')?.textContent).toBe('Playing natural minor.')
+  })
+
+  it('given_unavailable_audio_when_playing_example_then_shows_visual_fallback_and_disables_scoring', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderEarGymScreen(container, createUnavailablePlaybackFake(), createSettings())
+
+    container.querySelector<HTMLButtonElement>('#play-example-a')?.click()
+    await Promise.resolve()
+
+    expect(container.querySelector<HTMLElement>('#audio-fallback')?.hidden).toBe(false)
+    expect(container.querySelector<HTMLButtonElement>('#start-answer')?.disabled).toBe(true)
   })
 })

@@ -111,6 +111,7 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .comparison-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .comparison-actions button, #restart-exercise { min-height: 44px; padding: 0.6rem 0.8rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
 #playback-status { min-height: 1.5rem; color: #8ee6c5; }
+.audio-fallback { padding: 0.75rem; border-left: 3px solid #f6bf62; color: #ffe4ad; background: #3d3020; line-height: 1.45; }
 .answer-options { margin: 1rem 0; padding: 0.8rem; border: 1px solid #34434e; border-radius: 0.6rem; }
 .answer-options legend { padding: 0 0.3rem; color: #a9b8c7; }
 .answer-options > div { display: flex; flex-wrap: wrap; gap: 0.8rem; }
