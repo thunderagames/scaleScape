@@ -26,7 +26,7 @@ A monolith without module discipline decays into a tangle; micro-frontends or se
 
 | Module | Responsibility | May depend on | Must NOT depend on |
 | --- | --- | --- | --- |
-| `theory` | Pure music domain: formulas, scale instances, intervals, roles, spellings, focused pairs and broad contrasts | Nothing beyond the standard library | DOM, Web Audio, framework, instrument position or rendering logic |
+| `theory` | Pure music domain: formulas, scale instances, intervals, roles, spellings, focused pairs and broad contrasts, including major and minor pentatonic references | Nothing beyond the standard library | DOM, Web Audio, framework, instrument position or rendering logic |
 | `audio` | Audio context lifecycle, scheduling on the audio clock, synth voices, drone, volume and mute | `theory` types, observability contracts at adapter boundaries | UI, exercises, app-state internals |
 | `instruments/shared` | Headless instrument contract and shared selection/view-model types | `theory` | concrete instruments, audio internals, framework |
 | `instruments/piano` | Pure key mapping, responsive view model, interaction state, preview intents | `theory`, `instruments/shared` | guitar, playback, persistence, framework |

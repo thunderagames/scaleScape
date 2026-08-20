@@ -7,6 +7,7 @@ export type FormulaId =
   | 'mixolydian'
   | 'locrian'
   | 'major_pentatonic'
+  | 'minor_pentatonic'
 
 export type NoteRole = 'tonic' | 'characteristic' | 'chord_tone' | 'color_tone'
 
@@ -38,7 +39,8 @@ export const SCALE_FORMULAS: readonly ScaleFormula[] = [
   { id: 'lydian', name: 'Lydian', degrees: [1, 2, 3, 4, 5, 6, 7], semitone_offsets: [0, 2, 4, 6, 7, 9, 11], characteristic_degrees: [4], degree_roles: diatonic_roles(4) },
   { id: 'mixolydian', name: 'Mixolydian', degrees: [1, 2, 3, 4, 5, 6, 7], semitone_offsets: [0, 2, 4, 5, 7, 9, 10], characteristic_degrees: [7], degree_roles: diatonic_roles(7) },
   { id: 'locrian', name: 'Locrian', degrees: [1, 2, 3, 4, 5, 6, 7], semitone_offsets: [0, 1, 3, 5, 6, 8, 10], characteristic_degrees: [5], degree_roles: { ...diatonic_roles(5), 5: ['characteristic', 'chord_tone'] } },
-  { id: 'major_pentatonic', name: 'Major pentatonic', degrees: [1, 2, 3, 5, 6], semitone_offsets: [0, 2, 4, 7, 9], characteristic_degrees: [], degree_roles: { 1: ['tonic', 'chord_tone'], 3: ['chord_tone'], 5: ['chord_tone'] } }
+  { id: 'major_pentatonic', name: 'Major pentatonic', degrees: [1, 2, 3, 5, 6], semitone_offsets: [0, 2, 4, 7, 9], characteristic_degrees: [], degree_roles: { 1: ['tonic', 'chord_tone'], 3: ['chord_tone'], 5: ['chord_tone'] } },
+  { id: 'minor_pentatonic', name: 'Minor pentatonic', degrees: [1, 3, 4, 5, 7], semitone_offsets: [0, 3, 5, 7, 10], characteristic_degrees: [], degree_roles: { 1: ['tonic', 'chord_tone'], 5: ['chord_tone'] } }
 ]
 
 export function getFormula(formula_id: FormulaId): ScaleFormula {

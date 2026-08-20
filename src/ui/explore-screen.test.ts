@@ -87,6 +87,16 @@ describe('explore screen', () => {
     expect(Array.from(container.querySelectorAll('.scale-interval')).map((element) => element.textContent)).toContain('1 1/2')
   })
 
+  it('given_minor_pentatonic_mode_when_rendering_explore_then_lists_minor_pentatonic_and_notes', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(4, 'minor_pentatonic')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector('#formula-select option[value="minor_pentatonic"]')?.textContent).toBe('Minor pentatonic')
+    expect(Array.from(container.querySelectorAll('#scale-notes .scale-note')).map((note) => note.textContent)).toEqual(['E', 'G', 'A', 'B', 'D'])
+  })
+
   it('given_generated_scale_when_playing_with_guitar_hidden_then_uses_only_visible_piano', async () => {
     const container = createContainer()
     const settings = createSettings()

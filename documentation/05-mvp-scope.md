@@ -11,7 +11,7 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 ### Explore View
 
 - Root selector for twelve pitch classes.
-- Mode selector for major, natural minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian, and major pentatonic. Major pentatonic serves as a familiar, low-friction reference and is defined by its omitted fourth and seventh degrees.
+- Mode selector for major, natural minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian, major pentatonic, and minor pentatonic. Major pentatonic serves as a familiar, low-friction reference and is defined by its omitted fourth and seventh degrees; minor pentatonic uses degrees 1, 3, 4, 5, and 7.
 - Interval-based highlighting.
 - Tonic drone and optional tonic-fifth pedal.
 - Interactive piano.
