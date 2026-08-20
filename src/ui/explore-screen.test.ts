@@ -198,6 +198,14 @@ describe('explore screen', () => {
     expect(container.querySelector('#scale-selection-hint')?.textContent).toBe('Selecciona la tónica y el modo')
   })
 
+  it('given_explore_screen_when_rendering_then_centers_main_title', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector('.title-row')?.classList.contains('title-row')).toBe(true)
+    expect(container.querySelector('#app-title')?.textContent).toBe('Explore what a scale sounds like.')
+  })
+
   it('given_changed_root_when_selecting_root_then_keeps_new_root_after_playback_stops', () => {
     const container = createContainer()
     const playback_fake = createPlaybackFake()
