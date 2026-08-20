@@ -2,6 +2,7 @@ import type { PlaybackPort } from '../audio/playback-port'
 import type { SettingsStore } from '../settings/settings-store'
 import { beginAnswer, COMPARISON_DEFINITIONS, createComparisonExercise, createEarGymState, markExamplePlaying, restartExercise, submitAnswer, type ComparisonId, type EarGymState } from '../exercises/comparison-exercise'
 import { createDiagnosticsLogger, type EventLoggerPort } from '../observability/event-logger'
+import { getVisiblePlaybackInstruments } from './visible-instruments'
 
 export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPort, settings: SettingsStore, diagnostics: EventLoggerPort = createDiagnosticsLogger()): void {
   container.innerHTML = `
@@ -93,7 +94,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
     ui.playback_status.textContent = example === 'a' ? settings.getTranslations().audio_playing_a : settings.getTranslations().audio_playing_b
     try { diagnostics.log('application.replay_example', { example_id: example === 'a' ? state.exercise.formula_a : state.exercise.formula_b, generation_id: 0 }) } catch { /* Diagnostics must not block Ear Gym. */ }
     render()
-    const result = await playback.playScale(scale)
+    const result = await playback.playScale(scale, getVisiblePlaybackInstruments(settings))
     if (!result.ok) {
       is_audio_available = false
       state = { ...state, playing_example: null }

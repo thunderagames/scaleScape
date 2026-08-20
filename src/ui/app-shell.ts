@@ -4,6 +4,7 @@ import type { SettingsStore } from '../settings/settings-store'
 import { createDiagnosticsLogger, type DiagnosticsPort } from '../observability/event-logger'
 import { renderExploreScreen, type ExploreGuidedStartPort } from './explore-screen'
 import { renderEarGymScreen } from './ear-gym-screen'
+import { getVisiblePlaybackInstruments } from './visible-instruments'
 
 export type AppScreen = 'guided_start' | 'explore' | 'ear_gym'
 
@@ -146,7 +147,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     const context_result = await playback.setContext(state.root_pitch_class, 'drone')
     show_screen('explore')
     if (!context_result.ok) return
-    const playback_result = await playback.playScale(state.scale_instance)
+    const playback_result = await playback.playScale(state.scale_instance, getVisiblePlaybackInstruments(settings))
     if (playback_result.ok) {
       settings.setSettings({ ...settings.getSettings(), guided_start_completed: true })
       is_guided_progress_active = true

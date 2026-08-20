@@ -7,10 +7,12 @@ import { renderExploreScreen } from './explore-screen'
 
 function createPlaybackFake() {
   const previewed_notes: Array<{ readonly pitch_class: number; readonly octave: number }> = []
+  const previewed_instruments: Array<readonly string[]> = []
+  const played_instruments: Array<readonly string[]> = []
   let listener: PlaybackListener | null = null
   const playback: PlaybackPort = {
-    playScale: async () => ({ ok: true }),
-    previewNote: async (note) => { previewed_notes.push(note); return { ok: true } },
+    playScale: async (_scale, instruments) => { played_instruments.push(instruments); return { ok: true } },
+    previewNote: async (note, instruments) => { previewed_notes.push(note); previewed_instruments.push(instruments); return { ok: true } },
     stopAll: async () => { listener?.on_stopped() },
     setContext: async () => ({ ok: true }),
     setVolume: () => undefined,
@@ -19,7 +21,7 @@ function createPlaybackFake() {
     subscribePlaybackState: () => () => undefined,
     subscribe: (next_listener) => { listener = next_listener; return () => { listener = null } }
   }
-  return { playback, previewed_notes, listener: () => listener }
+  return { playback, previewed_notes, previewed_instruments, played_instruments, listener: () => listener }
 }
 
 function createSettings() {
@@ -64,6 +66,62 @@ describe('explore screen', () => {
     expect(container.querySelector('#note-detail')?.textContent).toContain('tonic')
     expect(playback_fake.previewed_notes[0]).toMatchObject({ pitch_class: 4, octave: 4 })
     expect(note_button?.getAttribute('aria-label')).toContain('degree 1')
+  })
+
+  it('given_generated_scale_when_playing_with_guitar_hidden_then_uses_only_visible_piano', async () => {
+    const container = createContainer()
+    const settings = createSettings()
+    settings.setSettings({ ...settings.getSettings(), show_guitar: false })
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
+
+    container.querySelector<HTMLButtonElement>('#play-scale')?.click()
+    await Promise.resolve()
+
+    expect(playback_fake.played_instruments).toEqual([['piano']])
+  })
+
+  it('given_generated_scale_when_both_instruments_visible_then_uses_piano_and_guitar', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#play-scale')?.click()
+    await Promise.resolve()
+
+    expect(playback_fake.played_instruments).toEqual([['piano', 'guitar']])
+  })
+
+  it('given_generated_scale_note_when_guitar_hidden_then_uses_only_visible_piano', () => {
+    const container = createContainer()
+    const settings = createSettings()
+    settings.setSettings({ ...settings.getSettings(), show_guitar: false })
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
+
+    container.querySelector<HTMLButtonElement>('#scale-notes .scale-note')?.click()
+
+    expect(playback_fake.previewed_instruments).toEqual([['piano']])
+  })
+
+  it('given_piano_note_when_selected_then_uses_piano_timbre', () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#piano-view .piano-key.tonic')?.click()
+
+    expect(playback_fake.previewed_instruments).toEqual([['piano']])
+  })
+
+  it('given_guitar_note_when_selected_then_uses_guitar_timbre', () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#guitar-view .guitar-position.tonic')?.click()
+
+    expect(playback_fake.previewed_instruments).toEqual([['guitar']])
   })
 
   it('given_initial_explore_screen_when_moving_piano_focus_then_advances_to_next_scale_note', () => {

@@ -1,5 +1,7 @@
 import type { ScaleInstance } from '../theory/scale-instance'
 
+export type PlaybackInstrument = 'piano' | 'guitar'
+
 export interface PlayableNote {
   readonly pitch_class: number
   readonly octave: number
@@ -18,8 +20,8 @@ export interface PlaybackState {
 }
 
 export interface PlaybackPort {
-  playScale(scale_instance: ScaleInstance): Promise<{ readonly ok: boolean }>
-  previewNote(note: PlayableNote): Promise<{ readonly ok: boolean }>
+  playScale(scale_instance: ScaleInstance, instruments: readonly PlaybackInstrument[]): Promise<{ readonly ok: boolean }>
+  previewNote(note: PlayableNote, instruments: readonly PlaybackInstrument[]): Promise<{ readonly ok: boolean }>
   stopAll(): Promise<void>
   setContext(root_pitch_class: number, context: 'off' | 'drone' | 'pedal'): Promise<{ readonly ok: boolean }>
   setVolume(volume: number): void

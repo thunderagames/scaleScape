@@ -2,6 +2,9 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createBrowserPlayback } from './browser-playback'
 import { createScaleInstance } from '../theory/scale-instance'
 import type { EventLoggerPort } from '../observability/event-logger'
+import type { PlaybackInstrument } from './playback-port'
+
+const BOTH_INSTRUMENTS: readonly PlaybackInstrument[] = ['piano', 'guitar']
 
 function createDiagnosticsFake(should_throw = false): EventLoggerPort & { readonly events: string[] } {
   const events: string[] = []
@@ -12,20 +15,47 @@ function createDiagnosticsFake(should_throw = false): EventLoggerPort & { readon
 }
 
 class FakeAudioContext {
+  static last_instance: FakeAudioContext | null = null
   readonly state: AudioContextState = 'running'
   readonly currentTime = 0
+  readonly sampleRate = 44100
   readonly destination = {}
+  readonly oscillator_types: OscillatorType[] = []
+  wave_shaper_count = 0
+  buffer_source_count = 0
+
+  constructor() {
+    FakeAudioContext.last_instance = this
+  }
+
   resume = async () => undefined
   createOscillator() {
-    return { type: 'triangle', frequency: { setValueAtTime: () => undefined }, connect: () => undefined, start: () => undefined, stop: () => undefined, disconnect: () => undefined }
+    const context = this
+    let oscillator_type: OscillatorType = 'triangle'
+    return { get type() { return oscillator_type }, set type(next_type: OscillatorType) { oscillator_type = next_type; context.oscillator_types.push(next_type) }, frequency: { setValueAtTime: () => undefined, linearRampToValueAtTime: () => undefined }, connect: () => undefined, start: () => undefined, stop: () => undefined, disconnect: () => undefined }
   }
   createGain() {
     return { gain: { value: 0, setValueAtTime: () => undefined, exponentialRampToValueAtTime: () => undefined }, connect: () => undefined }
+  }
+  createBiquadFilter() {
+    return { type: 'lowpass', frequency: { value: 0, setValueAtTime: () => undefined }, Q: { value: 0 }, connect: () => undefined }
+  }
+  createWaveShaper() {
+    this.wave_shaper_count += 1
+    return { curve: null, oversample: 'none', connect: () => undefined }
+  }
+  createBuffer(_channels: number, length: number) {
+    return { getChannelData: () => new Float32Array(length) }
+  }
+  createBufferSource() {
+    this.buffer_source_count += 1
+    return { buffer: null, connect: () => undefined, start: () => undefined, stop: () => undefined, disconnect: () => undefined }
   }
 }
 
 afterEach(() => {
   Object.defineProperty(window, 'AudioContext', { configurable: true, value: undefined })
+  FakeAudioContext.last_instance = null
 })
 
 describe('browser playback', () => {
@@ -33,7 +63,7 @@ describe('browser playback', () => {
     const diagnostics = createDiagnosticsFake()
     const playback = createBrowserPlayback(diagnostics)
 
-    const result = await playback.playScale(createScaleInstance(4, 'dorian'))
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), BOTH_INSTRUMENTS)
 
     expect(result.ok).toBe(false)
     expect(diagnostics.events).toEqual(['audio.unlock_failed'])
@@ -45,7 +75,7 @@ describe('browser playback', () => {
     const playback = createBrowserPlayback(diagnostics)
     await playback.setContext(4, 'drone')
 
-    const result = await playback.playScale(createScaleInstance(4, 'dorian'))
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), BOTH_INSTRUMENTS)
 
     expect(result.ok).toBe(true)
     expect(diagnostics.events).toEqual(['audio.unlock_completed', 'audio.context_started'])
@@ -56,7 +86,7 @@ describe('browser playback', () => {
     Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
     const playback = createBrowserPlayback(createDiagnosticsFake(true))
 
-    const result = await playback.playScale(createScaleInstance(4, 'dorian'))
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), BOTH_INSTRUMENTS)
 
     expect(result.ok).toBe(true)
   })
@@ -67,7 +97,7 @@ describe('browser playback', () => {
     const playback = createBrowserPlayback(diagnostics)
     let was_stopped = false
     playback.subscribe({ on_note_started: () => undefined, on_stopped: () => { was_stopped = true } })
-    await playback.playScale(createScaleInstance(4, 'dorian'))
+    await playback.playScale(createScaleInstance(4, 'dorian'), BOTH_INSTRUMENTS)
 
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' })
     document.dispatchEvent(new Event('visibilitychange'))
@@ -76,5 +106,30 @@ describe('browser playback', () => {
     expect(diagnostics.events).toContain('audio.context_stopped')
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
     await playback.stopAll()
+  })
+
+  it('given_piano_instrument_when_playing_scale_then_schedules_hammer_buffer_without_distortion', async () => {
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), ['piano'])
+
+    expect(result.ok).toBe(true)
+    expect(FakeAudioContext.last_instance?.buffer_source_count).toBeGreaterThan(0)
+    expect(FakeAudioContext.last_instance?.wave_shaper_count).toBe(0)
+    expect(FakeAudioContext.last_instance?.oscillator_types).toContain('sine')
+    expect(FakeAudioContext.last_instance?.oscillator_types).not.toContain('sawtooth')
+  })
+
+  it('given_guitar_instrument_when_playing_scale_then_schedules_distortion_without_hammer_buffer', async () => {
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), ['guitar'])
+
+    expect(result.ok).toBe(true)
+    expect(FakeAudioContext.last_instance?.wave_shaper_count).toBeGreaterThan(0)
+    expect(FakeAudioContext.last_instance?.buffer_source_count).toBe(0)
+    expect(FakeAudioContext.last_instance?.oscillator_types).toContain('sawtooth')
   })
 })
