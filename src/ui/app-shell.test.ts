@@ -238,11 +238,12 @@ describe('application shell', () => {
     expect(container.querySelector('#ear-gym-title')?.textContent).toBe('Gimnasio auditivo')
   })
 
-  it('given_audio_controls_when_changing_volume_and_mute_then_updates_playback_and_persists_volume', () => {
+  it('given_settings_modal_when_changing_volume_and_mute_then_updates_playback_and_persists_volume', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createSettings()
     renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
     const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
 
     if (volume_control) {
@@ -254,6 +255,15 @@ describe('application shell', () => {
     expect(settings.getSettings().volume).toBe(0.4)
     expect(container.querySelector('#mute-status')?.textContent).toBe('Muted')
     expect(container.querySelector('#mute-audio')?.textContent).toBe('Unmute')
+    expect(container.querySelector('#audio-controls')).toBeNull()
+  })
+
+  it('given_settings_button_when_rendering_shell_then_is_fixed_at_upper_right', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    expect(container.querySelector('#open-settings')?.classList.contains('settings-floating')).toBe(true)
   })
 
   it('given_settings_modal_when_selecting_pedal_then_starts_context_for_current_root', async () => {

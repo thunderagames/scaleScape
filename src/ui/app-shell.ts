@@ -17,18 +17,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
           <button id="navigate-explore" type="button" aria-controls="explore-screen" aria-current="page"></button>
           <button id="navigate-ear-gym" type="button" aria-controls="ear-gym-screen"></button>
           <button id="navigate-guided-start" type="button" aria-controls="guided-start-screen"></button>
-          <button id="open-settings" class="settings-trigger" type="button" aria-haspopup="dialog"></button>
         </nav>
-        <div id="audio-controls" class="audio-controls" role="group">
-          <label id="volume-label" for="volume-control"></label>
-          <input id="volume-control" type="range" min="0" max="1" step="0.05" />
-          <button id="mute-audio" type="button"></button>
-          <label id="diagnostics-mode-label"><input id="diagnostics-mode-control" type="checkbox" /><span id="diagnostics-mode-text"></span></label>
-          <button id="export-diagnostics" type="button"></button>
-          <span id="mute-status" role="status" aria-live="polite"></span>
-          <span id="diagnostics-status" role="status" aria-live="polite"></span>
-        </div>
       </header>
+      <button id="open-settings" class="settings-trigger settings-floating" type="button" aria-haspopup="dialog"></button>
       <section id="guided-start-screen" class="guided-start-screen" aria-labelledby="guided-start-title">
         <p id="guided-start-label" class="eyebrow"></p>
         <h1 id="guided-start-title"></h1>
@@ -46,7 +37,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
       </section>
       <div id="explore-screen"></div>
       <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
-      <dialog id="settings-modal" aria-labelledby="settings-title"><form method="dialog" class="settings-form"><div class="settings-heading"><h2 id="settings-title"></h2><button id="close-settings" class="modal-close" type="button"></button></div><label id="language-label" for="language-select"></label><select id="language-select"></select><fieldset class="instrument-settings"><legend id="instrument-visibility-label"></legend><label><input id="show-piano" type="checkbox"> <span id="show-piano-label"></span></label><label><input id="show-guitar" type="checkbox"> <span id="show-guitar-label"></span></label></fieldset><fieldset class="context-settings"><legend id="context-label"></legend><label><input id="context-off" type="radio" name="harmonic-context" value="off"><span id="context-off-label"></span></label><label><input id="context-drone" type="radio" name="harmonic-context" value="drone"><span id="context-drone-label"></span></label><label><input id="context-pedal" type="radio" name="harmonic-context" value="pedal"><span id="context-pedal-label"></span></label></fieldset><div class="settings-actions"><button id="cancel-settings" type="button"></button><button id="save-settings" type="button"></button></div></form></dialog>
+      <dialog id="settings-modal" aria-labelledby="settings-title"><form method="dialog" class="settings-form"><div class="settings-heading"><h2 id="settings-title"></h2><button id="close-settings" class="modal-close" type="button"></button></div><label id="language-label" for="language-select"></label><select id="language-select"></select><fieldset class="instrument-settings"><legend id="instrument-visibility-label"></legend><label><input id="show-piano" type="checkbox"> <span id="show-piano-label"></span></label><label><input id="show-guitar" type="checkbox"> <span id="show-guitar-label"></span></label></fieldset><fieldset class="context-settings"><legend id="context-label"></legend><label><input id="context-off" type="radio" name="harmonic-context" value="off"><span id="context-off-label"></span></label><label><input id="context-drone" type="radio" name="harmonic-context" value="drone"><span id="context-drone-label"></span></label><label><input id="context-pedal" type="radio" name="harmonic-context" value="pedal"><span id="context-pedal-label"></span></label></fieldset><fieldset class="audio-settings"><legend id="audio-settings-label"></legend><label id="volume-label" for="volume-control"></label><input id="volume-control" type="range" min="0" max="1" step="0.05" /><button id="mute-audio" type="button"></button><span id="mute-status" role="status" aria-live="polite"></span></fieldset><fieldset class="diagnostics-settings"><legend id="diagnostics-settings-label"></legend><label id="diagnostics-mode-label"><input id="diagnostics-mode-control" type="checkbox" /><span id="diagnostics-mode-text"></span></label><button id="export-diagnostics" type="button"></button><span id="diagnostics-status" role="status" aria-live="polite"></span></fieldset><div class="settings-actions"><button id="cancel-settings" type="button"></button><button id="save-settings" type="button"></button></div></form></dialog>
     </div>
   `
 
@@ -58,7 +49,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const navigate_guided_start = container.querySelector<HTMLButtonElement>('#navigate-guided-start')
   const open_settings = container.querySelector<HTMLButtonElement>('#open-settings')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
-  const audio_controls = container.querySelector<HTMLElement>('#audio-controls')
+  const audio_settings = container.querySelector<HTMLElement>('.audio-settings')
+  const diagnostics_settings = container.querySelector<HTMLElement>('.diagnostics-settings')
   const volume_label = container.querySelector<HTMLElement>('#volume-label')
   const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
   const mute_audio = container.querySelector<HTMLButtonElement>('#mute-audio')
@@ -91,8 +83,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
   const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
   const guided_start_status = container.querySelector<HTMLElement>('#guided-start-status')
-  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !open_settings || !shell_label || !audio_controls || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
-  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, open_settings, shell_label, audio_controls, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !open_settings || !shell_label || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, open_settings, shell_label, audio_settings, diagnostics_settings, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   let current_screen: AppScreen = 'guided_start'
   let is_guided_progress_active = false
@@ -111,7 +103,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.navigate_guided_start.setAttribute('aria-label', translation.nav_guided_start)
     ui.open_settings.textContent = translation.settings
     ui.open_settings.setAttribute('aria-label', translation.settings)
-    ui.audio_controls.setAttribute('aria-label', translation.audio_controls)
+    ui.audio_settings.setAttribute('aria-label', translation.audio_controls)
     ui.volume_label.textContent = translation.volume
     ui.volume_control.setAttribute('aria-label', translation.volume)
     ui.mute_audio.textContent = playback.getPlaybackState().is_muted ? translation.unmute : translation.mute
@@ -148,6 +140,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.settings_modal.querySelector<HTMLElement>('#instrument-visibility-label')!.textContent = translation.instrument_visibility
     ui.settings_modal.querySelector<HTMLElement>('#show-piano-label')!.textContent = translation.show_piano
     ui.settings_modal.querySelector<HTMLElement>('#show-guitar-label')!.textContent = translation.show_guitar
+    ui.settings_modal.querySelector<HTMLElement>('#audio-settings-label')!.textContent = translation.audio_controls
+    ui.settings_modal.querySelector<HTMLElement>('#diagnostics-settings-label')!.textContent = translation.diagnostics_mode
     ui.cancel_settings.textContent = translation.close
     ui.save_settings.textContent = translation.save
   }
