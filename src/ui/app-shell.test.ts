@@ -256,6 +256,7 @@ describe('application shell', () => {
     expect(container.querySelector('#mute-status')?.textContent).toBe('Muted')
     expect(container.querySelector('#mute-audio')?.textContent).toBe('Unmute')
     expect(container.querySelector('#audio-controls')).toBeNull()
+    expect(container.querySelector('#volume-control')?.closest('dialog')).not.toBeNull()
   })
 
   it('given_settings_button_when_rendering_shell_then_is_fixed_at_upper_right', () => {
@@ -264,6 +265,18 @@ describe('application shell', () => {
     renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
 
     expect(container.querySelector('#open-settings')?.classList.contains('settings-floating')).toBe(true)
+    expect(container.querySelector('#open-settings')?.getAttribute('aria-label')).toBe('Settings')
+  })
+
+  it('given_settings_modal_when_toggling_diagnostics_then_keeps_diagnostic_controls_inside_modal', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+
+    expect(container.querySelector('#diagnostics-mode-control')?.closest('dialog')).not.toBeNull()
+    expect(container.querySelector('#export-diagnostics')?.closest('dialog')).not.toBeNull()
   })
 
   it('given_settings_modal_when_selecting_pedal_then_starts_context_for_current_root', async () => {
