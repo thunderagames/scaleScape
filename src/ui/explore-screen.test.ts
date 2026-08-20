@@ -113,4 +113,23 @@ describe('explore screen', () => {
     expect(formula_select?.value).toBe('lydian')
     expect(container.querySelector('#scale-title')?.textContent).toContain('E Lydian')
   })
+
+  it('given_scale_controls_when_changing_scale_then_persists_last_root_and_formula', () => {
+    const container = createContainer()
+    const settings = createSettings()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
+    const root_select = container.querySelector<HTMLSelectElement>('#root-select')
+    const formula_select = container.querySelector<HTMLSelectElement>('#formula-select')
+
+    if (root_select && formula_select) {
+      root_select.value = '9'
+      root_select.dispatchEvent(new Event('change', { bubbles: true }))
+      formula_select.value = 'lydian'
+      formula_select.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    expect(settings.getSettings().last_root).toBe(9)
+    expect(settings.getSettings().last_formula).toBe('lydian')
+  })
 })

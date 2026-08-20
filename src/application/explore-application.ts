@@ -7,8 +7,8 @@ export interface ExploreApplication {
   subscribe(listener: (state: ScaleState) => void): () => void
 }
 
-export function createExploreApplication(): ExploreApplication {
-  let state = createInitialScaleState()
+export function createExploreApplication(initial_root_pitch_class = 4, initial_formula_id: FormulaId = 'dorian'): ExploreApplication {
+  let state = createScaleState(initial_root_pitch_class, initial_formula_id, 1)
   const listeners = new Set<(current_state: ScaleState) => void>()
 
   function publish(next_state: ScaleState): ScaleState {

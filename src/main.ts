@@ -10,4 +10,5 @@ if (!app) {
   throw new Error('Application root was not found')
 }
 
-renderAppShell(app, createExploreApplication(), createBrowserPlayback(), createSettingsStore(), createDiagnosticsLogger())
+const settings = createSettingsStore()
+renderAppShell(app, createExploreApplication(settings.getSettings().last_root, settings.getSettings().last_formula), createBrowserPlayback(), settings, createDiagnosticsLogger())

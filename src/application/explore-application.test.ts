@@ -13,4 +13,11 @@ describe('explore application', () => {
     expect(state.generation_id).toBe(2)
     expect(observed_states).toEqual([2])
   })
+
+  it('given_saved_root_and_formula_when_creating_application_then_restores_scale_state', () => {
+    const application = createExploreApplication(9, 'lydian')
+
+    expect(application.getState().root_pitch_class).toBe(9)
+    expect(application.getState().formula_id).toBe('lydian')
+  })
 })

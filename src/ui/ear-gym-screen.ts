@@ -96,7 +96,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
       input.name = 'changed-degree'
       input.value = String(choice.degree)
       input.checked = state.answer === choice.degree
-      input.addEventListener('change', () => { state = submitAnswer(state, choice.degree); settings.setSettings({ ...settings.getSettings(), ear_gym_streak: state.streak }); render() })
+       input.addEventListener('change', () => { state = submitAnswer(state, choice.degree); settings.setSettings({ ...settings.getSettings(), ear_gym_streak: state.streak }); render() })
       label.append(input, ` ${choice.label}`)
       return label
     }))
