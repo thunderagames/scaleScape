@@ -15,6 +15,12 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
           <button id="navigate-explore" type="button" aria-controls="explore-screen" aria-current="page"></button>
           <button id="navigate-ear-gym" type="button" aria-controls="ear-gym-screen"></button>
         </nav>
+        <div id="audio-controls" class="audio-controls" role="group">
+          <label id="volume-label" for="volume-control"></label>
+          <input id="volume-control" type="range" min="0" max="1" step="0.05" />
+          <button id="mute-audio" type="button"></button>
+          <span id="mute-status" role="status" aria-live="polite"></span>
+        </div>
       </header>
       <div id="explore-screen"></div>
       <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
@@ -26,8 +32,13 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const navigate_explore = container.querySelector<HTMLButtonElement>('#navigate-explore')
   const navigate_ear_gym = container.querySelector<HTMLButtonElement>('#navigate-ear-gym')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
-  if (!explore_screen || !ear_gym_screen || !navigate_explore || !navigate_ear_gym || !shell_label) throw new Error('Application shell elements were not found')
-  const ui = { explore_screen, ear_gym_screen, navigate_explore, navigate_ear_gym, shell_label }
+  const audio_controls = container.querySelector<HTMLElement>('#audio-controls')
+  const volume_label = container.querySelector<HTMLElement>('#volume-label')
+  const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
+  const mute_audio = container.querySelector<HTMLButtonElement>('#mute-audio')
+  const mute_status = container.querySelector<HTMLElement>('#mute-status')
+  if (!explore_screen || !ear_gym_screen || !navigate_explore || !navigate_ear_gym || !shell_label || !audio_controls || !volume_label || !volume_control || !mute_audio || !mute_status) throw new Error('Application shell elements were not found')
+  const ui = { explore_screen, ear_gym_screen, navigate_explore, navigate_ear_gym, shell_label, audio_controls, volume_label, volume_control, mute_audio, mute_status }
 
   let current_screen: AppScreen = 'explore'
 
@@ -38,6 +49,12 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.navigate_ear_gym.textContent = translation.nav_ear_gym
     ui.navigate_explore.setAttribute('aria-label', translation.nav_explore)
     ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
+    ui.audio_controls.setAttribute('aria-label', translation.audio_controls)
+    ui.volume_label.textContent = translation.volume
+    ui.volume_control.setAttribute('aria-label', translation.volume)
+    ui.mute_audio.textContent = playback.getPlaybackState().is_muted ? translation.unmute : translation.mute
+    ui.mute_audio.setAttribute('aria-label', ui.mute_audio.textContent)
+    ui.mute_status.textContent = playback.getPlaybackState().is_muted ? translation.muted : ''
   }
 
   function show_screen(screen: AppScreen): void {
@@ -53,7 +70,12 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
 
   ui.navigate_explore.addEventListener('click', () => show_screen('explore'))
   ui.navigate_ear_gym.addEventListener('click', () => show_screen('ear_gym'))
+  playback.setVolume(settings.getSettings().volume)
+  ui.volume_control.value = String(settings.getSettings().volume)
+  ui.volume_control.addEventListener('input', () => { const volume = Number(ui.volume_control.value); playback.setVolume(volume); settings.setSettings({ ...settings.getSettings(), volume }) })
+  ui.mute_audio.addEventListener('click', () => playback.setMuted(!playback.getPlaybackState().is_muted))
   settings.subscribe(apply_translations)
+  playback.subscribePlaybackState(apply_translations)
   apply_translations()
   renderExploreScreen(ui.explore_screen, application, playback, settings)
   renderEarGymScreen(ui.ear_gym_screen, playback, settings)

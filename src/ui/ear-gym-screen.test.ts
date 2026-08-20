@@ -9,6 +9,10 @@ function createPlaybackFake() {
     playScale: async (scale) => { played_formulas.push(scale.formula.id); return { ok: true } },
     previewNote: async () => ({ ok: true }),
     stopAll: async () => undefined,
+    setVolume: () => undefined,
+    setMuted: () => undefined,
+    getPlaybackState: () => ({ is_muted: false, volume: 0.7 }),
+    subscribePlaybackState: () => () => undefined,
     subscribe: () => () => undefined
   }
   return { playback, played_formulas }
@@ -71,7 +75,7 @@ describe('ear gym screen', () => {
   })
 
   it('given_saved_streak_when_answering_correctly_then_increments_and_persists_streak', () => {
-    const storage_data = new Map<string, string>([['scalescape.settings.v1', JSON.stringify({ language: 'en', show_piano: true, show_guitar: true, ear_gym_streak: 2 })]])
+    const storage_data = new Map<string, string>([['scalescape.settings.v1', JSON.stringify({ language: 'en', show_piano: true, show_guitar: true, ear_gym_streak: 2, volume: 0.7 })]])
     Object.defineProperty(window, 'localStorage', {
       configurable: true,
       value: {

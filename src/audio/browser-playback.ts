@@ -1,6 +1,6 @@
 import { pitchToFrequency, transposePitch } from '../theory/frequency'
 import type { ScaleInstance } from '../theory/scale-instance'
-import type { PlaybackListener, PlaybackPort, PlayableNote } from './playback-port'
+import type { PlaybackListener, PlaybackPort, PlaybackState, PlayableNote } from './playback-port'
 
 interface BrowserAudioWindow extends Window {
   webkitAudioContext?: typeof AudioContext
@@ -11,7 +11,11 @@ export function createBrowserPlayback(): PlaybackPort {
   let active_nodes: OscillatorNode[] = []
   let active_timers: number[] = []
   let playback_generation = 0
+  let volume = 0.7
+  let is_muted = false
   const listeners = new Set<PlaybackListener>()
+  const state_listeners = new Set<(state: PlaybackState) => void>()
+  let master_gain: GainNode | null = null
 
   function getContext(): AudioContext | null {
     if (audio_context) return audio_context
@@ -57,7 +61,12 @@ export function createBrowserPlayback(): PlaybackPort {
     gain.gain.exponentialRampToValueAtTime(0.2, start_time + 0.02)
     gain.gain.exponentialRampToValueAtTime(0.0001, start_time + duration - 0.04)
     oscillator.connect(gain)
-    gain.connect(context.destination)
+    if (!master_gain) {
+      master_gain = context.createGain()
+      master_gain.connect(context.destination)
+      master_gain.gain.value = is_muted ? 0 : volume
+    }
+    gain.connect(master_gain)
     oscillator.start(start_time)
     oscillator.stop(start_time + duration)
     active_nodes.push(oscillator)
@@ -102,6 +111,25 @@ export function createBrowserPlayback(): PlaybackPort {
     },
     async stopAll() {
       stopAllNodes()
+    },
+    setVolume(next_volume) {
+      volume = Math.min(1, Math.max(0, next_volume))
+      if (master_gain) master_gain.gain.value = is_muted ? 0 : volume
+      const state = { is_muted, volume }
+      state_listeners.forEach((listener) => listener(state))
+    },
+    setMuted(next_is_muted) {
+      is_muted = next_is_muted
+      if (master_gain) master_gain.gain.value = is_muted ? 0 : volume
+      const state = { is_muted, volume }
+      state_listeners.forEach((listener) => listener(state))
+    },
+    getPlaybackState() {
+      return { is_muted, volume }
+    },
+    subscribePlaybackState(listener) {
+      state_listeners.add(listener)
+      return () => state_listeners.delete(listener)
     },
     subscribe(listener) {
       listeners.add(listener)

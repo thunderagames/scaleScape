@@ -14,6 +14,10 @@ button:focus-visible, select:focus-visible { outline: 3px solid #8ee6c5; outline
 .app-navigation { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .app-navigation button { min-height: 44px; padding: 0.6rem 0.85rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #a9b8c7; background: #182a33; cursor: pointer; font-weight: 750; }
 .app-navigation button[aria-current="page"] { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
+.audio-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; color: #a9b8c7; font-size: 0.78rem; }
+.audio-controls input[type="range"] { width: 90px; accent-color: #8ee6c5; }
+.audio-controls button { min-height: 44px; padding: 0.55rem 0.7rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
+.audio-controls [role="status"] { color: #f6bf62; }
 .explore-shell { width: min(980px, 100%); min-height: 100vh; margin: 0 auto; padding: clamp(1.25rem, 5vw, 4rem) clamp(1rem, 5vw, 2.5rem); }
 header { max-width: 700px; }
 .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
@@ -103,4 +107,5 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
   .app-shell-header { align-items: flex-start; flex-direction: column; }
   .app-navigation { width: 100%; }
   .app-navigation button { flex: 1 1 0; }
+  .audio-controls { width: 100%; }
 }

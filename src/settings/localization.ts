@@ -61,6 +61,11 @@ export interface TranslationDictionary {
   readonly guitar_table: string
   readonly string_label: string
   readonly fret_label: string
+  readonly audio_controls: string
+  readonly volume: string
+  readonly mute: string
+  readonly unmute: string
+  readonly muted: string
 }
 
 const ENGLISH: TranslationDictionary = {
@@ -122,6 +127,11 @@ const ENGLISH: TranslationDictionary = {
   ,guitar_table: 'Interactive six-string guitar fretboard'
   ,string_label: 'String'
   ,fret_label: 'Fret'
+  ,audio_controls: 'Audio controls'
+  ,volume: 'Volume'
+  ,mute: 'Mute'
+  ,unmute: 'Unmute'
+  ,muted: 'Muted'
 }
 
 const SPANISH: TranslationDictionary = {
@@ -183,6 +193,11 @@ const SPANISH: TranslationDictionary = {
   ,guitar_table: 'Diapasón interactivo de seis cuerdas'
   ,string_label: 'Cuerda'
   ,fret_label: 'Traste'
+  ,audio_controls: 'Controles de audio'
+  ,volume: 'Volumen'
+  ,mute: 'Silenciar'
+  ,unmute: 'Activar sonido'
+  ,muted: 'Silenciado'
 }
 
 export function getTranslations(language: Language): TranslationDictionary {

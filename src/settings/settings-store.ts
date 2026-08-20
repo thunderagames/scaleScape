@@ -5,6 +5,7 @@ export interface AppSettings {
   readonly show_piano: boolean
   readonly show_guitar: boolean
   readonly ear_gym_streak: number
+  readonly volume: number
 }
 
 export interface SettingsStore {
@@ -27,7 +28,9 @@ function isLanguageAndVisibility(value: unknown): value is Pick<AppSettings, 'la
 function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown }): AppSettings {
   const stored_streak = value.ear_gym_streak
   const ear_gym_streak = typeof stored_streak === 'number' && Number.isInteger(stored_streak) && stored_streak >= 0 ? stored_streak : 0
-  return { language: value.language, show_piano: value.show_piano, show_guitar: value.show_guitar, ear_gym_streak }
+  const stored_volume = (value as { readonly volume?: unknown }).volume
+  const volume = typeof stored_volume === 'number' && Number.isFinite(stored_volume) && stored_volume >= 0 && stored_volume <= 1 ? stored_volume : 0.7
+  return { language: value.language, show_piano: value.show_piano, show_guitar: value.show_guitar, ear_gym_streak, volume }
 }
 
 function loadSettings(fallback: AppSettings): AppSettings {
@@ -50,7 +53,7 @@ function saveSettings(settings: AppSettings): void {
 }
 
 export function createSettingsStore(initial_language: Language = 'en'): SettingsStore {
-  const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true, ear_gym_streak: 0 }
+  const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true, ear_gym_streak: 0, volume: 0.7 }
   let settings: AppSettings = loadSettings(fallback_settings)
   const listeners = new Set<(current_settings: AppSettings) => void>()
 

@@ -5,10 +5,17 @@ import { createSettingsStore } from '../settings/settings-store'
 import { renderAppShell } from './app-shell'
 
 function createPlaybackFake(): PlaybackPort {
+  let is_muted = false
+  let volume = 0.7
+  const state_listeners = new Set<(state: { readonly is_muted: boolean; readonly volume: number }) => void>()
   return {
     playScale: async () => ({ ok: true }),
     previewNote: async () => ({ ok: true }),
     stopAll: async () => undefined,
+    setVolume: (next_volume) => { volume = next_volume; state_listeners.forEach((listener) => listener({ is_muted, volume })) },
+    setMuted: (next_is_muted) => { is_muted = next_is_muted; state_listeners.forEach((listener) => listener({ is_muted, volume })) },
+    getPlaybackState: () => ({ is_muted, volume }),
+    subscribePlaybackState: (listener) => { state_listeners.add(listener); return () => state_listeners.delete(listener) },
     subscribe: () => () => undefined
   }
 }
@@ -67,5 +74,23 @@ describe('application shell', () => {
     expect(container.querySelector('#navigate-explore')?.textContent).toBe('Explorar')
     expect(container.querySelector('#navigate-ear-gym')?.textContent).toBe('Gimnasio auditivo')
     expect(container.querySelector('#ear-gym-title')?.textContent).toBe('Gimnasio auditivo')
+  })
+
+  it('given_audio_controls_when_changing_volume_and_mute_then_updates_playback_and_persists_volume', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+    const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
+
+    if (volume_control) {
+      volume_control.value = '0.4'
+      volume_control.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    container.querySelector<HTMLButtonElement>('#mute-audio')?.click()
+
+    expect(settings.getSettings().volume).toBe(0.4)
+    expect(container.querySelector('#mute-status')?.textContent).toBe('Muted')
+    expect(container.querySelector('#mute-audio')?.textContent).toBe('Unmute')
   })
 })

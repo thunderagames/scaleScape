@@ -11,9 +11,18 @@ export interface PlaybackListener {
   on_stopped(): void
 }
 
+export interface PlaybackState {
+  readonly is_muted: boolean
+  readonly volume: number
+}
+
 export interface PlaybackPort {
   playScale(scale_instance: ScaleInstance): Promise<{ readonly ok: boolean }>
   previewNote(note: PlayableNote): Promise<{ readonly ok: boolean }>
   stopAll(): Promise<void>
+  setVolume(volume: number): void
+  setMuted(is_muted: boolean): void
+  getPlaybackState(): PlaybackState
+  subscribePlaybackState(listener: (state: PlaybackState) => void): () => void
   subscribe(listener: PlaybackListener): () => void
 }
