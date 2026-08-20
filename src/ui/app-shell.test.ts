@@ -64,6 +64,7 @@ describe('application shell', () => {
 
     expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(false)
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#ear-gym-screen')?.hidden).toBe(true)
     expect(container.querySelector('#explore-directly')?.textContent).toBe('Explore directly')
   })
 

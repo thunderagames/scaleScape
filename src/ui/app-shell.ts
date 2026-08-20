@@ -125,11 +125,12 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.guided_start_screen.hidden = current_screen !== 'guided_start'
     const is_explore = current_screen === 'explore'
     const is_guided_start = current_screen === 'guided_start'
+    const is_ear_gym = current_screen === 'ear_gym'
     ui.explore_screen.hidden = !is_explore
-    ui.ear_gym_screen.hidden = is_explore
+    ui.ear_gym_screen.hidden = !is_ear_gym
     ui.guided_start_screen.hidden = !is_guided_start
     ui.navigate_explore.setAttribute('aria-current', is_explore ? 'page' : 'false')
-    ui.navigate_ear_gym.setAttribute('aria-current', current_screen === 'ear_gym' ? 'page' : 'false')
+    ui.navigate_ear_gym.setAttribute('aria-current', is_ear_gym ? 'page' : 'false')
     ui.navigate_guided_start.setAttribute('aria-current', is_guided_start ? 'page' : 'false')
     const active_control = is_guided_start ? ui.start_guided : is_explore ? ui.navigate_explore : ui.navigate_ear_gym
     active_control.focus()
