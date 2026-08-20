@@ -266,6 +266,8 @@ describe('application shell', () => {
 
     expect(container.querySelector('#open-settings')?.classList.contains('settings-floating')).toBe(true)
     expect(container.querySelector('#open-settings')?.getAttribute('aria-label')).toBe('Settings')
+    expect(container.querySelector('#open-settings .settings-icon')).not.toBeNull()
+    expect(container.querySelector('#open-settings')?.textContent).toBe('')
   })
 
   it('given_settings_modal_when_toggling_diagnostics_then_keeps_diagnostic_controls_inside_modal', () => {

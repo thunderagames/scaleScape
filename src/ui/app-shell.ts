@@ -19,7 +19,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
           <button id="navigate-guided-start" type="button" aria-controls="guided-start-screen"></button>
         </nav>
       </header>
-      <button id="open-settings" class="settings-trigger settings-floating" type="button" aria-haspopup="dialog"></button>
+      <button id="open-settings" class="settings-trigger settings-floating" type="button" aria-haspopup="dialog"><svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9.6 2.8h4.8l.7 2.1a7.7 7.7 0 0 1 1.7 1l2.1-.7 2.4 4.1-1.5 1.6c.1.4.1.8.1 1.1s0 .8-.1 1.2l1.5 1.6-2.4 4.1-2.1-.7a7.7 7.7 0 0 1-1.7 1l-.7 2.1H9.6l-.7-2.1a7.7 7.7 0 0 1-1.7-1l-2.1.7-2.4-4.1 1.5-1.6A7.8 7.8 0 0 1 4.1 12c0-.4 0-.8.1-1.2L2.7 9.2l2.4-4.1 2.1.7a7.7 7.7 0 0 1 1.7-1l.7-2.1Z"/><circle cx="12" cy="12" r="3.1"/></svg></button>
       <section id="guided-start-screen" class="guided-start-screen" aria-labelledby="guided-start-title">
         <p id="guided-start-label" class="eyebrow"></p>
         <h1 id="guided-start-title"></h1>
@@ -101,8 +101,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.navigate_explore.setAttribute('aria-label', translation.nav_explore)
     ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
     ui.navigate_guided_start.setAttribute('aria-label', translation.nav_guided_start)
-    ui.open_settings.textContent = translation.settings
     ui.open_settings.setAttribute('aria-label', translation.settings)
+    ui.open_settings.title = translation.settings
     ui.audio_settings.setAttribute('aria-label', translation.audio_controls)
     ui.volume_label.textContent = translation.volume
     ui.volume_control.setAttribute('aria-label', translation.volume)
