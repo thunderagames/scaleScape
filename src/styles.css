@@ -7,19 +7,74 @@
 * { box-sizing: border-box; }
 body { min-width: 320px; margin: 0; background: radial-gradient(circle at 75% 0%, #243b43 0%, #10151b 46%); }
 button, select { font: inherit; }
+button:focus-visible, select:focus-visible { outline: 3px solid #8ee6c5; outline-offset: 3px; }
 .explore-shell { width: min(980px, 100%); min-height: 100vh; margin: 0 auto; padding: clamp(1.25rem, 5vw, 4rem) clamp(1rem, 5vw, 2.5rem); }
 header { max-width: 700px; }
+.title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .eyebrow { margin: 0 0 0.5rem; color: #f6bf62; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 h1, h2, p { margin-top: 0; }
 h1 { max-width: 11ch; color: #fff8e9; font-size: clamp(2.5rem, 9vw, 5rem); letter-spacing: -0.07em; line-height: 0.92; }
 h2 { color: #fff8e9; }
+.settings-trigger { flex: 0 0 auto; width: 44px; min-height: 40px; margin-top: 0.35rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-size: 1.25rem; }
 .intro { color: #a9b8c7; line-height: 1.6; }
-.explore-controls, .scale-card { margin-top: 1rem; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, 0.9); }
+.explore-controls, .scale-card, .instrument-card { margin-top: 1rem; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, 0.9); }
 .explore-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; }
 .explore-controls label { display: grid; gap: 0.35rem; color: #a9b8c7; font-size: 0.8rem; font-weight: 750; }
 select { min-height: 44px; min-width: 9rem; padding: 0.6rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; }
+#play-scale, #stop-audio { min-height: 44px; padding: 0.6rem 0.9rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
 #generation-status { margin-left: auto; color: #8ee6c5; font-size: 0.85rem; }
+.audio-status { color: #8ee6c5; font-size: 0.85rem; }
+.scale-caption, .note-detail { color: #a9b8c7; line-height: 1.5; }
 .scale-notes { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-.scale-note { padding: 0.8rem; border: 1px solid #35566a; border-radius: 0.6rem; color: #e9f5fb; background: #244554; font-weight: 800; }
+.scale-note { min-height: 44px; padding: 0.8rem; border: 1px solid #35566a; border-radius: 0.6rem; color: #e9f5fb; background: #244554; cursor: pointer; font-weight: 800; }
 .scale-note.tonic { border-color: #f6bf62; background: #84503a; }
 .scale-note.characteristic { border-color: #8ee6c5; background: #266257; }
+.scale-note.selected { outline: 3px solid #fff8e9; outline-offset: 2px; }
+.note-detail { min-height: 2.2rem; margin-top: 1rem; padding: 0.75rem; border-radius: 0.6rem; background: #18232c; }
+.instrument-grid { display: grid; gap: 1rem; min-width: 0; }
+.instrument-card { min-width: 0; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+.section-heading h2 { margin: 0; }
+.piano-view, .guitar-scroll { width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding-bottom: 0.6rem; touch-action: pan-x; }
+.piano-keyboard { position: relative; width: 660px; min-width: 660px; height: 190px; }
+.piano-key { position: absolute; top: 0; cursor: pointer; font-size: 0.7rem; font-weight: 800; }
+.piano-key.natural-key { left: calc(var(--key-index) * 44px); z-index: 1; width: 44px; height: 184px; border: 2px solid #74818a; border-radius: 0 0 0.55rem 0.55rem; color: #34434e; background: #e8eef0; }
+.piano-key.altered-key { left: calc(var(--key-index) * 44px - 14px); z-index: 2; width: 44px; height: 116px; border: 2px solid #0b1115; border-radius: 0 0 0.35rem 0.35rem; color: #f2f6f7; background: #10161b; }
+.piano-key.outside-scale { color: transparent; }
+.piano-key.tonic { border-color: #b87332; background: #e4a65d; }
+.piano-key.characteristic { border-color: #328f78; background: #75c9b0; }
+.piano-key.altered-key.tonic { background: #6b3024; }
+.piano-key.altered-key.characteristic { background: #1d5e50; }
+.piano-key.is-scale-note::after {
+  position: absolute;
+  inset: 0.25rem;
+  border: 2px solid #f6bf62;
+  border-radius: 0.3rem;
+  background: rgba(246, 191, 98, 0.38);
+  content: "";
+  pointer-events: none;
+}
+.piano-key.altered-key.is-scale-note::after { inset: 0.18rem; }
+.piano-key.selected, .guitar-position.selected { outline: 3px solid #8ee6c5; outline-offset: 2px; }
+.guitar-table { width: max-content; min-width: 900px; border-spacing: 0.2rem; table-layout: fixed; }
+.guitar-table th { min-width: 3.4rem; color: #8da1b2; font-size: 0.72rem; text-align: center; }
+.guitar-table tbody th { position: sticky; left: 0; z-index: 1; background: #18232c; }
+.guitar-table td { height: 3rem; padding: 0; background: linear-gradient(180deg, #2d414d 0%, #1d2a32 100%); }
+.guitar-position { width: 100%; min-width: 44px; min-height: 44px; border: 2px solid transparent; border-radius: 0.4rem; color: transparent; background: transparent; cursor: pointer; font-size: 0.72rem; font-weight: 800; }
+.guitar-position.chord_tone { border-color: #5f99b3; color: #eff7fb; background: #346278; }
+.guitar-position.color_tone { border-color: #35566a; color: #e9f5fb; background: #244554; }
+.guitar-position.tonic { border-color: #f6bf62; color: #fff8e9; background: #84503a; }
+.guitar-position.characteristic { border-color: #8ee6c5; color: #fff8e9; background: #266257; }
+dialog { width: min(360px, calc(100% - 2rem)); padding: 0; border: 1px solid #526b79; border-radius: 1rem; color: #e9eef5; background: #19252d; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
+dialog::backdrop { background: rgba(9, 13, 17, .68); }
+.settings-form { display: grid; gap: .8rem; padding: 1.25rem; }
+.settings-heading { display: flex; align-items: center; justify-content: space-between; }
+.settings-heading h2 { margin: 0; }
+.modal-close { width: 32px; min-height: 32px; border: 1px solid #526b79; border-radius: 50%; color: #fff8e9; background: transparent; cursor: pointer; font-size: 1.2rem; }
+.settings-form label { color: #a9b8c7; font-size: .85rem; font-weight: 750; }
+.settings-form select { width: 100%; }
+.settings-actions { display: flex; justify-content: end; gap: .6rem; margin-top: .5rem; }
+.settings-actions button { min-height: 40px; padding: .55rem .9rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
+.instrument-settings { display: grid; gap: .55rem; margin: .4rem 0; padding: .75rem; border: 1px solid #34434e; border-radius: .6rem; }
+.instrument-settings legend { padding: 0 .3rem; color: #a9b8c7; font-size: .85rem; font-weight: 750; }
+.instrument-settings label { display: flex; align-items: center; gap: .45rem; }
