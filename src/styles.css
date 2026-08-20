@@ -35,7 +35,7 @@ header { max-width: 700px; }
 h1, h2, p { margin-top: 0; }
 h1 { max-width: 11ch; color: #fff8e9; font-size: clamp(2.5rem, 9vw, 5rem); letter-spacing: -0.07em; line-height: 0.92; }
 h2 { color: #fff8e9; }
-.settings-trigger { flex: 0 0 auto; width: 44px; min-height: 40px; margin-top: 0.35rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-size: 1.25rem; }
+.settings-trigger { flex: 0 0 auto; width: 44px; min-height: 44px; margin-top: 0.35rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-size: 1.25rem; }
 .intro { color: #a9b8c7; line-height: 1.6; }
 .explore-controls, .scale-card, .instrument-card { margin-top: 1rem; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, 0.9); }
 .explore-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; min-width: 0; }
@@ -93,11 +93,11 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .settings-form { display: grid; gap: .8rem; padding: 1.25rem; }
 .settings-heading { display: flex; align-items: center; justify-content: space-between; }
 .settings-heading h2 { margin: 0; }
-.modal-close { width: 32px; min-height: 32px; border: 1px solid #526b79; border-radius: 50%; color: #fff8e9; background: transparent; cursor: pointer; font-size: 1.2rem; }
+.modal-close { width: 44px; min-height: 44px; border: 1px solid #526b79; border-radius: 50%; color: #fff8e9; background: transparent; cursor: pointer; font-size: 1.2rem; }
 .settings-form label { color: #a9b8c7; font-size: .85rem; font-weight: 750; }
 .settings-form select { width: 100%; }
 .settings-actions { display: flex; justify-content: end; gap: .6rem; margin-top: .5rem; }
-.settings-actions button { min-height: 40px; padding: .55rem .9rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
+.settings-actions button { min-height: 44px; padding: .55rem .9rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
 .instrument-settings { display: grid; gap: .55rem; margin: .4rem 0; padding: .75rem; border: 1px solid #34434e; border-radius: .6rem; }
 .instrument-settings legend { padding: 0 .3rem; color: #a9b8c7; font-size: .85rem; font-weight: 750; }
 .instrument-settings label { display: flex; align-items: center; gap: .45rem; }
