@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { getTranslations } from './localization'
 import { createSettingsStore } from './settings-store'
+import type { EventLoggerPort } from '../observability/event-logger'
 
 describe('settings store', () => {
   const storage_data = new Map<string, string>()
@@ -11,6 +12,11 @@ describe('settings store', () => {
     clear: () => storage_data.clear(),
     key: (index: number) => [...storage_data.keys()][index] ?? null,
     get length() { return storage_data.size }
+  }
+
+  function createDiagnosticsFake(): EventLoggerPort & { readonly events: string[] } {
+    const events: string[] = []
+    return { events, log: (event_name) => events.push(event_name) }
   }
 
   beforeEach(() => {
@@ -97,5 +103,23 @@ describe('settings store', () => {
     const store = createSettingsStore()
 
     expect(store.getSettings().guided_start_completed).toBe(false)
+  })
+
+  it('given_malformed_saved_settings_when_creating_a_store_then_logs_preferences_fallback', () => {
+    const diagnostics = createDiagnosticsFake()
+    window.localStorage.setItem('scalescape.settings.v1', '{invalid')
+
+    createSettingsStore('en', diagnostics)
+
+    expect(diagnostics.events).toEqual(['persistence.preferences_fallback'])
+  })
+
+  it('given_unavailable_storage_when_saving_settings_then_logs_write_failure_without_throwing', () => {
+    const diagnostics = createDiagnosticsFake()
+    Object.defineProperty(window, 'localStorage', { configurable: true, get: () => { throw new Error('storage unavailable') } })
+    const store = createSettingsStore('en', diagnostics)
+
+    expect(() => store.setLanguage('es')).not.toThrow()
+    expect(diagnostics.events).toEqual(['persistence.preferences_fallback', 'persistence.preferences_write_failed'])
   })
 })

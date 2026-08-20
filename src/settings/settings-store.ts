@@ -1,5 +1,6 @@
 import { getTranslations, type Language, type TranslationDictionary } from './localization'
 import { SCALE_FORMULAS, type FormulaId } from '../theory/scale-formulas'
+import type { EventLoggerPort } from '../observability/event-logger'
 
 export interface AppSettings {
   readonly language: Language
@@ -23,6 +24,10 @@ export interface SettingsStore {
 
 const SETTINGS_STORAGE_KEY = 'scalescape.settings.v1'
 
+function log_diagnostic(diagnostics: EventLoggerPort, event_name: string, attributes: Readonly<Record<string, string | number | boolean>>): void {
+  try { diagnostics.log(event_name, attributes) } catch { /* Diagnostics must not block settings. */ }
+}
+
 function isStoredSettings(value: unknown): value is Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown; readonly guided_start_completed?: unknown } {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<AppSettings>
@@ -40,33 +45,38 @@ function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 
   return { language: value.language, show_piano: value.show_piano, show_guitar: value.show_guitar, ear_gym_streak, volume, last_root, last_formula, guided_start_completed }
 }
 
-function loadSettings(fallback: AppSettings): AppSettings {
+function loadSettings(fallback: AppSettings, diagnostics: EventLoggerPort): AppSettings {
   try {
     const stored_value = window.localStorage.getItem(SETTINGS_STORAGE_KEY)
     if (!stored_value) return fallback
     const parsed_value: unknown = JSON.parse(stored_value)
-    return isStoredSettings(parsed_value) ? normalizeSettings(parsed_value) : fallback
+    if (!isStoredSettings(parsed_value)) {
+      log_diagnostic(diagnostics, 'persistence.preferences_fallback', { reason_code: 'MALFORMED' })
+      return fallback
+    }
+    return normalizeSettings(parsed_value)
   } catch {
+    log_diagnostic(diagnostics, 'persistence.preferences_fallback', { reason_code: 'UNAVAILABLE' })
     return fallback
   }
 }
 
-function saveSettings(settings: AppSettings): void {
+function saveSettings(settings: AppSettings, diagnostics: EventLoggerPort): void {
   try {
     window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
   } catch {
-    // Settings remain usable when browser storage is unavailable or full.
+    log_diagnostic(diagnostics, 'persistence.preferences_write_failed', {})
   }
 }
 
-export function createSettingsStore(initial_language: Language = 'en'): SettingsStore {
+export function createSettingsStore(initial_language: Language = 'en', diagnostics: EventLoggerPort = { log: () => undefined }): SettingsStore {
   const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian', guided_start_completed: false }
-  let settings: AppSettings = loadSettings(fallback_settings)
+  let settings: AppSettings = loadSettings(fallback_settings, diagnostics)
   const listeners = new Set<(current_settings: AppSettings) => void>()
 
   function publish(next_settings: AppSettings): AppSettings {
     settings = next_settings
-    saveSettings(settings)
+    saveSettings(settings, diagnostics)
     listeners.forEach((listener) => listener(settings))
     return settings
   }

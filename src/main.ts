@@ -10,6 +10,6 @@ if (!app) {
   throw new Error('Application root was not found')
 }
 
-const settings = createSettingsStore()
 const diagnostics = createDiagnosticsLogger()
+const settings = createSettingsStore('en', diagnostics)
 renderAppShell(app, createExploreApplication(settings.getSettings().last_root, settings.getSettings().last_formula), createBrowserPlayback(diagnostics), settings, diagnostics)
