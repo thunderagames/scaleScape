@@ -45,6 +45,6 @@ describe('comparison exercise', () => {
 
     expect(state.phase).toBe('listen')
     expect(state.exercise.changed_note_b).toBe('C#')
-    expect(state.streak).toBe(0)
+    expect(state.streak).toBe(1)
   })
 })

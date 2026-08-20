@@ -53,8 +53,8 @@ export function createComparisonExercise(root_pitch_class = 4): ComparisonExerci
   }
 }
 
-export function createEarGymState(exercise = createComparisonExercise()): EarGymState {
-  return { phase: 'listen', exercise, answer: null, is_correct: null, streak: 0, playing_example: null }
+export function createEarGymState(exercise = createComparisonExercise(), streak = 0): EarGymState {
+  return { phase: 'listen', exercise, answer: null, is_correct: null, streak, playing_example: null }
 }
 
 export function markExamplePlaying(state: EarGymState, example: 'a' | 'b'): EarGymState {
@@ -74,5 +74,5 @@ export function submitAnswer(state: EarGymState, degree: number): EarGymState {
 }
 
 export function restartExercise(state: EarGymState): EarGymState {
-  return createEarGymState(state.exercise)
+  return createEarGymState(state.exercise, state.streak)
 }

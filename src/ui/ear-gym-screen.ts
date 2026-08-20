@@ -48,7 +48,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   if (!ear_gym_label || !ear_gym_title || !ear_gym_intro || !comparison_label || !comparison_title || !comparison_prompt || !play_example_a || !play_example_b || !stop_audio || !start_answer || !playback_status || !answer_fieldset || !answer_legend || !answer_options || !feedback || !restart_exercise) throw new Error('Ear Gym screen elements were not found')
   const ui = { ear_gym_label, ear_gym_title, ear_gym_intro, comparison_label, comparison_title, comparison_prompt, play_example_a, play_example_b, stop_audio, start_answer, playback_status, answer_fieldset, answer_legend, answer_options, feedback, restart_exercise }
 
-  let state: EarGymState = createEarGymState()
+  let state: EarGymState = createEarGymState(undefined, settings.getSettings().ear_gym_streak)
   const played_examples = new Set<'a' | 'b'>()
 
   function apply_translations(): void {
@@ -89,7 +89,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
       input.name = 'changed-degree'
       input.value = String(choice.degree)
       input.checked = state.answer === choice.degree
-      input.addEventListener('change', () => { state = submitAnswer(state, choice.degree); render() })
+      input.addEventListener('change', () => { state = submitAnswer(state, choice.degree); settings.setSettings({ ...settings.getSettings(), ear_gym_streak: state.streak }); render() })
       label.append(input, ` ${choice.label}`)
       return label
     }))

@@ -4,6 +4,7 @@ export interface AppSettings {
   readonly language: Language
   readonly show_piano: boolean
   readonly show_guitar: boolean
+  readonly ear_gym_streak: number
 }
 
 export interface SettingsStore {
@@ -17,10 +18,16 @@ export interface SettingsStore {
 
 const SETTINGS_STORAGE_KEY = 'scalescape.settings.v1'
 
-function isStoredSettings(value: unknown): value is AppSettings {
+function isLanguageAndVisibility(value: unknown): value is Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown } {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<AppSettings>
   return (candidate.language === 'en' || candidate.language === 'es') && typeof candidate.show_piano === 'boolean' && typeof candidate.show_guitar === 'boolean'
+}
+
+function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown }): AppSettings {
+  const stored_streak = value.ear_gym_streak
+  const ear_gym_streak = typeof stored_streak === 'number' && Number.isInteger(stored_streak) && stored_streak >= 0 ? stored_streak : 0
+  return { language: value.language, show_piano: value.show_piano, show_guitar: value.show_guitar, ear_gym_streak }
 }
 
 function loadSettings(fallback: AppSettings): AppSettings {
@@ -28,7 +35,7 @@ function loadSettings(fallback: AppSettings): AppSettings {
     const stored_value = window.localStorage.getItem(SETTINGS_STORAGE_KEY)
     if (!stored_value) return fallback
     const parsed_value: unknown = JSON.parse(stored_value)
-    return isStoredSettings(parsed_value) ? parsed_value : fallback
+    return isLanguageAndVisibility(parsed_value) ? normalizeSettings(parsed_value) : fallback
   } catch {
     return fallback
   }
@@ -43,7 +50,7 @@ function saveSettings(settings: AppSettings): void {
 }
 
 export function createSettingsStore(initial_language: Language = 'en'): SettingsStore {
-  const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true }
+  const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true, ear_gym_streak: 0 }
   let settings: AppSettings = loadSettings(fallback_settings)
   const listeners = new Set<(current_settings: AppSettings) => void>()
 

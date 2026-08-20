@@ -51,19 +51,19 @@ describe('settings store', () => {
     const observed_settings: Array<{ language: string; show_piano: boolean; show_guitar: boolean }> = []
     store.subscribe((settings) => observed_settings.push(settings))
 
-    store.setSettings({ language: 'es', show_piano: false, show_guitar: true })
+    store.setSettings({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 0 })
 
-    expect(observed_settings).toEqual([{ language: 'es', show_piano: false, show_guitar: true }])
+    expect(observed_settings).toEqual([{ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 0 }])
   })
 
   it('given_saved_settings_when_creating_a_new_store_then_loads_them_from_local_storage', () => {
     window.localStorage.clear()
     const first_store = createSettingsStore()
-    first_store.setSettings({ language: 'es', show_piano: false, show_guitar: true })
+    first_store.setSettings({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 3 })
 
     const second_store = createSettingsStore()
 
-    expect(second_store.getSettings()).toEqual({ language: 'es', show_piano: false, show_guitar: true })
+    expect(second_store.getSettings()).toEqual({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 3 })
   })
 
   it('given_invalid_saved_settings_when_creating_a_store_then_uses_safe_defaults', () => {
@@ -71,6 +71,14 @@ describe('settings store', () => {
 
     const store = createSettingsStore()
 
-    expect(store.getSettings()).toEqual({ language: 'en', show_piano: true, show_guitar: true })
+    expect(store.getSettings()).toEqual({ language: 'en', show_piano: true, show_guitar: true, ear_gym_streak: 0 })
+  })
+
+  it('given_legacy_saved_settings_when_creating_a_store_then_defaults_missing_streak', () => {
+    window.localStorage.setItem('scalescape.settings.v1', JSON.stringify({ language: 'es', show_piano: true, show_guitar: false }))
+
+    const store = createSettingsStore()
+
+    expect(store.getSettings()).toEqual({ language: 'es', show_piano: true, show_guitar: false, ear_gym_streak: 0 })
   })
 })

@@ -69,4 +69,28 @@ describe('ear gym screen', () => {
     expect(container.querySelector('#feedback')?.textContent).toContain('Streak: 1')
     expect(container.querySelector<HTMLButtonElement>('#restart-exercise')?.hidden).toBe(false)
   })
+
+  it('given_saved_streak_when_answering_correctly_then_increments_and_persists_streak', () => {
+    const storage_data = new Map<string, string>([['scalescape.settings.v1', JSON.stringify({ language: 'en', show_piano: true, show_guitar: true, ear_gym_streak: 2 })]])
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => storage_data.get(key) ?? null,
+        setItem: (key: string, value: string) => storage_data.set(key, value),
+        removeItem: (key: string) => storage_data.delete(key),
+        clear: () => storage_data.clear(),
+        key: (index: number) => [...storage_data.keys()][index] ?? null,
+        get length() { return storage_data.size }
+      }
+    })
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderEarGymScreen(container, createPlaybackFake().playback, createSettingsStore())
+
+    container.querySelector<HTMLButtonElement>('#start-answer')?.click()
+    container.querySelector<HTMLInputElement>('input[value="6"]')?.click()
+
+    expect(container.querySelector('#feedback')?.textContent).toContain('Streak: 3')
+    expect(JSON.parse(storage_data.get('scalescape.settings.v1') ?? '{}').ear_gym_streak).toBe(3)
+  })
 })
