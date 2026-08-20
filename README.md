@@ -32,7 +32,18 @@ Start with these documents:
 | MVP scope | Implementation-ready baseline |
 | Technical stack | Not locked |
 | Phase-0 POCs | POC 0 automated verification complete; POC 1, POC 2, and POC 3 validated |
-| Application code | POC code only; MVP not started |
+| Application code | MVP interaction slice implemented; browser/device validation remains |
+
+## Implemented MVP Slice
+
+- Guided Start with tonic context, characteristic-note progression, and Ear Gym handoff.
+- Explore root/mode selection, interval-role explanations, piano and guitar interaction.
+- Tonic drone and tonic-fifth pedal playback with volume and mute controls.
+- Ear Gym focused comparisons, replay, feedback, and persisted streak.
+- Local preferences for language, instrument visibility, volume, last scale, and Guided Start completion.
+- Session-only diagnostic mode with sanitized, user-triggered JSONL export.
+
+The remaining release work is validation: manual P0 browser/device checks, usability feedback, and documenting known browser limitations.
 
 ## Product Boundary
 

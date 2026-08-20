@@ -73,6 +73,10 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 - Logging disabled or sink failure does not break startup, playback, navigation, or exercises.
 - Production observability stays within the documented performance budget.
 
+## Current Implementation Status
+
+The core client-side MVP interaction slice is implemented. Release readiness still depends on manual browser/device validation, usability sessions, and recording known limitations in the browser matrix.
+
 ## Delivery Estimate
 
 | Stage | Expected effort |
