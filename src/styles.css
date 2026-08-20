@@ -8,26 +8,26 @@
 body { min-width: 320px; margin: 0; background: radial-gradient(circle at 75% 0%, #243b43 0%, #10151b 46%); }
 button, select { font: inherit; }
 button:focus-visible, select:focus-visible { outline: 3px solid #8ee6c5; outline-offset: 3px; }
-.app-shell { min-height: 100vh; }
-.app-shell-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(980px, 100%); margin: 0 auto; padding: 1rem clamp(1rem, 5vw, 2.5rem) 0; }
+.app-shell { min-height: 100vh; min-width: 0; overflow-x: clip; }
+.app-shell-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(980px, 100%); min-width: 0; margin: 0 auto; padding: 1rem clamp(1rem, 5vw, 2.5rem) 0; }
 .app-shell-header .eyebrow { margin-bottom: 0; }
 .app-navigation { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .app-navigation button { min-height: 44px; padding: 0.6rem 0.85rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #a9b8c7; background: #182a33; cursor: pointer; font-weight: 750; }
 .app-navigation button[aria-current="page"] { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
-.audio-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; color: #a9b8c7; font-size: 0.78rem; }
+.audio-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; min-width: 0; color: #a9b8c7; font-size: 0.78rem; }
 .audio-controls input[type="range"] { width: 90px; accent-color: #8ee6c5; }
 .audio-controls select { min-width: 8rem; min-height: 44px; }
 .audio-controls button { min-height: 44px; padding: 0.55rem 0.7rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
 .audio-controls [role="status"] { color: #f6bf62; }
 .guided-start-screen { width: min(720px, 100%); margin: 0 auto; padding: clamp(2rem, 8vw, 5rem) 0; }
 .guided-start-screen h1 { max-width: 12ch; margin: 0.35rem 0 1rem; font-size: clamp(2.2rem, 7vw, 4rem); line-height: 0.98; }
-.guided-start-intro { max-width: 60ch; color: #c4d0d9; line-height: 1.6; }
+.guided-start-intro { max-width: 60ch; color: #c4d0d9; line-height: 1.6; overflow-wrap: anywhere; }
 .guided-start-steps { display: grid; gap: 0.8rem; margin: 2rem 0; padding-left: 1.5rem; color: #fff8e9; }
 .guided-start-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
 .guided-start-actions button { min-height: 44px; padding: 0.7rem 1rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
 .guided-start-actions button:first-child { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
 .guided-start-screen [role="status"] { min-height: 1.5rem; margin-top: 1rem; color: #f6bf62; }
-.explore-shell { width: min(980px, 100%); min-height: 100vh; margin: 0 auto; padding: clamp(1.25rem, 5vw, 4rem) clamp(1rem, 5vw, 2.5rem); }
+.explore-shell { width: min(980px, 100%); min-width: 0; min-height: 100vh; margin: 0 auto; padding: clamp(1.25rem, 5vw, 4rem) clamp(1rem, 5vw, 2.5rem); }
 header { max-width: 700px; }
 .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .eyebrow { margin: 0 0 0.5rem; color: #f6bf62; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -37,9 +37,9 @@ h2 { color: #fff8e9; }
 .settings-trigger { flex: 0 0 auto; width: 44px; min-height: 40px; margin-top: 0.35rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-size: 1.25rem; }
 .intro { color: #a9b8c7; line-height: 1.6; }
 .explore-controls, .scale-card, .instrument-card { margin-top: 1rem; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, 0.9); }
-.explore-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; }
+.explore-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; min-width: 0; }
 .explore-controls label { display: grid; gap: 0.35rem; color: #a9b8c7; font-size: 0.8rem; font-weight: 750; }
-select { min-height: 44px; min-width: 9rem; padding: 0.6rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; }
+select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: 0.6rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; }
 #play-scale, #stop-audio { min-height: 44px; padding: 0.6rem 0.9rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
 #generation-status { margin-left: auto; color: #8ee6c5; font-size: 0.85rem; }
 .audio-status { color: #8ee6c5; font-size: 0.85rem; }

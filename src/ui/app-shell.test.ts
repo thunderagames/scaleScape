@@ -64,6 +64,15 @@ describe('application shell', () => {
     expect(container.querySelector('#explore-directly')?.textContent).toBe('Explore directly')
   })
 
+  it('given_narrow_viewport_when_rendering_shell_then_keeps_guided_content_within_container', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    expect(container.querySelector('.app-shell')?.classList.contains('app-shell')).toBe(true)
+    expect(container.querySelector<HTMLElement>('.guided-start-screen')?.style.overflowX).toBe('')
+  })
+
   it('given_guided_start_when_starting_then_selects_drone_and_plays_initial_scale', async () => {
     const container = document.createElement('div')
     document.body.append(container)
