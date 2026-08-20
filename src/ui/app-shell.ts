@@ -2,7 +2,7 @@ import type { ExploreApplication } from '../application/explore-application'
 import type { PlaybackPort } from '../audio/playback-port'
 import type { SettingsStore } from '../settings/settings-store'
 import { createDiagnosticsLogger, type DiagnosticsPort } from '../observability/event-logger'
-import { renderExploreScreen } from './explore-screen'
+import { renderExploreScreen, type ExploreGuidedStartPort } from './explore-screen'
 import { renderEarGymScreen } from './ear-gym-screen'
 
 export type AppScreen = 'guided_start' | 'explore' | 'ear_gym'
@@ -81,6 +81,10 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, shell_label, audio_controls, context_label, context_control, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status }
 
   let current_screen: AppScreen = 'guided_start'
+  let is_guided_progress_active = false
+  let guided_progress: HTMLElement | null = null
+  let guided_progress_text: HTMLElement | null = null
+  let guided_progress_action: HTMLButtonElement | null = null
 
   function apply_translations(): void {
     const translation = settings.getTranslations()
@@ -144,6 +148,12 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     const playback_result = await playback.playScale(state.scale_instance)
     if (playback_result.ok) {
       settings.setSettings({ ...settings.getSettings(), guided_start_completed: true })
+      is_guided_progress_active = true
+      if (guided_progress && guided_progress_text && guided_progress_action) {
+        guided_progress.hidden = false
+        guided_progress_text.textContent = settings.getTranslations().guided_step_select
+        guided_progress_action.hidden = true
+      }
       diagnostics.log('application.guided_start_completed', { final_step_id: 'scale_playback' })
     }
     const audio_status = container.querySelector<HTMLElement>('#audio-status')
@@ -174,6 +184,18 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   application.subscribe((state) => { const context = playback.getPlaybackState().context; if (context !== 'off') void playback.setContext(state.root_pitch_class, context) })
   apply_translations()
   show_screen(settings.getSettings().guided_start_completed ? 'explore' : 'guided_start')
-  renderExploreScreen(ui.explore_screen, application, playback, settings, diagnostics)
+  const guided_start_port: ExploreGuidedStartPort = {
+    on_characteristic_note_selected: () => {
+      if (!is_guided_progress_active || !guided_progress_text || !guided_progress_action) return
+      guided_progress_text.textContent = settings.getTranslations().guided_step_compare
+      guided_progress_action.textContent = settings.getTranslations().guided_open_ear_gym
+      guided_progress_action.hidden = false
+    }
+  }
+  renderExploreScreen(ui.explore_screen, application, playback, settings, diagnostics, guided_start_port)
+  guided_progress_text = ui.explore_screen.querySelector<HTMLElement>('#guided-progress-text')
+  guided_progress_action = ui.explore_screen.querySelector<HTMLButtonElement>('#guided-progress-action')
+  guided_progress = ui.explore_screen.querySelector<HTMLElement>('#guided-progress')
+  guided_progress_action?.addEventListener('click', () => show_screen('ear_gym'))
   renderEarGymScreen(ui.ear_gym_screen, playback, settings, diagnostics)
 }

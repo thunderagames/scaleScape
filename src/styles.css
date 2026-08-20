@@ -51,6 +51,9 @@ select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: 0.6rem; bo
 .scale-note.characteristic { border-color: #8ee6c5; background: #266257; }
 .scale-note.selected { outline: 3px solid #fff8e9; outline-offset: 2px; }
 .note-detail { min-height: 2.2rem; margin-top: 1rem; padding: 0.75rem; border-radius: 0.6rem; background: #18232c; }
+.guided-progress { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: 0.85rem 1rem; border: 1px solid #8ee6c5; border-radius: 0.8rem; color: #dffcf0; background: #193f3c; }
+.guided-progress p { margin: 0; line-height: 1.4; }
+.guided-progress button { min-height: 44px; padding: 0.55rem 0.8rem; border: 1px solid #8ee6c5; border-radius: 0.6rem; color: #10151b; background: #8ee6c5; cursor: pointer; font-weight: 750; }
 .instrument-grid { display: grid; gap: 1rem; min-width: 0; }
 .instrument-card { min-width: 0; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }

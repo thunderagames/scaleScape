@@ -78,6 +78,9 @@ export interface TranslationDictionary {
   readonly start_guided: string
   readonly explore_directly: string
   readonly guided_start_playing: string
+  readonly guided_step_select: string
+  readonly guided_step_compare: string
+  readonly guided_open_ear_gym: string
   readonly export_diagnostics: string
   readonly diagnostics_mode: string
   readonly diagnostics_exported: string
@@ -164,6 +167,9 @@ const ENGLISH: TranslationDictionary = {
   ,start_guided: 'Start Guided Start'
   ,explore_directly: 'Explore directly'
   ,guided_start_playing: 'Guided Start is playing.'
+  ,guided_step_select: 'Now select the characteristic note on piano or guitar.'
+  ,guided_step_compare: 'You found the characteristic note. Compare it in Ear Gym.'
+  ,guided_open_ear_gym: 'Open Ear Gym'
   ,export_diagnostics: 'Export diagnostics'
   ,diagnostics_mode: 'Enable diagnostic mode'
   ,diagnostics_exported: 'Diagnostics exported.'
@@ -250,6 +256,9 @@ const SPANISH: TranslationDictionary = {
   ,start_guided: 'Comenzar inicio guiado'
   ,explore_directly: 'Explorar directamente'
   ,guided_start_playing: 'El inicio guiado está reproduciéndose.'
+  ,guided_step_select: 'Ahora seleccioná la nota característica en el piano o la guitarra.'
+  ,guided_step_compare: 'Encontraste la nota característica. Comparala en el gimnasio auditivo.'
+  ,guided_open_ear_gym: 'Abrir gimnasio auditivo'
   ,export_diagnostics: 'Exportar diagnósticos'
   ,diagnostics_mode: 'Activar modo diagnóstico'
   ,diagnostics_exported: 'Diagnósticos exportados.'

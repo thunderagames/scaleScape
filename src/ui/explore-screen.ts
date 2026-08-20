@@ -11,7 +11,11 @@ import { transposePitch } from '../theory/frequency'
 
 const ROOTS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 
-export function renderExploreScreen(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: EventLoggerPort = createDiagnosticsLogger()): void {
+export interface ExploreGuidedStartPort {
+  readonly on_characteristic_note_selected: () => void
+}
+
+export function renderExploreScreen(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: EventLoggerPort = createDiagnosticsLogger(), guided_start?: ExploreGuidedStartPort): void {
   container.innerHTML = `
     <main class="explore-shell">
       <header class="explore-header">
@@ -26,13 +30,14 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
         <span id="audio-status" class="audio-status" role="status" aria-live="polite"></span>
         <span id="generation-status" role="status"></span>
       </section>
-      <section class="scale-card" aria-labelledby="scale-title">
+       <section class="scale-card" aria-labelledby="scale-title">
         <p class="eyebrow" id="generated-scale-label"></p>
         <h2 id="scale-title"></h2>
         <p id="scale-caption" class="scale-caption"></p>
         <div id="scale-notes" class="scale-notes"></div>
         <div id="note-detail" class="note-detail" aria-live="polite"></div>
-      </section>
+       </section>
+       <section id="guided-progress" class="guided-progress" hidden aria-live="polite"><p id="guided-progress-text"></p><button id="guided-progress-action" type="button" hidden></button></section>
       <section id="instrument-region" class="instrument-grid">
         <article id="piano-card" class="instrument-card" aria-labelledby="piano-title"><div class="section-heading"><h2 id="piano-title"></h2><span id="piano-generation"></span></div><div id="piano-view" class="piano-view"></div></article>
         <article id="guitar-card" class="instrument-card" aria-labelledby="guitar-title"><div class="section-heading"><h2 id="guitar-title"></h2><span id="guitar-generation"></span></div><div id="guitar-view" class="guitar-view"></div></article>
@@ -57,6 +62,9 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   const guitar_generation = container.querySelector<HTMLElement>('#guitar-generation')
   const piano_card = container.querySelector<HTMLElement>('#piano-card')
   const guitar_card = container.querySelector<HTMLElement>('#guitar-card')
+  const guided_progress = container.querySelector<HTMLElement>('#guided-progress')
+  const guided_progress_text = container.querySelector<HTMLElement>('#guided-progress-text')
+  const guided_progress_action = container.querySelector<HTMLButtonElement>('#guided-progress-action')
   const settings_modal = container.querySelector<HTMLDialogElement>('#settings-modal')
   const language_select = container.querySelector<HTMLSelectElement>('#language-select')
   const open_settings = container.querySelector<HTMLButtonElement>('#open-settings')
@@ -65,9 +73,9 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   const save_settings = container.querySelector<HTMLButtonElement>('#save-settings')
   const show_piano = container.querySelector<HTMLInputElement>('#show-piano')
   const show_guitar = container.querySelector<HTMLInputElement>('#show-guitar')
-  if (!root_select || !formula_select || !play_scale || !stop_audio || !audio_status || !generation_status || !scale_title || !scale_caption || !scale_notes || !note_detail || !piano_view || !guitar_view || !piano_generation || !guitar_generation || !piano_card || !guitar_card || !settings_modal || !language_select || !open_settings || !close_settings || !cancel_settings || !save_settings || !show_piano || !show_guitar) throw new Error('Explore screen elements were not found')
+  if (!root_select || !formula_select || !play_scale || !stop_audio || !audio_status || !generation_status || !scale_title || !scale_caption || !scale_notes || !note_detail || !piano_view || !guitar_view || !piano_generation || !guitar_generation || !piano_card || !guitar_card || !guided_progress || !guided_progress_text || !guided_progress_action || !settings_modal || !language_select || !open_settings || !close_settings || !cancel_settings || !save_settings || !show_piano || !show_guitar) throw new Error('Explore screen elements were not found')
 
-  const ui = { root_select, formula_select, play_scale, stop_audio, audio_status, generation_status, scale_title, scale_caption, scale_notes, note_detail, piano_view, guitar_view, piano_generation, guitar_generation, piano_card, guitar_card, settings_modal, language_select, open_settings, close_settings, cancel_settings, save_settings, show_piano, show_guitar }
+  const ui = { root_select, formula_select, play_scale, stop_audio, audio_status, generation_status, scale_title, scale_caption, scale_notes, note_detail, piano_view, guitar_view, piano_generation, guitar_generation, piano_card, guitar_card, guided_progress, guided_progress_text, guided_progress_action, settings_modal, language_select, open_settings, close_settings, cancel_settings, save_settings, show_piano, show_guitar }
   let selected_pitch_class: number | null = null
 
   ROOTS.forEach((root, root_pitch_class) => { const option = document.createElement('option'); option.value = String(root_pitch_class); option.textContent = root; ui.root_select.append(option) })
@@ -89,6 +97,8 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   function select_note(pitch_class: number, focus_target: 'scale' | 'piano' | 'guitar' | null = null): void {
     selected_pitch_class = pitch_class
     render(application.getState())
+    const selected_note = application.getState().scale_instance.notes.find((note) => note.pitch_class === pitch_class)
+    if (selected_note?.primary_role === 'characteristic') guided_start?.on_characteristic_note_selected()
     if (focus_target) container.querySelector<HTMLButtonElement>(`#${focus_target === 'scale' ? 'scale-notes' : `${focus_target}-view`} .selected`)?.focus()
   }
 

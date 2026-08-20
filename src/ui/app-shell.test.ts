@@ -94,8 +94,40 @@ describe('application shell', () => {
     expect(played).toBe(true)
     expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
     expect(container.querySelector('#audio-status')?.textContent).toBe('Guided Start is playing.')
+    expect(container.querySelector<HTMLElement>('#guided-progress')?.hidden).toBe(false)
+    expect(container.querySelector('#guided-progress-text')?.textContent).toBe('Now select the characteristic note on piano or guitar.')
     expect(diagnostics.events).toEqual(['application.guided_start_entered', 'application.guided_start_completed'])
     playback.playScale = play_scale
+  })
+
+  it('given_guided_progress_when_selecting_characteristic_note_then_offers_ear_gym', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const playback = createPlaybackFake()
+    renderAppShell(container, createExploreApplication(), playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#start-guided')?.click()
+    await Promise.resolve()
+    await Promise.resolve()
+    container.querySelector<HTMLButtonElement>('#scale-notes .characteristic')?.click()
+
+    expect(container.querySelector('#guided-progress-text')?.textContent).toBe('You found the characteristic note. Compare it in Ear Gym.')
+    expect(container.querySelector<HTMLButtonElement>('#guided-progress-action')?.hidden).toBe(false)
+  })
+
+  it('given_guided_progress_when_opening_ear_gym_then_switches_to_ear_gym', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    container.querySelector<HTMLButtonElement>('#start-guided')?.click()
+    await Promise.resolve()
+    await Promise.resolve()
+    container.querySelector<HTMLButtonElement>('#scale-notes .characteristic')?.click()
+    container.querySelector<HTMLButtonElement>('#guided-progress-action')?.click()
+
+    expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#ear-gym-screen')?.hidden).toBe(false)
   })
 
   it('given_completed_guided_start_when_rendering_shell_then_opens_explore', () => {
