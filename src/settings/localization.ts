@@ -25,6 +25,9 @@ export interface TranslationDictionary {
   readonly begin_answer: string
   readonly play_natural_minor: string
   readonly play_dorian: string
+  readonly replay_natural_minor: string
+  readonly replay_dorian: string
+  readonly stop_audio: string
   readonly audio_playing_a: string
   readonly audio_playing_b: string
   readonly changed_degree_correct: string
@@ -83,6 +86,9 @@ const ENGLISH: TranslationDictionary = {
   begin_answer: 'Identify the changed degree',
   play_natural_minor: 'Play natural minor · Example A',
   play_dorian: 'Play Dorian · Example B',
+  replay_natural_minor: 'Replay natural minor · Example A',
+  replay_dorian: 'Replay Dorian · Example B',
+  stop_audio: 'Stop audio',
   audio_playing_a: 'Playing natural minor.',
   audio_playing_b: 'Playing Dorian.',
   changed_degree_correct: 'That is the changed degree.',
@@ -141,6 +147,9 @@ const SPANISH: TranslationDictionary = {
   begin_answer: 'Identificar el grado cambiado',
   play_natural_minor: 'Reproducir menor natural · Ejemplo A',
   play_dorian: 'Reproducir dórico · Ejemplo B',
+  replay_natural_minor: 'Repetir menor natural · Ejemplo A',
+  replay_dorian: 'Repetir dórico · Ejemplo B',
+  stop_audio: 'Detener audio',
   audio_playing_a: 'Reproduciendo menor natural.',
   audio_playing_b: 'Reproduciendo dórico.',
   changed_degree_correct: 'Ese es el grado cambiado.',

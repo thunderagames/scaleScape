@@ -15,6 +15,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
         <div class="comparison-actions">
           <button id="play-example-a" type="button"></button>
           <button id="play-example-b" type="button"></button>
+          <button id="stop-audio" type="button"></button>
           <button id="start-answer" type="button"></button>
         </div>
         <p id="playback-status" role="status" aria-live="polite"></p>
@@ -36,6 +37,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   const comparison_prompt = container.querySelector<HTMLElement>('#comparison-prompt')
   const play_example_a = container.querySelector<HTMLButtonElement>('#play-example-a')
   const play_example_b = container.querySelector<HTMLButtonElement>('#play-example-b')
+  const stop_audio = container.querySelector<HTMLButtonElement>('#stop-audio')
   const start_answer = container.querySelector<HTMLButtonElement>('#start-answer')
   const playback_status = container.querySelector<HTMLElement>('#playback-status')
   const answer_fieldset = container.querySelector<HTMLFieldSetElement>('#answer-fieldset')
@@ -43,10 +45,11 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   const answer_options = container.querySelector<HTMLElement>('#answer-options')
   const feedback = container.querySelector<HTMLElement>('#feedback')
   const restart_exercise = container.querySelector<HTMLButtonElement>('#restart-exercise')
-  if (!ear_gym_label || !ear_gym_title || !ear_gym_intro || !comparison_label || !comparison_title || !comparison_prompt || !play_example_a || !play_example_b || !start_answer || !playback_status || !answer_fieldset || !answer_legend || !answer_options || !feedback || !restart_exercise) throw new Error('Ear Gym screen elements were not found')
-  const ui = { ear_gym_label, ear_gym_title, ear_gym_intro, comparison_label, comparison_title, comparison_prompt, play_example_a, play_example_b, start_answer, playback_status, answer_fieldset, answer_legend, answer_options, feedback, restart_exercise }
+  if (!ear_gym_label || !ear_gym_title || !ear_gym_intro || !comparison_label || !comparison_title || !comparison_prompt || !play_example_a || !play_example_b || !stop_audio || !start_answer || !playback_status || !answer_fieldset || !answer_legend || !answer_options || !feedback || !restart_exercise) throw new Error('Ear Gym screen elements were not found')
+  const ui = { ear_gym_label, ear_gym_title, ear_gym_intro, comparison_label, comparison_title, comparison_prompt, play_example_a, play_example_b, stop_audio, start_answer, playback_status, answer_fieldset, answer_legend, answer_options, feedback, restart_exercise }
 
   let state: EarGymState = createEarGymState()
+  const played_examples = new Set<'a' | 'b'>()
 
   function apply_translations(): void {
     const translation = settings.getTranslations()
@@ -56,8 +59,9 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
     ui.comparison_label.textContent = translation.guided_comparison
     ui.comparison_title.textContent = translation.natural_minor_vs_dorian
     ui.comparison_prompt.textContent = translation.interval_prompt
-    ui.play_example_a.textContent = translation.play_natural_minor
-    ui.play_example_b.textContent = translation.play_dorian
+    ui.play_example_a.textContent = played_examples.has('a') ? translation.replay_natural_minor : translation.play_natural_minor
+    ui.play_example_b.textContent = played_examples.has('b') ? translation.replay_dorian : translation.play_dorian
+    ui.stop_audio.textContent = translation.stop_audio
     ui.start_answer.textContent = translation.begin_answer
     ui.answer_legend.textContent = translation.identify_prompt
     ui.restart_exercise.textContent = translation.try_again
@@ -66,6 +70,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   function play_example(example: 'a' | 'b'): void {
     const scale = example === 'a' ? state.exercise.scale_a : state.exercise.scale_b
     state = markExamplePlaying(state, example)
+    played_examples.add(example)
     ui.playback_status.textContent = example === 'a' ? settings.getTranslations().audio_playing_a : settings.getTranslations().audio_playing_b
     void playback.playScale(scale)
     render()
@@ -99,6 +104,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
 
   ui.play_example_a.addEventListener('click', () => play_example('a'))
   ui.play_example_b.addEventListener('click', () => play_example('b'))
+  ui.stop_audio.addEventListener('click', async () => { await playback.stopAll(); state = { ...state, playing_example: null }; ui.playback_status.textContent = settings.getTranslations().audio_stopped; render() })
   ui.start_answer.addEventListener('click', () => { state = beginAnswer(state); render(); ui.answer_options.querySelector<HTMLInputElement>('input')?.focus() })
   ui.restart_exercise.addEventListener('click', () => { state = restartExercise(state); render() })
   settings.subscribe(render)

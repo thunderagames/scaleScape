@@ -44,6 +44,19 @@ describe('ear gym screen', () => {
     expect(container.querySelector('#playback-status')?.textContent).toBe('Playing Dorian.')
   })
 
+  it('given_played_example_when_replaying_then_uses_replay_label_and_stop_clears_status', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderEarGymScreen(container, createPlaybackFake().playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#play-example-a')?.click()
+    expect(container.querySelector('#play-example-a')?.textContent).toContain('Replay')
+    container.querySelector<HTMLButtonElement>('#stop-audio')?.click()
+    await Promise.resolve()
+
+    expect(container.querySelector('#playback-status')?.textContent).toBe('Audio stopped.')
+  })
+
   it('given_listen_phase_when_answering_sixth_degree_then_reveals_feedback_and_streak', () => {
     const container = document.createElement('div')
     document.body.append(container)
