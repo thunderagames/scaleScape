@@ -12,6 +12,8 @@ button:focus-visible, select:focus-visible { outline: 3px solid #8ee6c5; outline
 .app-shell-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(980px, 100%); min-width: 0; margin: 0 auto; padding: 1rem clamp(1rem, 5vw, 2.5rem) 0; }
 .app-shell-header .eyebrow { margin-bottom: 0; }
 .app-navigation { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.navigation-toggle { display: none; width: 44px; min-height: 44px; padding: .65rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; cursor: pointer; }
+.navigation-toggle svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; }
 .app-navigation button { min-height: 44px; padding: 0.6rem 0.85rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #a9b8c7; background: #182a33; cursor: pointer; font-weight: 750; }
 .app-navigation button[aria-current="page"] { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
 .settings-floating { position: fixed; top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right)); z-index: 20; display: grid; place-items: center; margin: 0; border-color: #6c8792; border-radius: 0.85rem; background: linear-gradient(145deg, #315c6a, #1b3440); box-shadow: 0 8px 24px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .12); }
@@ -132,9 +134,11 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .answer-options input { accent-color: #8ee6c5; }
 .exercise-feedback { min-height: 3rem; margin: 1rem 0; color: #8ee6c5; line-height: 1.5; }
 @media (max-width: 520px) {
-  .app-shell-header { align-items: flex-start; flex-direction: column; }
-  .app-navigation { width: 100%; }
-  .app-navigation button { flex: 1 1 0; }
+  .app-shell-header { align-items: center; }
+  .navigation-toggle { display: block; margin-left: auto; }
+  .app-navigation { position: absolute; top: 4.25rem; left: 1rem; right: 1rem; z-index: 15; display: none; flex-direction: column; padding: .6rem; border: 1px solid #526b79; border-radius: .8rem; background: #182a33; box-shadow: 0 12px 28px rgba(0, 0, 0, .35); }
+  .app-navigation[data-open="true"] { display: flex; }
+  .app-navigation button { width: 100%; text-align: left; }
   .audio-controls { width: 100%; }
   .scale-notes { gap: .35rem; }
   .scale-note { min-width: 44px; padding: .55rem .45rem; font-size: .9rem; }

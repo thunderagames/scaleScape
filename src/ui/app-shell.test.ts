@@ -68,6 +68,22 @@ describe('application shell', () => {
     expect(container.querySelector('#explore-directly')?.textContent).toBe('Explore directly')
   })
 
+  it('given_small_navigation_when_toggling_menu_then_opens_and_closes_after_navigation', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+    const toggle = container.querySelector<HTMLButtonElement>('#toggle-navigation')
+    const navigation = container.querySelector<HTMLElement>('#app-navigation')
+
+    toggle?.click()
+    expect(toggle?.getAttribute('aria-expanded')).toBe('true')
+    expect(navigation?.getAttribute('data-open')).toBe('true')
+    container.querySelector<HTMLButtonElement>('#navigate-ear-gym')?.click()
+
+    expect(toggle?.getAttribute('aria-expanded')).toBe('false')
+    expect(navigation?.getAttribute('data-open')).toBe('false')
+  })
+
   it('given_narrow_viewport_when_rendering_shell_then_keeps_guided_content_within_container', () => {
     const container = document.createElement('div')
     document.body.append(container)

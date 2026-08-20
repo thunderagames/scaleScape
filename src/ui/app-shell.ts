@@ -13,7 +13,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     <div class="app-shell">
       <header class="app-shell-header">
         <p id="shell-label" class="eyebrow"></p>
-        <nav id="app-navigation" class="app-navigation" aria-label="Application navigation">
+        <button id="toggle-navigation" class="navigation-toggle" type="button" aria-controls="app-navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <nav id="app-navigation" class="app-navigation" aria-label="Application navigation" data-open="false">
           <button id="navigate-explore" type="button" aria-controls="explore-screen" aria-current="page"></button>
           <button id="navigate-ear-gym" type="button" aria-controls="ear-gym-screen"></button>
           <button id="navigate-guided-start" type="button" aria-controls="guided-start-screen"></button>
@@ -47,6 +48,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const navigate_explore = container.querySelector<HTMLButtonElement>('#navigate-explore')
   const navigate_ear_gym = container.querySelector<HTMLButtonElement>('#navigate-ear-gym')
   const navigate_guided_start = container.querySelector<HTMLButtonElement>('#navigate-guided-start')
+  const toggle_navigation = container.querySelector<HTMLButtonElement>('#toggle-navigation')
   const open_settings = container.querySelector<HTMLButtonElement>('#open-settings')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
   const audio_settings = container.querySelector<HTMLElement>('.audio-settings')
@@ -83,8 +85,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
   const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
   const guided_start_status = container.querySelector<HTMLElement>('#guided-start-status')
-  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !open_settings || !shell_label || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
-  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, open_settings, shell_label, audio_settings, diagnostics_settings, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, audio_settings, diagnostics_settings, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   let current_screen: AppScreen = 'guided_start'
   let is_guided_progress_active = false
@@ -101,6 +103,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.navigate_explore.setAttribute('aria-label', translation.nav_explore)
     ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
     ui.navigate_guided_start.setAttribute('aria-label', translation.nav_guided_start)
+    ui.toggle_navigation.setAttribute('aria-label', translation.toggle_navigation)
+    ui.toggle_navigation.title = translation.toggle_navigation
     ui.open_settings.setAttribute('aria-label', translation.settings)
     ui.open_settings.title = translation.settings
     ui.audio_settings.setAttribute('aria-label', translation.audio_controls)
@@ -147,6 +151,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   }
 
   function show_screen(screen: AppScreen): void {
+    set_navigation_open(false)
     current_screen = screen
     ui.guided_start_screen.hidden = current_screen !== 'guided_start'
     const is_explore = current_screen === 'explore'
@@ -162,9 +167,15 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     active_control.focus()
   }
 
+  function set_navigation_open(is_open: boolean): void {
+    ui.toggle_navigation.setAttribute('aria-expanded', String(is_open))
+    container.querySelector<HTMLElement>('#app-navigation')?.setAttribute('data-open', String(is_open))
+  }
+
   ui.navigate_explore.addEventListener('click', () => show_screen('explore'))
   ui.navigate_ear_gym.addEventListener('click', () => show_screen('ear_gym'))
   ui.navigate_guided_start.addEventListener('click', () => show_screen('guided_start'))
+  ui.toggle_navigation.addEventListener('click', () => set_navigation_open(ui.toggle_navigation.getAttribute('aria-expanded') !== 'true'))
   const open_settings_dialog = () => {
     apply_translations()
     if (typeof ui.settings_modal.showModal === 'function') ui.settings_modal.showModal()

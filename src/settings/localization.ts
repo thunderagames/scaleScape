@@ -16,6 +16,7 @@ export interface TranslationDictionary {
   readonly nav_explore: string
   readonly nav_ear_gym: string
   readonly nav_guided_start: string
+  readonly toggle_navigation: string
   readonly ear_gym_title: string
   readonly ear_gym_intro: string
   readonly ear_gym_audio_required: string
@@ -108,6 +109,7 @@ const ENGLISH: TranslationDictionary = {
   nav_explore: 'Explore',
   nav_ear_gym: 'Ear Gym',
   nav_guided_start: 'Guided Start',
+  toggle_navigation: 'Toggle navigation',
   ear_gym_title: 'Ear Gym',
   ear_gym_intro: 'Train your ear by comparing related scales and modes.',
   ear_gym_audio_required: 'Audio is required for scored listening exercises.',
@@ -200,6 +202,7 @@ const SPANISH: TranslationDictionary = {
   nav_explore: 'Explorar',
   nav_ear_gym: 'Gimnasio auditivo',
   nav_guided_start: 'Inicio guiado',
+  toggle_navigation: 'Alternar navegación',
   ear_gym_title: 'Gimnasio auditivo',
   ear_gym_intro: 'Entrená el oído comparando escalas y modos relacionados.',
   ear_gym_audio_required: 'El audio es necesario para puntuar los ejercicios auditivos.',
