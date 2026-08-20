@@ -45,6 +45,7 @@ h2 { color: #fff8e9; }
 .intro { color: #a9b8c7; line-height: 1.6; }
 .explore-controls, .scale-card, .instrument-card { margin-top: 1rem; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, 0.9); }
 .explore-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; min-width: 0; }
+.scale-selection-hint { flex: 1 1 100%; margin: 0; color: #a9b8c7; font-size: .82rem; font-weight: 750; }
 .explore-controls label { display: grid; gap: 0.35rem; color: #a9b8c7; font-size: 0.8rem; font-weight: 750; }
 select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: 0.6rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; }
 #play-scale, #stop-audio { min-height: 44px; padding: 0.6rem 0.9rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }

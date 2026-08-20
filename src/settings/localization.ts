@@ -44,6 +44,7 @@ export interface TranslationDictionary {
   readonly app_title: string
   readonly intro: string
   readonly scale_controls: string
+  readonly scale_selection_hint: string
   readonly root: string
   readonly mode: string
   readonly play_scale: string
@@ -137,6 +138,7 @@ const ENGLISH: TranslationDictionary = {
   app_title: 'Explore what a scale sounds like.',
   intro: 'Choose a root and mode. Hear the scale, inspect interval roles, and find the same notes on piano and guitar.',
   scale_controls: 'Scale controls',
+  scale_selection_hint: 'Select the tonic and mode',
   root: 'Root',
   mode: 'Mode',
   play_scale: 'Play scale',
@@ -230,6 +232,7 @@ const SPANISH: TranslationDictionary = {
   app_title: 'Explora cómo suena una escala.',
   intro: 'Elige una tónica y un modo. Escucha la escala, observa los roles de los intervalos y encuentra las mismas notas en piano y guitarra.',
   scale_controls: 'Controles de escala',
+  scale_selection_hint: 'Selecciona la tónica y el modo',
   root: 'Tónica',
   mode: 'Modo',
   play_scale: 'Reproducir escala',

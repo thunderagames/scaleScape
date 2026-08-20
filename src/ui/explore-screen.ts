@@ -31,7 +31,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
         <p id="app-intro" class="intro"></p>
       </header>
        <section id="scale-controls" class="explore-controls">
-         <button id="scale-selector" class="scale-selector" type="button" aria-haspopup="dialog"></button>
+         <p id="scale-selection-hint" class="scale-selection-hint"></p><button id="scale-selector" class="scale-selector" type="button" aria-haspopup="dialog"></button>
          <button id="play-scale" type="button" aria-label=""></button>
          <span id="audio-status" class="audio-status" role="status" aria-live="polite"></span>
          <span id="generation-status" role="status"></span>
@@ -55,6 +55,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
    const root_select = container.querySelector<HTMLSelectElement>('#root-select')
    const formula_select = container.querySelector<HTMLSelectElement>('#formula-select')
    const scale_selector = container.querySelector<HTMLButtonElement>('#scale-selector')
+   const scale_selection_hint = container.querySelector<HTMLElement>('#scale-selection-hint')
    const play_scale = container.querySelector<HTMLButtonElement>('#play-scale')
    const scale_selector_modal = container.querySelector<HTMLDialogElement>('#scale-selector-modal')
    const close_scale_selector = container.querySelector<HTMLButtonElement>('#close-scale-selector')
@@ -75,9 +76,9 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   const guided_progress = container.querySelector<HTMLElement>('#guided-progress')
   const guided_progress_text = container.querySelector<HTMLElement>('#guided-progress-text')
   const guided_progress_action = container.querySelector<HTMLButtonElement>('#guided-progress-action')
-   if (!root_select || !formula_select || !scale_selector || !play_scale || !scale_selector_modal || !close_scale_selector || !cancel_scale_selector || !apply_scale_selector || !audio_status || !generation_status || !scale_title || !scale_caption || !scale_notes || !note_detail || !piano_view || !guitar_view || !piano_generation || !guitar_generation || !piano_card || !guitar_card || !guided_progress || !guided_progress_text || !guided_progress_action) throw new Error('Explore screen elements were not found')
+   if (!root_select || !formula_select || !scale_selector || !scale_selection_hint || !play_scale || !scale_selector_modal || !close_scale_selector || !cancel_scale_selector || !apply_scale_selector || !audio_status || !generation_status || !scale_title || !scale_caption || !scale_notes || !note_detail || !piano_view || !guitar_view || !piano_generation || !guitar_generation || !piano_card || !guitar_card || !guided_progress || !guided_progress_text || !guided_progress_action) throw new Error('Explore screen elements were not found')
 
-   const ui = { root_select, formula_select, scale_selector, play_scale, scale_selector_modal, close_scale_selector, cancel_scale_selector, apply_scale_selector, audio_status, generation_status, scale_title, scale_caption, scale_notes, note_detail, piano_view, guitar_view, piano_generation, guitar_generation, piano_card, guitar_card, guided_progress, guided_progress_text, guided_progress_action }
+   const ui = { root_select, formula_select, scale_selector, scale_selection_hint, play_scale, scale_selector_modal, close_scale_selector, cancel_scale_selector, apply_scale_selector, audio_status, generation_status, scale_title, scale_caption, scale_notes, note_detail, piano_view, guitar_view, piano_generation, guitar_generation, piano_card, guitar_card, guided_progress, guided_progress_text, guided_progress_action }
    let selected_pitch_class: number | null = null
    let is_playing = false
 
@@ -88,7 +89,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
     const translation = settings.getTranslations()
     document.documentElement.lang = settings.getSettings().language
     const set_text = (selector: string, value: string) => { const element = container.querySelector<HTMLElement>(selector); if (element) element.textContent = value }
-     set_text('#app-title', translation.app_title); set_text('#app-intro', translation.intro); set_text('#generated-scale-label', translation.generated_scale); set_text('#piano-title', translation.piano); set_text('#guitar-title', translation.guitar); set_text('#scale-selector-title', translation.scale_controls); set_text('#root-label', translation.root); set_text('#mode-label', translation.mode); set_text('#close-scale-selector', translation.close); set_text('#cancel-scale-selector', translation.close); set_text('#apply-scale-selector', translation.save)
+      set_text('#app-title', translation.app_title); set_text('#generated-scale-label', translation.generated_scale); set_text('#piano-title', translation.piano); set_text('#guitar-title', translation.guitar); set_text('#scale-selector-title', translation.scale_controls); set_text('#root-label', translation.root); set_text('#mode-label', translation.mode); set_text('#close-scale-selector', translation.close); set_text('#cancel-scale-selector', translation.close); set_text('#apply-scale-selector', translation.save); ui.scale_selection_hint.textContent = translation.scale_selection_hint
     container.querySelector('#scale-controls')?.setAttribute('aria-label', translation.scale_controls); container.querySelector('#instrument-region')?.setAttribute('aria-label', translation.instrument_region)
      Array.from(ui.formula_select.options).forEach((option) => { const formula = SCALE_FORMULAS.find((candidate) => candidate.id === option.value); if (formula) option.textContent = translation.formula_names[formula.id] })
      set_text('#root-label', translation.root); set_text('#mode-label', translation.mode)

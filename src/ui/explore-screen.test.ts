@@ -195,6 +195,7 @@ describe('explore screen', () => {
     expect(container.querySelector('#formula-select option[value="dorian"]')?.textContent).toBe('Dórico')
     expect(document.documentElement.lang).toBe('es')
     expect(container.querySelector('#app-label')).toBeNull()
+    expect(container.querySelector('#scale-selection-hint')?.textContent).toBe('Selecciona la tónica y el modo')
   })
 
   it('given_changed_root_when_selecting_root_then_keeps_new_root_after_playback_stops', () => {
