@@ -127,7 +127,10 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     show_screen('explore')
     if (!context_result.ok) return
     const playback_result = await playback.playScale(state.scale_instance)
-    if (playback_result.ok) diagnostics.log('application.guided_start_completed', { final_step_id: 'scale_playback' })
+    if (playback_result.ok) {
+      settings.setSettings({ ...settings.getSettings(), guided_start_completed: true })
+      diagnostics.log('application.guided_start_completed', { final_step_id: 'scale_playback' })
+    }
     const audio_status = container.querySelector<HTMLElement>('#audio-status')
     if (audio_status) audio_status.textContent = playback_result.ok ? settings.getTranslations().guided_start_playing : settings.getTranslations().audio_unavailable
   })
@@ -154,7 +157,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   playback.subscribePlaybackState(apply_translations)
   application.subscribe((state) => { const context = playback.getPlaybackState().context; if (context !== 'off') void playback.setContext(state.root_pitch_class, context) })
   apply_translations()
-  show_screen('guided_start')
+  show_screen(settings.getSettings().guided_start_completed ? 'explore' : 'guided_start')
   renderExploreScreen(ui.explore_screen, application, playback, settings)
   renderEarGymScreen(ui.ear_gym_screen, playback, settings)
 }

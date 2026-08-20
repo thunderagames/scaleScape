@@ -38,6 +38,12 @@ function createSettings() {
   return createSettingsStore()
 }
 
+function createCompletedSettings() {
+  const settings = createSettings()
+  settings.setSettings({ ...settings.getSettings(), guided_start_completed: true })
+  return settings
+}
+
 function createDiagnosticsFake(): DiagnosticsPort & { readonly events: string[] } {
   const events: string[] = []
   return {
@@ -78,6 +84,16 @@ describe('application shell', () => {
     expect(container.querySelector('#audio-status')?.textContent).toBe('Guided Start is playing.')
     expect(diagnostics.events).toEqual(['application.guided_start_entered', 'application.guided_start_completed'])
     playback.playScale = play_scale
+  })
+
+  it('given_completed_guided_start_when_rendering_shell_then_opens_explore', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createCompletedSettings())
+
+    expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
   })
 
   it('given_diagnostics_button_when_not_clicked_then_does_not_export', () => {

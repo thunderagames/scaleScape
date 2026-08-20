@@ -51,19 +51,19 @@ describe('settings store', () => {
     const observed_settings: Array<{ language: string; show_piano: boolean; show_guitar: boolean }> = []
     store.subscribe((settings) => observed_settings.push(settings))
 
-    store.setSettings({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian' })
+    store.setSettings({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
 
-    expect(observed_settings).toEqual([{ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian' }])
+    expect(observed_settings).toEqual([{ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian', guided_start_completed: false }])
   })
 
   it('given_saved_settings_when_creating_a_new_store_then_loads_them_from_local_storage', () => {
     window.localStorage.clear()
     const first_store = createSettingsStore()
-    first_store.setSettings({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 3, volume: 0.45, last_root: 9, last_formula: 'lydian' })
+    first_store.setSettings({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 3, volume: 0.45, last_root: 9, last_formula: 'lydian', guided_start_completed: true })
 
     const second_store = createSettingsStore()
 
-    expect(second_store.getSettings()).toEqual({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 3, volume: 0.45, last_root: 9, last_formula: 'lydian' })
+    expect(second_store.getSettings()).toEqual({ language: 'es', show_piano: false, show_guitar: true, ear_gym_streak: 3, volume: 0.45, last_root: 9, last_formula: 'lydian', guided_start_completed: true })
   })
 
   it('given_invalid_saved_settings_when_creating_a_store_then_uses_safe_defaults', () => {
@@ -71,7 +71,7 @@ describe('settings store', () => {
 
     const store = createSettingsStore()
 
-    expect(store.getSettings()).toEqual({ language: 'en', show_piano: true, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian' })
+    expect(store.getSettings()).toEqual({ language: 'en', show_piano: true, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
   })
 
   it('given_legacy_saved_settings_when_creating_a_store_then_defaults_missing_streak', () => {
@@ -79,7 +79,7 @@ describe('settings store', () => {
 
     const store = createSettingsStore()
 
-    expect(store.getSettings()).toEqual({ language: 'es', show_piano: true, show_guitar: false, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian' })
+    expect(store.getSettings()).toEqual({ language: 'es', show_piano: true, show_guitar: false, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
   })
 
   it('given_invalid_saved_scale_when_creating_a_store_then_defaults_root_and_formula', () => {
@@ -89,5 +89,13 @@ describe('settings store', () => {
 
     expect(store.getSettings().last_root).toBe(4)
     expect(store.getSettings().last_formula).toBe('dorian')
+  })
+
+  it('given_legacy_saved_settings_when_creating_a_store_then_defaults_guided_start_to_incomplete', () => {
+    window.localStorage.setItem('scalescape.settings.v1', JSON.stringify({ language: 'en', show_piano: true, show_guitar: true }))
+
+    const store = createSettingsStore()
+
+    expect(store.getSettings().guided_start_completed).toBe(false)
   })
 })

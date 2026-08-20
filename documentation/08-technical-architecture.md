@@ -212,6 +212,7 @@ Local persistence for the MVP:
 | Mute state | No | Sessions start unmuted to avoid silent-app confusion; the mute control is always visible. |
 | Last root and mode | Yes | Lets a returning learner continue where they stopped. |
 | Ear Gym streak | Yes | Consecutive correct answers; resets on an incorrect answer. |
+| Guided Start completion | Yes | Returning learners open Explore instead of repeating the first-session entry. |
 
 Persistence stays behind the `PreferencesStore` port so a future account-backed implementation does not leak into domain logic.
 
@@ -224,7 +225,8 @@ StoredPreferencesV1 = {
   volume,
   last_root,
   last_formula,
-  streak
+  streak,
+  guided_start_completed
 }
 ```
 

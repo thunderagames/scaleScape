@@ -9,6 +9,7 @@ export interface AppSettings {
   readonly volume: number
   readonly last_root: number
   readonly last_formula: FormulaId
+  readonly guided_start_completed: boolean
 }
 
 export interface SettingsStore {
@@ -22,20 +23,21 @@ export interface SettingsStore {
 
 const SETTINGS_STORAGE_KEY = 'scalescape.settings.v1'
 
-function isStoredSettings(value: unknown): value is Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown } {
+function isStoredSettings(value: unknown): value is Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown; readonly guided_start_completed?: unknown } {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<AppSettings>
   return (candidate.language === 'en' || candidate.language === 'es') && typeof candidate.show_piano === 'boolean' && typeof candidate.show_guitar === 'boolean'
 }
 
-function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown }): AppSettings {
+function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown; readonly guided_start_completed?: unknown }): AppSettings {
   const stored_streak = value.ear_gym_streak
   const ear_gym_streak = typeof stored_streak === 'number' && Number.isInteger(stored_streak) && stored_streak >= 0 ? stored_streak : 0
   const stored_volume = value.volume
   const volume = typeof stored_volume === 'number' && Number.isFinite(stored_volume) && stored_volume >= 0 && stored_volume <= 1 ? stored_volume : 0.7
   const last_root = typeof value.last_root === 'number' && Number.isInteger(value.last_root) && value.last_root >= 0 && value.last_root <= 11 ? value.last_root : 4
   const last_formula = typeof value.last_formula === 'string' ? SCALE_FORMULAS.find((formula) => formula.id === value.last_formula)?.id ?? 'dorian' : 'dorian'
-  return { language: value.language, show_piano: value.show_piano, show_guitar: value.show_guitar, ear_gym_streak, volume, last_root, last_formula }
+  const guided_start_completed = value.guided_start_completed === true
+  return { language: value.language, show_piano: value.show_piano, show_guitar: value.show_guitar, ear_gym_streak, volume, last_root, last_formula, guided_start_completed }
 }
 
 function loadSettings(fallback: AppSettings): AppSettings {
@@ -58,7 +60,7 @@ function saveSettings(settings: AppSettings): void {
 }
 
 export function createSettingsStore(initial_language: Language = 'en'): SettingsStore {
-  const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian' }
+  const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true, ear_gym_streak: 0, volume: 0.7, last_root: 4, last_formula: 'dorian', guided_start_completed: false }
   let settings: AppSettings = loadSettings(fallback_settings)
   const listeners = new Set<(current_settings: AppSettings) => void>()
 
