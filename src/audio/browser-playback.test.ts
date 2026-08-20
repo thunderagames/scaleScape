@@ -60,4 +60,21 @@ describe('browser playback', () => {
 
     expect(result.ok).toBe(true)
   })
+
+  it('given_playing_scale_when_page_becomes_hidden_then_stops_audio_and_notifies_listener', async () => {
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const diagnostics = createDiagnosticsFake()
+    const playback = createBrowserPlayback(diagnostics)
+    let was_stopped = false
+    playback.subscribe({ on_note_started: () => undefined, on_stopped: () => { was_stopped = true } })
+    await playback.playScale(createScaleInstance(4, 'dorian'))
+
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' })
+    document.dispatchEvent(new Event('visibilitychange'))
+
+    expect(was_stopped).toBe(true)
+    expect(diagnostics.events).toContain('audio.context_stopped')
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
+    await playback.stopAll()
+  })
 })

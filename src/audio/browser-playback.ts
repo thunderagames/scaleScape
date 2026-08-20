@@ -77,6 +77,16 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
     context_nodes = []
   }
 
+  function handle_visibility_change(): void {
+    if (document.visibilityState !== 'hidden') return
+    if (active_nodes.length === 0 && context_nodes.length === 0) return
+    stopScheduledAudio()
+    log('audio.context_stopped', { generation_id: playback_generation, reason_code: 'PAGE_HIDDEN' })
+    listeners.forEach((listener) => listener.on_stopped())
+  }
+
+  document.addEventListener('visibilitychange', handle_visibility_change)
+
   function schedule_context(context: AudioContext, root_pitch_class: number, mode: 'drone' | 'pedal', start_time: number, duration: number): void {
     const tonic_frequency = pitchToFrequency(root_pitch_class, 3)
     schedule_recorder_note(context, tonic_frequency, start_time, duration, context_nodes)
