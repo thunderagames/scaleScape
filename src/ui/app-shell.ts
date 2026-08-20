@@ -17,10 +17,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
           <button id="navigate-explore" type="button" aria-controls="explore-screen" aria-current="page"></button>
           <button id="navigate-ear-gym" type="button" aria-controls="ear-gym-screen"></button>
           <button id="navigate-guided-start" type="button" aria-controls="guided-start-screen"></button>
+          <button id="open-settings" class="settings-trigger" type="button" aria-haspopup="dialog"></button>
         </nav>
         <div id="audio-controls" class="audio-controls" role="group">
-          <label id="context-label" for="context-control"></label>
-          <select id="context-control"></select>
           <label id="volume-label" for="volume-control"></label>
           <input id="volume-control" type="range" min="0" max="1" step="0.05" />
           <button id="mute-audio" type="button"></button>
@@ -47,6 +46,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
       </section>
       <div id="explore-screen"></div>
       <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
+      <dialog id="settings-modal" aria-labelledby="settings-title"><form method="dialog" class="settings-form"><div class="settings-heading"><h2 id="settings-title"></h2><button id="close-settings" class="modal-close" type="button"></button></div><label id="language-label" for="language-select"></label><select id="language-select"></select><fieldset class="instrument-settings"><legend id="instrument-visibility-label"></legend><label><input id="show-piano" type="checkbox"> <span id="show-piano-label"></span></label><label><input id="show-guitar" type="checkbox"> <span id="show-guitar-label"></span></label></fieldset><fieldset class="context-settings"><legend id="context-label"></legend><label><input id="context-off" type="radio" name="harmonic-context" value="off"><span id="context-off-label"></span></label><label><input id="context-drone" type="radio" name="harmonic-context" value="drone"><span id="context-drone-label"></span></label><label><input id="context-pedal" type="radio" name="harmonic-context" value="pedal"><span id="context-pedal-label"></span></label></fieldset><div class="settings-actions"><button id="cancel-settings" type="button"></button><button id="save-settings" type="button"></button></div></form></dialog>
     </div>
   `
 
@@ -56,10 +56,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const navigate_explore = container.querySelector<HTMLButtonElement>('#navigate-explore')
   const navigate_ear_gym = container.querySelector<HTMLButtonElement>('#navigate-ear-gym')
   const navigate_guided_start = container.querySelector<HTMLButtonElement>('#navigate-guided-start')
+  const open_settings = container.querySelector<HTMLButtonElement>('#open-settings')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
   const audio_controls = container.querySelector<HTMLElement>('#audio-controls')
-  const context_label = container.querySelector<HTMLElement>('#context-label')
-  const context_control = container.querySelector<HTMLSelectElement>('#context-control')
   const volume_label = container.querySelector<HTMLElement>('#volume-label')
   const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
   const mute_audio = container.querySelector<HTMLButtonElement>('#mute-audio')
@@ -77,9 +76,23 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const guided_start_step_three = container.querySelector<HTMLElement>('#guided-start-step-three')
   const start_guided = container.querySelector<HTMLButtonElement>('#start-guided')
   const explore_directly = container.querySelector<HTMLButtonElement>('#explore-directly')
+  const settings_modal = container.querySelector<HTMLDialogElement>('#settings-modal')
+  const close_settings = container.querySelector<HTMLButtonElement>('#close-settings')
+  const cancel_settings = container.querySelector<HTMLButtonElement>('#cancel-settings')
+  const save_settings = container.querySelector<HTMLButtonElement>('#save-settings')
+  const language_select = container.querySelector<HTMLSelectElement>('#language-select')
+  const show_piano = container.querySelector<HTMLInputElement>('#show-piano')
+  const show_guitar = container.querySelector<HTMLInputElement>('#show-guitar')
+  const context_label = container.querySelector<HTMLElement>('#context-label')
+  const context_off = container.querySelector<HTMLInputElement>('#context-off')
+  const context_drone = container.querySelector<HTMLInputElement>('#context-drone')
+  const context_pedal = container.querySelector<HTMLInputElement>('#context-pedal')
+  const context_off_label = container.querySelector<HTMLElement>('#context-off-label')
+  const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
+  const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
   const guided_start_status = container.querySelector<HTMLElement>('#guided-start-status')
-  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !shell_label || !audio_controls || !context_label || !context_control || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status) throw new Error('Application shell elements were not found')
-  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, shell_label, audio_controls, context_label, context_control, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status }
+  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !open_settings || !shell_label || !audio_controls || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, open_settings, shell_label, audio_controls, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   let current_screen: AppScreen = 'guided_start'
   let is_guided_progress_active = false
@@ -96,11 +109,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.navigate_explore.setAttribute('aria-label', translation.nav_explore)
     ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
     ui.navigate_guided_start.setAttribute('aria-label', translation.nav_guided_start)
+    ui.open_settings.textContent = translation.settings
+    ui.open_settings.setAttribute('aria-label', translation.settings)
     ui.audio_controls.setAttribute('aria-label', translation.audio_controls)
-    ui.context_label.textContent = translation.context
-    ui.context_control.setAttribute('aria-label', translation.context)
-    ui.context_control.innerHTML = `<option value="off">${translation.context_off}</option><option value="drone">${translation.context_drone}</option><option value="pedal">${translation.context_pedal}</option>`
-    ui.context_control.value = playback.getPlaybackState().context
     ui.volume_label.textContent = translation.volume
     ui.volume_control.setAttribute('aria-label', translation.volume)
     ui.mute_audio.textContent = playback.getPlaybackState().is_muted ? translation.unmute : translation.mute
@@ -119,6 +130,26 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.guided_start_step_three.textContent = translation.guided_start_step_three
     ui.start_guided.textContent = translation.start_guided
     ui.explore_directly.textContent = translation.explore_directly
+    ui.close_settings.setAttribute('aria-label', translation.close)
+    ui.close_settings.textContent = '×'
+    ui.settings_modal.querySelector<HTMLElement>('#settings-title')!.textContent = translation.settings_title
+    ui.language_select.innerHTML = `<option value="en">${translation.english}</option><option value="es">${translation.spanish}</option>`
+    ui.language_select.value = settings.getSettings().language
+    ui.show_piano.checked = settings.getSettings().show_piano
+    ui.show_guitar.checked = settings.getSettings().show_guitar
+    ui.context_label.textContent = translation.context
+    ui.context_off_label.textContent = translation.context_off
+    ui.context_drone_label.textContent = translation.context_drone
+    ui.context_pedal_label.textContent = translation.context_pedal
+    ui.context_off.checked = playback.getPlaybackState().context === 'off'
+    ui.context_drone.checked = playback.getPlaybackState().context === 'drone'
+    ui.context_pedal.checked = playback.getPlaybackState().context === 'pedal'
+    ui.settings_modal.querySelector<HTMLElement>('#language-label')!.textContent = translation.language
+    ui.settings_modal.querySelector<HTMLElement>('#instrument-visibility-label')!.textContent = translation.instrument_visibility
+    ui.settings_modal.querySelector<HTMLElement>('#show-piano-label')!.textContent = translation.show_piano
+    ui.settings_modal.querySelector<HTMLElement>('#show-guitar-label')!.textContent = translation.show_guitar
+    ui.cancel_settings.textContent = translation.close
+    ui.save_settings.textContent = translation.save
   }
 
   function show_screen(screen: AppScreen): void {
@@ -140,6 +171,25 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.navigate_explore.addEventListener('click', () => show_screen('explore'))
   ui.navigate_ear_gym.addEventListener('click', () => show_screen('ear_gym'))
   ui.navigate_guided_start.addEventListener('click', () => show_screen('guided_start'))
+  const open_settings_dialog = () => {
+    apply_translations()
+    if (typeof ui.settings_modal.showModal === 'function') ui.settings_modal.showModal()
+    else ui.settings_modal.setAttribute('open', '')
+  }
+  ui.open_settings.addEventListener('click', open_settings_dialog)
+  const close_settings_dialog = () => {
+    if (typeof ui.settings_modal.close === 'function') ui.settings_modal.close()
+    else ui.settings_modal.removeAttribute('open')
+    ui.open_settings.focus()
+  }
+  ui.close_settings.addEventListener('click', close_settings_dialog)
+  ui.cancel_settings.addEventListener('click', close_settings_dialog)
+  ui.save_settings.addEventListener('click', () => {
+    const context = ui.context_drone.checked ? 'drone' : ui.context_pedal.checked ? 'pedal' : 'off'
+    settings.setSettings({ ...settings.getSettings(), language: ui.language_select.value as 'en' | 'es', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked })
+    void playback.setContext(application.getState().root_pitch_class, context)
+    close_settings_dialog()
+  })
   ui.explore_directly.addEventListener('click', () => show_screen('explore'))
   ui.start_guided.addEventListener('click', async () => {
     const state = application.getState()
@@ -175,7 +225,6 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     URL.revokeObjectURL(download_url)
     ui.diagnostics_status.textContent = settings.getTranslations().diagnostics_exported
   })
-  ui.context_control.addEventListener('change', () => { const context = ui.context_control.value as 'off' | 'drone' | 'pedal'; const root_pitch_class = application.getState().root_pitch_class; void playback.setContext(root_pitch_class, context) })
   playback.setVolume(settings.getSettings().volume)
   ui.volume_control.value = String(settings.getSettings().volume)
   ui.volume_control.addEventListener('input', () => { const volume = Number(ui.volume_control.value); playback.setVolume(volume); settings.setSettings({ ...settings.getSettings(), volume }) })
@@ -183,7 +232,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.diagnostics_mode_control.addEventListener('change', () => diagnostics.setEnabled(ui.diagnostics_mode_control.checked))
   settings.subscribe(apply_translations)
   playback.subscribePlaybackState(apply_translations)
-  application.subscribe((state) => { const context = playback.getPlaybackState().context; if (context !== 'off') void playback.setContext(state.root_pitch_class, context) })
+  application.subscribe((state) => { const context = playback.getPlaybackState().context; void playback.setContext(state.root_pitch_class, context) })
   apply_translations()
   show_screen(settings.getSettings().guided_start_completed ? 'explore' : 'guided_start')
   const guided_start_port: ExploreGuidedStartPort = {

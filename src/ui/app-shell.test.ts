@@ -256,36 +256,49 @@ describe('application shell', () => {
     expect(container.querySelector('#mute-audio')?.textContent).toBe('Unmute')
   })
 
-  it('given_audio_context_control_when_selecting_pedal_then_starts_context_for_current_root', async () => {
+  it('given_settings_modal_when_selecting_pedal_then_starts_context_for_current_root', async () => {
     const container = document.createElement('div')
     document.body.append(container)
     const playback = createPlaybackFake()
     renderAppShell(container, createExploreApplication(), playback, createSettings())
-    const context_control = container.querySelector<HTMLSelectElement>('#context-control')
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const context_control = container.querySelector<HTMLInputElement>('#context-pedal')
 
     if (context_control) {
-      context_control.value = 'pedal'
+      context_control.checked = true
       context_control.dispatchEvent(new Event('change', { bubbles: true }))
     }
+    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
     await Promise.resolve()
 
     expect(playback.getPlaybackState().context).toBe('pedal')
   })
 
-  it('given_enabled_context_when_stopping_current_audio_then_keeps_context_enabled_for_next_playback', async () => {
+  it('given_settings_modal_when_saving_context_then_removes_context_control_from_audio_header', async () => {
     const container = document.createElement('div')
     document.body.append(container)
     const playback = createPlaybackFake()
     renderAppShell(container, createExploreApplication(), playback, createSettings())
-    const context_control = container.querySelector<HTMLSelectElement>('#context-control')
-    if (context_control) {
-      context_control.value = 'drone'
-      context_control.dispatchEvent(new Event('change', { bubbles: true }))
-    }
-
-    await playback.stopAll()
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const context_control = container.querySelector<HTMLInputElement>('#context-drone')
+    if (context_control) context_control.checked = true
+    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
 
     expect(playback.getPlaybackState().context).toBe('drone')
-    expect(container.querySelector<HTMLSelectElement>('#context-control')?.value).toBe('drone')
+    expect(container.querySelector('#audio-controls #context-control')).toBeNull()
+  })
+
+  it('given_settings_modal_when_saving_instrument_visibility_then_updates_visible_instrument_cards', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const show_guitar = container.querySelector<HTMLInputElement>('#show-guitar')
+    if (show_guitar) show_guitar.checked = false
+    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+
+    expect(container.querySelector<HTMLElement>('#guitar-card')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#piano-card')?.hidden).toBe(false)
   })
 })
