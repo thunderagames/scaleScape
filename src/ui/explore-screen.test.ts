@@ -204,7 +204,7 @@ describe('explore screen', () => {
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
 
     expect(container.querySelector('.title-row')?.classList.contains('title-row')).toBe(true)
-    expect(container.querySelector('#app-title')?.textContent).toBe('Explore what a scale sounds like.')
+    expect(container.querySelector('#app-title')?.textContent).toBe('Scale Explorer')
   })
 
   it('given_changed_root_when_selecting_root_then_keeps_new_root_after_playback_stops', () => {
