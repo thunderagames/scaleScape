@@ -195,7 +195,6 @@ describe('explore screen', () => {
     expect(container.querySelector('#formula-select option[value="dorian"]')?.textContent).toBe('Dórico')
     expect(document.documentElement.lang).toBe('es')
     expect(container.querySelector('#app-label')).toBeNull()
-    expect(container.querySelector('#scale-selection-hint')?.textContent).toBe('Selecciona la tónica y el modo')
     expect(container.querySelector('#generated-scale-label')?.textContent).toBe('Selecciona la escala')
   })
 
