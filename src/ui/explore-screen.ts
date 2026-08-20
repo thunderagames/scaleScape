@@ -27,7 +27,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   container.innerHTML = `
      <main class="explore-shell">
       <header class="explore-header">
-         <div class="title-row"><div><p class="eyebrow" id="app-label"></p><h1 id="app-title"></h1></div></div>
+          <div class="title-row"><div><h1 id="app-title"></h1></div></div>
         <p id="app-intro" class="intro"></p>
       </header>
       <section id="scale-controls" class="explore-controls">
@@ -84,7 +84,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
     const translation = settings.getTranslations()
     document.documentElement.lang = settings.getSettings().language
     const set_text = (selector: string, value: string) => { const element = container.querySelector<HTMLElement>(selector); if (element) element.textContent = value }
-     set_text('#app-label', translation.app_label); set_text('#app-title', translation.app_title); set_text('#app-intro', translation.intro); set_text('#root-label', translation.root); set_text('#mode-label', translation.mode); set_text('#play-scale', translation.play_scale); set_text('#stop-audio', translation.stop); set_text('#generated-scale-label', translation.generated_scale); set_text('#piano-title', translation.piano); set_text('#guitar-title', translation.guitar)
+     set_text('#app-title', translation.app_title); set_text('#app-intro', translation.intro); set_text('#root-label', translation.root); set_text('#mode-label', translation.mode); set_text('#play-scale', translation.play_scale); set_text('#stop-audio', translation.stop); set_text('#generated-scale-label', translation.generated_scale); set_text('#piano-title', translation.piano); set_text('#guitar-title', translation.guitar)
     container.querySelector('#scale-controls')?.setAttribute('aria-label', translation.scale_controls); container.querySelector('#instrument-region')?.setAttribute('aria-label', translation.instrument_region)
     Array.from(ui.formula_select.options).forEach((option) => { const formula = SCALE_FORMULAS.find((candidate) => candidate.id === option.value); if (formula) option.textContent = translation.formula_names[formula.id] })
     if (ui.audio_status.textContent === '') ui.audio_status.textContent = translation.audio_locked
