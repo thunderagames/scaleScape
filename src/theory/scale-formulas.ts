@@ -19,6 +19,10 @@ export interface ScaleFormula {
   readonly degree_roles: Readonly<Record<number, readonly NoteRole[]>>
 }
 
+export function getStepSemitones(formula: ScaleFormula): readonly number[] {
+  return formula.semitone_offsets.slice(1).map((offset, index) => offset - (formula.semitone_offsets[index] ?? 0))
+}
+
 const diatonic_roles = (characteristic_degree: number): Readonly<Record<number, readonly NoteRole[]>> => ({
   1: ['tonic', 'chord_tone'],
   3: ['chord_tone'],

@@ -1,4 +1,4 @@
-import { SCALE_FORMULAS, type FormulaId, type NoteRole } from '../theory/scale-formulas'
+import { SCALE_FORMULAS, getStepSemitones, type FormulaId, type NoteRole } from '../theory/scale-formulas'
 import type { ExploreApplication } from '../application/explore-application'
 import type { ScaleState } from '../app-state/scale-state'
 import type { PlaybackInstrument, PlaybackPort } from '../audio/playback-port'
@@ -12,13 +12,20 @@ import { getVisiblePlaybackInstruments } from './visible-instruments'
 
 const ROOTS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 
+function format_interval(semitones: number): string {
+  if (semitones === 1) return '1/2'
+  if (semitones === 2) return '1'
+  if (semitones === 3) return '1 1/2'
+  return `${semitones / 2}`
+}
+
 export interface ExploreGuidedStartPort {
   readonly on_characteristic_note_selected: () => void
 }
 
 export function renderExploreScreen(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: EventLoggerPort = createDiagnosticsLogger(), guided_start?: ExploreGuidedStartPort): void {
   container.innerHTML = `
-    <main class="explore-shell">
+     <main class="explore-shell">
       <header class="explore-header">
          <div class="title-row"><div><p class="eyebrow" id="app-label"></p><h1 id="app-title"></h1></div></div>
         <p id="app-intro" class="intro"></p>
@@ -144,7 +151,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   }
 
   function render(state: ScaleState): void {
-    apply_translations(); const translation = settings.getTranslations(); ui.root_select.value = String(state.root_pitch_class); ui.formula_select.value = state.formula_id; ui.scale_title.textContent = `${state.scale_instance.root_spelling.text} ${translation.formula_names[state.formula_id]}`; ui.scale_caption.textContent = state.scale_instance.notes.map((note) => note.spelling.text).join(' · '); ui.generation_status.textContent = `${translation.generation} ${state.generation_id}`; ui.scale_notes.replaceChildren(...state.scale_instance.notes.map((note, note_index) => { const note_element = document.createElement('button'); note_element.type = 'button'; note_element.className = `scale-note ${note.primary_role} ${selected_pitch_class === note.pitch_class ? 'selected' : ''}`; note_element.textContent = `${note.spelling.text} · ${note.degree}`; note_element.setAttribute('aria-label', note_accessible_label(note, translation)); note_element.setAttribute('aria-pressed', String(selected_pitch_class === note.pitch_class)); note_element.addEventListener('click', () => { select_note(note.pitch_class, 'scale'); preview_scale_note(note_index) }); return note_element })); const selected_note = state.scale_instance.notes.find((note) => note.pitch_class === selected_pitch_class); ui.note_detail.textContent = selected_note ? `${selected_note.spelling.text} · ${translation.degree} ${selected_note.degree} · ${translation.role} ${translation.roles[selected_note.primary_role]}` : translation.select_note; render_piano(state); render_guitar(state)
+     apply_translations(); const translation = settings.getTranslations(); ui.root_select.value = String(state.root_pitch_class); ui.formula_select.value = state.formula_id; ui.scale_title.textContent = `${state.scale_instance.root_spelling.text} ${translation.formula_names[state.formula_id]}`; ui.scale_caption.textContent = state.scale_instance.notes.map((note) => note.spelling.text).join(' · '); ui.generation_status.textContent = `${translation.generation} ${state.generation_id}`; const step_semitones = getStepSemitones(state.scale_instance.formula); ui.scale_notes.replaceChildren(...state.scale_instance.notes.flatMap((note, note_index) => { const note_element = document.createElement('button'); note_element.type = 'button'; note_element.className = `scale-note ${note.primary_role} ${selected_pitch_class === note.pitch_class ? 'selected' : ''}`; note_element.textContent = `${note.spelling.text} · ${note.degree}`; note_element.setAttribute('aria-label', note_accessible_label(note, translation)); note_element.setAttribute('aria-pressed', String(selected_pitch_class === note.pitch_class)); note_element.addEventListener('click', () => { select_note(note.pitch_class, 'scale'); preview_scale_note(note_index) }); const interval = step_semitones[note_index]; if (interval === undefined) return [note_element]; const interval_element = document.createElement('span'); interval_element.className = 'scale-interval'; interval_element.textContent = format_interval(interval); interval_element.setAttribute('aria-label', `${interval} ${translation.interval_label}`); return [note_element, interval_element] })); const selected_note = state.scale_instance.notes.find((note) => note.pitch_class === selected_pitch_class); ui.note_detail.textContent = selected_note ? `${selected_note.spelling.text} · ${translation.degree} ${selected_note.degree} · ${translation.role} ${translation.roles[selected_note.primary_role]}` : translation.select_note; render_piano(state); render_guitar(state)
   }
 
   function change_scale_from_controls(): void {

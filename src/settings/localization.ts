@@ -52,6 +52,7 @@ export interface TranslationDictionary {
   readonly audio_unavailable: string
   readonly audio_stopped: string
   readonly generated_scale: string
+  readonly interval_label: string
   readonly select_note: string
   readonly piano: string
   readonly guitar: string
@@ -143,6 +144,7 @@ const ENGLISH: TranslationDictionary = {
   audio_unavailable: 'Audio unavailable.',
   audio_stopped: 'Audio stopped.',
   generated_scale: 'Generated scale',
+  interval_label: 'semitones',
   select_note: 'Select a scale note for interval and role detail.',
   piano: 'Piano · C3 to C5',
   guitar: 'Guitar · standard tuning · frets 0 to 12',
@@ -234,6 +236,7 @@ const SPANISH: TranslationDictionary = {
   audio_unavailable: 'Audio no disponible.',
   audio_stopped: 'Audio detenido.',
   generated_scale: 'Escala generada',
+  interval_label: 'semitonos',
   select_note: 'Seleccioná una nota para ver el detalle de intervalo y rol.',
   piano: 'Piano · Do3 a Do5',
   guitar: 'Guitarra · afinación estándar · trastes 0 a 12',

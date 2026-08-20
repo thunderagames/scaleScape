@@ -68,6 +68,23 @@ describe('explore screen', () => {
     expect(note_button?.getAttribute('aria-label')).toContain('degree 1')
   })
 
+  it('given_dorian_scale_when_rendering_generated_scale_then_shows_tone_and_semitone_steps', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    expect(Array.from(container.querySelectorAll('.scale-interval')).map((element) => element.textContent)).toEqual(['1', '1/2', '1', '1', '1', '1/2'])
+    expect(container.querySelector('.scale-interval')?.getAttribute('aria-label')).toBe('2 semitones')
+  })
+
+  it('given_major_pentatonic_scale_when_rendering_generated_scale_then_shows_one_and_a_half_tone_step', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(4, 'major_pentatonic')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(Array.from(container.querySelectorAll('.scale-interval')).map((element) => element.textContent)).toContain('1 1/2')
+  })
+
   it('given_generated_scale_when_playing_with_guitar_hidden_then_uses_only_visible_piano', async () => {
     const container = createContainer()
     const settings = createSettings()
