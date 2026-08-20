@@ -275,7 +275,7 @@ describe('application shell', () => {
     expect(container.querySelector('#volume-control')?.closest('dialog')).not.toBeNull()
   })
 
-  it('given_settings_button_when_rendering_shell_then_is_fixed_at_upper_right', () => {
+  it('given_settings_button_when_rendering_shell_then_is_fixed_at_upper_left', () => {
     const container = document.createElement('div')
     document.body.append(container)
     renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())

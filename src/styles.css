@@ -16,7 +16,7 @@ button:focus-visible, select:focus-visible { outline: 3px solid #8ee6c5; outline
 .navigation-toggle svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; }
 .app-navigation button { min-height: 44px; padding: 0.6rem 0.85rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #a9b8c7; background: #182a33; cursor: pointer; font-weight: 750; }
 .app-navigation button[aria-current="page"] { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
-.settings-floating { position: fixed; top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right)); z-index: 20; display: grid; place-items: center; margin: 0; border-color: #6c8792; border-radius: 0.85rem; background: linear-gradient(145deg, #315c6a, #1b3440); box-shadow: 0 8px 24px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .12); }
+.settings-floating { position: fixed; top: max(50px, calc(50px + env(safe-area-inset-top))); left: max(1rem, env(safe-area-inset-left)); z-index: 20; display: grid; place-items: center; margin: 0; border-color: #6c8792; border-radius: 0.85rem; background: linear-gradient(145deg, #315c6a, #1b3440); box-shadow: 0 8px 24px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .12); }
 .settings-floating:hover { border-color: #8ee6c5; background: linear-gradient(145deg, #3d7180, #214653); }
 .settings-icon { width: 1.35rem; height: 1.35rem; fill: none; stroke: #d9f8ed; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; transition: transform 180ms ease; }
 .settings-floating:hover .settings-icon, .settings-floating:focus-visible .settings-icon { transform: rotate(22deg); }
