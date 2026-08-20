@@ -11,9 +11,10 @@ function createPlaybackFake() {
     playScale: async () => ({ ok: true }),
     previewNote: async (note) => { previewed_notes.push(note); return { ok: true } },
     stopAll: async () => { listener?.on_stopped() },
+    setContext: async () => ({ ok: true }),
     setVolume: () => undefined,
     setMuted: () => undefined,
-    getPlaybackState: () => ({ is_muted: false, volume: 0.7 }),
+    getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off' }),
     subscribePlaybackState: () => () => undefined,
     subscribe: (next_listener) => { listener = next_listener; return () => { listener = null } }
   }

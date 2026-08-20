@@ -9,9 +9,10 @@ function createPlaybackFake() {
     playScale: async (scale) => { played_formulas.push(scale.formula.id); return { ok: true } },
     previewNote: async () => ({ ok: true }),
     stopAll: async () => undefined,
+    setContext: async () => ({ ok: true }),
     setVolume: () => undefined,
     setMuted: () => undefined,
-    getPlaybackState: () => ({ is_muted: false, volume: 0.7 }),
+    getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off' }),
     subscribePlaybackState: () => () => undefined,
     subscribe: () => () => undefined
   }

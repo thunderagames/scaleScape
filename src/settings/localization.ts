@@ -68,6 +68,22 @@ export interface TranslationDictionary {
   readonly mute: string
   readonly unmute: string
   readonly muted: string
+  readonly guided_start: string
+  readonly guided_start_title: string
+  readonly guided_start_intro: string
+  readonly guided_start_step_one: string
+  readonly guided_start_step_two: string
+  readonly guided_start_step_three: string
+  readonly start_guided: string
+  readonly explore_directly: string
+  readonly guided_start_playing: string
+  readonly export_diagnostics: string
+  readonly diagnostics_exported: string
+  readonly diagnostics_unavailable: string
+  readonly context: string
+  readonly context_off: string
+  readonly context_drone: string
+  readonly context_pedal: string
 }
 
 const ENGLISH: TranslationDictionary = {
@@ -136,6 +152,22 @@ const ENGLISH: TranslationDictionary = {
   ,mute: 'Mute'
   ,unmute: 'Unmute'
   ,muted: 'Muted'
+  ,guided_start: 'Guided Start'
+  ,guided_start_title: 'Start by hearing one scale in context.'
+  ,guided_start_intro: 'We will play E Dorian over a tonic drone. Then inspect its characteristic sixth and compare it with natural minor in Ear Gym.'
+  ,guided_start_step_one: 'Hear the scale over its tonic.'
+  ,guided_start_step_two: 'Select the characteristic note on piano or guitar.'
+  ,guided_start_step_three: 'Compare the changed degree in Ear Gym.'
+  ,start_guided: 'Start Guided Start'
+  ,explore_directly: 'Explore directly'
+  ,guided_start_playing: 'Guided Start is playing.'
+  ,export_diagnostics: 'Export diagnostics'
+  ,diagnostics_exported: 'Diagnostics exported.'
+  ,diagnostics_unavailable: 'Diagnostics export unavailable.'
+  ,context: 'Harmonic context'
+  ,context_off: 'No context'
+  ,context_drone: 'Tonic drone'
+  ,context_pedal: 'Tonic + fifth pedal'
 }
 
 const SPANISH: TranslationDictionary = {
@@ -204,6 +236,22 @@ const SPANISH: TranslationDictionary = {
   ,mute: 'Silenciar'
   ,unmute: 'Activar sonido'
   ,muted: 'Silenciado'
+  ,guided_start: 'Inicio guiado'
+  ,guided_start_title: 'Empezá escuchando una escala en contexto.'
+  ,guided_start_intro: 'Vamos a reproducir Mi dórico sobre un drone de tónica. Después mirá su sexta característica y comparala con el menor natural en el gimnasio auditivo.'
+  ,guided_start_step_one: 'Escuchá la escala sobre su tónica.'
+  ,guided_start_step_two: 'Seleccioná la nota característica en piano o guitarra.'
+  ,guided_start_step_three: 'Compará el grado cambiado en el gimnasio auditivo.'
+  ,start_guided: 'Comenzar inicio guiado'
+  ,explore_directly: 'Explorar directamente'
+  ,guided_start_playing: 'El inicio guiado está reproduciéndose.'
+  ,export_diagnostics: 'Exportar diagnósticos'
+  ,diagnostics_exported: 'Diagnósticos exportados.'
+  ,diagnostics_unavailable: 'La exportación de diagnósticos no está disponible.'
+  ,context: 'Contexto armónico'
+  ,context_off: 'Sin contexto'
+  ,context_drone: 'Drone de tónica'
+  ,context_pedal: 'Pedal de tónica + quinta'
 }
 
 export function getTranslations(language: Language): TranslationDictionary {

@@ -1,20 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import { createExploreApplication } from '../application/explore-application'
 import type { PlaybackPort } from '../audio/playback-port'
+import type { DiagnosticsPort } from '../observability/event-logger'
 import { createSettingsStore } from '../settings/settings-store'
 import { renderAppShell } from './app-shell'
 
 function createPlaybackFake(): PlaybackPort {
   let is_muted = false
   let volume = 0.7
-  const state_listeners = new Set<(state: { readonly is_muted: boolean; readonly volume: number }) => void>()
+  let context: 'off' | 'drone' | 'pedal' = 'off'
+  const state_listeners = new Set<(state: { readonly is_muted: boolean; readonly volume: number; readonly context: 'off' | 'drone' | 'pedal' }) => void>()
   return {
     playScale: async () => ({ ok: true }),
     previewNote: async () => ({ ok: true }),
     stopAll: async () => undefined,
-    setVolume: (next_volume) => { volume = next_volume; state_listeners.forEach((listener) => listener({ is_muted, volume })) },
-    setMuted: (next_is_muted) => { is_muted = next_is_muted; state_listeners.forEach((listener) => listener({ is_muted, volume })) },
-    getPlaybackState: () => ({ is_muted, volume }),
+    setContext: async (_root_pitch_class, next_context) => { context = next_context; return { ok: true } },
+    setVolume: (next_volume) => { volume = next_volume; state_listeners.forEach((listener) => listener({ is_muted, volume, context })) },
+    setMuted: (next_is_muted) => { is_muted = next_is_muted; state_listeners.forEach((listener) => listener({ is_muted, volume, context })) },
+    getPlaybackState: () => ({ is_muted, volume, context }),
     subscribePlaybackState: (listener) => { state_listeners.add(listener); return () => state_listeners.delete(listener) },
     subscribe: () => () => undefined
   }
@@ -35,7 +38,77 @@ function createSettings() {
   return createSettingsStore()
 }
 
+function createDiagnosticsFake(): DiagnosticsPort & { readonly events: string[] } {
+  const events: string[] = []
+  return {
+    events,
+    log: (event_name) => events.push(event_name),
+    exportJsonl: () => ({ ok: true, content: '{"event_name":"test"}\n' })
+  }
+}
+
 describe('application shell', () => {
+  it('given_first_visit_when_rendering_shell_then_shows_guided_start_and_keeps_explore_available', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(false)
+    expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(true)
+    expect(container.querySelector('#explore-directly')?.textContent).toBe('Explore directly')
+  })
+
+  it('given_guided_start_when_starting_then_selects_drone_and_plays_initial_scale', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const playback = createPlaybackFake()
+    const diagnostics = createDiagnosticsFake()
+    const play_scale = playback.playScale
+    let played = false
+    playback.playScale = async (scale) => { played = scale.formula.id === 'dorian'; return { ok: true } }
+    renderAppShell(container, createExploreApplication(), playback, createSettings(), diagnostics)
+
+    container.querySelector<HTMLButtonElement>('#start-guided')?.click()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(playback.getPlaybackState().context).toBe('drone')
+    expect(played).toBe(true)
+    expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
+    expect(container.querySelector('#audio-status')?.textContent).toBe('Guided Start is playing.')
+    expect(diagnostics.events).toEqual(['application.guided_start_entered', 'application.guided_start_completed'])
+    playback.playScale = play_scale
+  })
+
+  it('given_diagnostics_button_when_not_clicked_then_does_not_export', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const diagnostics = createDiagnosticsFake()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), diagnostics)
+
+    expect(container.querySelector('#diagnostics-status')?.textContent).toBe('')
+  })
+
+  it('given_diagnostics_button_when_clicked_then_reports_export_success', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const diagnostics = createDiagnosticsFake()
+    const create_object_url = URL.createObjectURL
+    const revoke_object_url = URL.revokeObjectURL
+    const anchor_click = HTMLAnchorElement.prototype.click
+    URL.createObjectURL = () => 'blob:test'
+    URL.revokeObjectURL = () => undefined
+    HTMLAnchorElement.prototype.click = () => undefined
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), diagnostics)
+
+    container.querySelector<HTMLButtonElement>('#export-diagnostics')?.click()
+
+    expect(container.querySelector('#diagnostics-status')?.textContent).toBe('Diagnostics exported.')
+    URL.createObjectURL = create_object_url
+    URL.revokeObjectURL = revoke_object_url
+    HTMLAnchorElement.prototype.click = anchor_click
+  })
+
   it('given_explore_screen_when_opening_ear_gym_then_switches_visible_screen_and_current_navigation', () => {
     const container = document.createElement('div')
     document.body.append(container)
@@ -92,5 +165,38 @@ describe('application shell', () => {
     expect(settings.getSettings().volume).toBe(0.4)
     expect(container.querySelector('#mute-status')?.textContent).toBe('Muted')
     expect(container.querySelector('#mute-audio')?.textContent).toBe('Unmute')
+  })
+
+  it('given_audio_context_control_when_selecting_pedal_then_starts_context_for_current_root', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const playback = createPlaybackFake()
+    renderAppShell(container, createExploreApplication(), playback, createSettings())
+    const context_control = container.querySelector<HTMLSelectElement>('#context-control')
+
+    if (context_control) {
+      context_control.value = 'pedal'
+      context_control.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+    await Promise.resolve()
+
+    expect(playback.getPlaybackState().context).toBe('pedal')
+  })
+
+  it('given_enabled_context_when_stopping_current_audio_then_keeps_context_enabled_for_next_playback', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const playback = createPlaybackFake()
+    renderAppShell(container, createExploreApplication(), playback, createSettings())
+    const context_control = container.querySelector<HTMLSelectElement>('#context-control')
+    if (context_control) {
+      context_control.value = 'drone'
+      context_control.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    await playback.stopAll()
+
+    expect(playback.getPlaybackState().context).toBe('drone')
+    expect(container.querySelector<HTMLSelectElement>('#context-control')?.value).toBe('drone')
   })
 })

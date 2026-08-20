@@ -14,12 +14,14 @@ export interface PlaybackListener {
 export interface PlaybackState {
   readonly is_muted: boolean
   readonly volume: number
+  readonly context: 'off' | 'drone' | 'pedal'
 }
 
 export interface PlaybackPort {
   playScale(scale_instance: ScaleInstance): Promise<{ readonly ok: boolean }>
   previewNote(note: PlayableNote): Promise<{ readonly ok: boolean }>
   stopAll(): Promise<void>
+  setContext(root_pitch_class: number, context: 'off' | 'drone' | 'pedal'): Promise<{ readonly ok: boolean }>
   setVolume(volume: number): void
   setMuted(is_muted: boolean): void
   getPlaybackState(): PlaybackState

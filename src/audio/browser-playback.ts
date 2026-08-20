@@ -9,10 +9,13 @@ interface BrowserAudioWindow extends Window {
 export function createBrowserPlayback(): PlaybackPort {
   let audio_context: AudioContext | null = null
   let active_nodes: OscillatorNode[] = []
+  let context_nodes: OscillatorNode[] = []
   let active_timers: number[] = []
   let playback_generation = 0
   let volume = 0.7
   let is_muted = false
+  let context_mode: 'off' | 'drone' | 'pedal' = 'off'
+  let context_root_pitch_class = 0
   const listeners = new Set<PlaybackListener>()
   const state_listeners = new Set<(state: PlaybackState) => void>()
   let master_gain: GainNode | null = null
@@ -42,6 +45,11 @@ export function createBrowserPlayback(): PlaybackPort {
   }
 
   function stopAllNodes(notify = true): void {
+    stopScheduledAudio()
+    if (notify) listeners.forEach((listener) => listener.on_stopped())
+  }
+
+  function stopScheduledAudio(): void {
     playback_generation += 1
     active_timers.forEach((timer) => window.clearTimeout(timer))
     active_timers = []
@@ -49,16 +57,25 @@ export function createBrowserPlayback(): PlaybackPort {
       try { node.stop(); node.disconnect() } catch { /* already ended */ }
     })
     active_nodes = []
-    if (notify) listeners.forEach((listener) => listener.on_stopped())
+    context_nodes.forEach((node) => {
+      try { node.stop(); node.disconnect() } catch { /* already ended */ }
+    })
+    context_nodes = []
   }
 
-  function schedule_note(context: AudioContext, frequency: number, start_time: number, duration: number): void {
+  function schedule_context(context: AudioContext, root_pitch_class: number, mode: 'drone' | 'pedal', start_time: number, duration: number): void {
+    const tonic_frequency = pitchToFrequency(root_pitch_class, 3)
+    schedule_recorder_note(context, tonic_frequency, start_time, duration, context_nodes)
+    if (mode === 'pedal') schedule_recorder_note(context, tonic_frequency * 2 ** (7 / 12), start_time, duration, context_nodes)
+  }
+
+  function schedule_note(context: AudioContext, frequency: number, start_time: number, duration: number, destination_nodes = active_nodes, peak_gain = 0.2): void {
     const oscillator = context.createOscillator()
     const gain = context.createGain()
-    oscillator.type = 'triangle'
+    oscillator.type = peak_gain < 0.2 ? 'sine' : 'triangle'
     oscillator.frequency.setValueAtTime(frequency, start_time)
     gain.gain.setValueAtTime(0.0001, start_time)
-    gain.gain.exponentialRampToValueAtTime(0.2, start_time + 0.02)
+    gain.gain.exponentialRampToValueAtTime(peak_gain, start_time + 0.02)
     gain.gain.exponentialRampToValueAtTime(0.0001, start_time + duration - 0.04)
     oscillator.connect(gain)
     if (!master_gain) {
@@ -69,7 +86,13 @@ export function createBrowserPlayback(): PlaybackPort {
     gain.connect(master_gain)
     oscillator.start(start_time)
     oscillator.stop(start_time + duration)
-    active_nodes.push(oscillator)
+    destination_nodes.push(oscillator)
+  }
+
+  function schedule_recorder_note(context: AudioContext, frequency: number, start_time: number, duration: number, destination_nodes: OscillatorNode[]): void {
+    schedule_note(context, frequency, start_time, duration, destination_nodes, 0.12)
+    schedule_note(context, frequency * 2, start_time, duration, destination_nodes, 0.035)
+    schedule_note(context, frequency * 3, start_time, duration, destination_nodes, 0.012)
   }
 
   return {
@@ -77,8 +100,10 @@ export function createBrowserPlayback(): PlaybackPort {
       const context = await unlock()
       if (!context) return { ok: false }
       try {
-        stopAllNodes(false)
+        stopScheduledAudio()
         const start_time = context.currentTime + 0.05
+        const duration = 0.6 + Math.max(0, scale_instance.notes.length - 1) * 0.7
+        if (context_mode !== 'off') schedule_context(context, scale_instance.root_pitch_class, context_mode, start_time, duration)
         const scheduled_generation = playback_generation
         const frequencies = scale_instance.notes.map((note) => transposePitch(scale_instance.root_pitch_class, 4, note.semitones).frequency)
         frequencies.forEach((frequency, index) => {
@@ -93,7 +118,7 @@ export function createBrowserPlayback(): PlaybackPort {
         })
         return { ok: true }
       } catch {
-        stopAllNodes(false)
+        stopScheduledAudio()
         return { ok: false }
       }
     },
@@ -101,31 +126,40 @@ export function createBrowserPlayback(): PlaybackPort {
       const context = await unlock()
       if (!context) return { ok: false }
       try {
-        stopAllNodes(false)
-        schedule_note(context, pitchToFrequency(note.pitch_class, note.octave), context.currentTime + 0.02, 0.55)
+        stopScheduledAudio()
+        const start_time = context.currentTime + 0.02
+        if (context_mode !== 'off') schedule_context(context, context_root_pitch_class, context_mode, start_time, 0.55)
+        schedule_note(context, pitchToFrequency(note.pitch_class, note.octave), start_time, 0.55)
         return { ok: true }
       } catch {
-        stopAllNodes(false)
+        stopScheduledAudio()
         return { ok: false }
       }
     },
     async stopAll() {
       stopAllNodes()
     },
+    async setContext(root_pitch_class, next_context) {
+      stopScheduledAudio()
+      context_root_pitch_class = root_pitch_class
+      context_mode = next_context
+      state_listeners.forEach((listener) => listener({ is_muted, volume, context: context_mode }))
+      return { ok: true }
+    },
     setVolume(next_volume) {
       volume = Math.min(1, Math.max(0, next_volume))
       if (master_gain) master_gain.gain.value = is_muted ? 0 : volume
-      const state = { is_muted, volume }
+      const state = { is_muted, volume, context: context_mode }
       state_listeners.forEach((listener) => listener(state))
     },
     setMuted(next_is_muted) {
       is_muted = next_is_muted
       if (master_gain) master_gain.gain.value = is_muted ? 0 : volume
-      const state = { is_muted, volume }
+      const state = { is_muted, volume, context: context_mode }
       state_listeners.forEach((listener) => listener(state))
     },
     getPlaybackState() {
-      return { is_muted, volume }
+      return { is_muted, volume, context: context_mode }
     },
     subscribePlaybackState(listener) {
       state_listeners.add(listener)
