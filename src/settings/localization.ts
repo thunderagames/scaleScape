@@ -204,16 +204,16 @@ const SPANISH: TranslationDictionary = {
   nav_guided_start: 'Inicio guiado',
   toggle_navigation: 'Alternar navegación',
   ear_gym_title: 'Gimnasio auditivo',
-  ear_gym_intro: 'Entrená el oído comparando escalas y modos relacionados.',
+  ear_gym_intro: 'Entrena el oído comparando escalas y modos relacionados.',
   ear_gym_audio_required: 'El audio es necesario para puntuar los ejercicios auditivos.',
-  ear_gym_visual_fallback: 'Mientras el audio no esté disponible, podés inspeccionar visualmente las dos escalas.',
+  ear_gym_visual_fallback: 'Mientras el audio no esté disponible, puedes inspeccionar visualmente las dos escalas.',
   ear_gym_placeholder: 'El primer ejercicio de comparación es el próximo paso.',
   guided_comparison: 'Comparación guiada',
   comparison_selector: 'Comparación',
   natural_minor_vs_dorian: 'Menor natural vs Dórico',
   comparison_names: { natural_minor_dorian: 'Menor natural vs Dórico', major_mixolydian: 'Mayor vs Mixolidio', major_lydian: 'Mayor vs Lidio', natural_minor_phrygian: 'Menor natural vs Frigio' },
   interval_prompt: '¿Qué grado cambió entre los ejemplos?',
-  identify_prompt: 'Elegí el grado que cambió.',
+  identify_prompt: 'Elige el grado que cambió.',
   begin_answer: 'Identificar el grado cambiado',
   play_natural_minor: 'Reproducir menor natural · Ejemplo A',
   play_dorian: 'Reproducir dórico · Ejemplo B',
@@ -227,8 +227,8 @@ const SPANISH: TranslationDictionary = {
   characteristic_explanation: 'El modo dórico eleva el sexto grado de {lower} a {raised} en {root}.',
   streak: 'Racha',
   try_again: 'Intentar de nuevo',
-  app_title: 'Explorá cómo suena una escala.',
-  intro: 'Elegí una tónica y un modo. Escuchá la escala, mirá los roles de los intervalos y encontrá las mismas notas en piano y guitarra.',
+  app_title: 'Explora cómo suena una escala.',
+  intro: 'Elige una tónica y un modo. Escucha la escala, observa los roles de los intervalos y encuentra las mismas notas en piano y guitarra.',
   scale_controls: 'Controles de escala',
   root: 'Tónica',
   mode: 'Modo',
@@ -240,7 +240,7 @@ const SPANISH: TranslationDictionary = {
   audio_stopped: 'Audio detenido.',
   generated_scale: 'Escala generada',
   interval_label: 'semitonos',
-  select_note: 'Seleccioná una nota para ver el detalle de intervalo y rol.',
+  select_note: 'Selecciona una nota para ver el detalle del intervalo y su rol.',
   piano: 'Piano · Do3 a Do5',
   guitar: 'Guitarra · afinación estándar · trastes 0 a 12',
   generation: 'Generación',
@@ -260,16 +260,16 @@ const SPANISH: TranslationDictionary = {
   ,unmute: 'Activar sonido'
   ,muted: 'Silenciado'
   ,guided_start: 'Inicio guiado'
-  ,guided_start_title: 'Empezá escuchando una escala en contexto.'
-  ,guided_start_intro: 'Vamos a reproducir Mi dórico sobre un drone de tónica. Después mirá su sexta característica y comparala con el menor natural en el gimnasio auditivo.'
-  ,guided_start_step_one: 'Escuchá la escala sobre su tónica.'
-  ,guided_start_step_two: 'Seleccioná la nota característica en piano o guitarra.'
-  ,guided_start_step_three: 'Compará el grado cambiado en el gimnasio auditivo.'
+   ,guided_start_title: 'Comienza escuchando una escala en contexto.'
+   ,guided_start_intro: 'Reproduciremos Mi dórico sobre un drone de tónica. Después observa su sexta característica y compárala con el menor natural en el gimnasio auditivo.'
+   ,guided_start_step_one: 'Escucha la escala sobre su tónica.'
+   ,guided_start_step_two: 'Selecciona la nota característica en piano o guitarra.'
+   ,guided_start_step_three: 'Compara el grado cambiado en el gimnasio auditivo.'
   ,start_guided: 'Comenzar inicio guiado'
   ,explore_directly: 'Explorar directamente'
   ,guided_start_playing: 'El inicio guiado está reproduciéndose.'
-  ,guided_step_select: 'Ahora seleccioná la nota característica en el piano o la guitarra.'
-  ,guided_step_compare: 'Encontraste la nota característica. Comparala en el gimnasio auditivo.'
+   ,guided_step_select: 'Ahora selecciona la nota característica en el piano o la guitarra.'
+   ,guided_step_compare: 'Encontraste la nota característica. Compárala en el gimnasio auditivo.'
   ,guided_open_ear_gym: 'Abrir gimnasio auditivo'
   ,export_diagnostics: 'Exportar diagnósticos'
   ,diagnostics_mode: 'Activar modo diagnóstico'
@@ -278,7 +278,7 @@ const SPANISH: TranslationDictionary = {
   ,context: 'Contexto armónico'
   ,context_off: 'Sin contexto'
   ,context_drone: 'Drone de tónica'
-  ,context_pedal: 'Pedal de tónica + quinta'
+   ,context_pedal: 'Pedal de tónica y quinta'
 }
 
 export function getTranslations(language: Language): TranslationDictionary {

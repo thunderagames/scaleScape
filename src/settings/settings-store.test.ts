@@ -40,7 +40,7 @@ describe('settings store', () => {
     store.setLanguage('es')
 
     expect(languages).toEqual(['es'])
-    expect(store.getTranslations().app_title).toBe('Explorá cómo suena una escala.')
+    expect(store.getTranslations().app_title).toBe('Explora cómo suena una escala.')
   })
 
   it('given_visible_instruments_when_hiding_piano_then_preserves_guitar_visibility', () => {
