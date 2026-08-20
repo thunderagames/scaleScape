@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createExploreApplication } from '../application/explore-application'
 import type { PlaybackListener, PlaybackPort } from '../audio/playback-port'
 import { createSettingsStore } from '../settings/settings-store'
+import type { EventLoggerPort } from '../observability/event-logger'
 import { renderExploreScreen } from './explore-screen'
 
 function createPlaybackFake() {
@@ -40,6 +41,14 @@ function createContainer(): HTMLElement {
   const container = document.createElement('div')
   document.body.append(container)
   return container
+}
+
+function createDiagnosticsFake(should_throw = false): EventLoggerPort & { readonly events: string[] } {
+  const events: string[] = []
+  return {
+    events,
+    log: (event_name) => { if (should_throw) throw new Error('diagnostics unavailable'); events.push(event_name) }
+  }
 }
 
 describe('explore screen', () => {
@@ -131,5 +140,34 @@ describe('explore screen', () => {
 
     expect(settings.getSettings().last_root).toBe(9)
     expect(settings.getSettings().last_formula).toBe('lydian')
+  })
+
+  it('given_scale_controls_when_changing_scale_then_logs_completed_scale_change', () => {
+    const container = createContainer()
+    const diagnostics = createDiagnosticsFake()
+    const root_select = '#root-select'
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings(), diagnostics)
+
+    const control = container.querySelector<HTMLSelectElement>(root_select)
+    if (control) {
+      control.value = '7'
+      control.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    expect(diagnostics.events).toEqual(['application.scale_change_completed'])
+  })
+
+  it('given_failing_diagnostics_when_changing_scale_then_keeps_scale_change_functional', () => {
+    const container = createContainer()
+    const diagnostics = createDiagnosticsFake(true)
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings(), diagnostics)
+
+    const control = container.querySelector<HTMLSelectElement>('#root-select')
+    if (control) {
+      control.value = '7'
+      control.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    expect(container.querySelector('#scale-title')?.textContent).toContain('G Dorian')
   })
 })

@@ -6,11 +6,12 @@ import { createPianoViewModel } from '../instruments/piano-view-model'
 import { createGuitarViewModel, type GuitarPosition } from '../instruments/guitar-view-model'
 import type { SettingsStore } from '../settings/settings-store'
 import type { TranslationDictionary } from '../settings/localization'
+import { createDiagnosticsLogger, type EventLoggerPort } from '../observability/event-logger'
 import { transposePitch } from '../theory/frequency'
 
 const ROOTS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 
-export function renderExploreScreen(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore): void {
+export function renderExploreScreen(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: EventLoggerPort = createDiagnosticsLogger()): void {
   container.innerHTML = `
     <main class="explore-shell">
       <header class="explore-header">
@@ -154,8 +155,14 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
     const next_formula_id = ui.formula_select.value as FormulaId
     selected_pitch_class = null
     void playback.stopAll()
-    application.changeScale(next_root_pitch_class, next_formula_id)
-    settings.setSettings({ ...settings.getSettings(), last_root: next_root_pitch_class, last_formula: next_formula_id })
+    try {
+      const next_state = application.changeScale(next_root_pitch_class, next_formula_id)
+      settings.setSettings({ ...settings.getSettings(), last_root: next_root_pitch_class, last_formula: next_formula_id })
+      try { diagnostics.log('application.scale_change_completed', { formula_id: next_formula_id, root_pitch_class: next_root_pitch_class, generation_id: next_state.generation_id }) } catch { /* Diagnostics must not block scale changes. */ }
+    } catch {
+      try { diagnostics.log('application.scale_change_failed', { formula_id: next_formula_id, root_pitch_class: next_root_pitch_class, generation_id: application.getState().generation_id }) } catch { /* Diagnostics must not block scale changes. */ }
+      render(application.getState())
+    }
   }
 
   ui.root_select.addEventListener('change', change_scale_from_controls); ui.formula_select.addEventListener('change', change_scale_from_controls); ui.play_scale.addEventListener('click', async () => { selected_pitch_class = null; const result = await playback.playScale(application.getState().scale_instance); ui.audio_status.textContent = result.ok ? settings.getTranslations().audio_playing : settings.getTranslations().audio_unavailable; render(application.getState()) }); ui.stop_audio.addEventListener('click', async () => { await playback.stopAll(); ui.audio_status.textContent = settings.getTranslations().audio_stopped }); ui.open_settings.addEventListener('click', () => { apply_translations(); ui.settings_modal.showModal() }); ui.close_settings.addEventListener('click', close_settings_dialog); ui.cancel_settings.addEventListener('click', close_settings_dialog); ui.save_settings.addEventListener('click', () => { const next_settings = { language: ui.language_select.value as 'en' | 'es', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked, ear_gym_streak: settings.getSettings().ear_gym_streak, volume: settings.getSettings().volume, last_root: settings.getSettings().last_root, last_formula: settings.getSettings().last_formula, guided_start_completed: settings.getSettings().guided_start_completed }; settings.setSettings(next_settings); close_settings_dialog() }); playback.subscribe({ on_note_started: (note_index) => { const note = application.getState().scale_instance.notes[note_index]; if (note) { selected_pitch_class = note.pitch_class; render(application.getState()) } }, on_stopped: () => { selected_pitch_class = null; render(application.getState()) } }); settings.subscribe(() => render(application.getState())); application.subscribe(render); render(application.getState())
