@@ -122,7 +122,6 @@ describe('application shell', () => {
     expect(playback.getPlaybackState().context).toBe('drone')
     expect(played).toBe(true)
     expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
-    expect(container.querySelector('#audio-status')?.textContent).toBe('Guided Start is playing.')
     expect(container.querySelector<HTMLElement>('#guided-progress')?.hidden).toBe(false)
     expect(container.querySelector('#guided-progress-text')?.textContent).toBe('Now select the characteristic note on piano or guitar.')
     expect(diagnostics.events).toEqual(['application.guided_start_entered', 'application.guided_start_completed'])

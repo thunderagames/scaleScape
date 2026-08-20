@@ -56,7 +56,6 @@ describe('ear gym screen', () => {
     await Promise.resolve()
 
     expect(playback_fake.played_formulas).toEqual(['natural_minor', 'dorian'])
-    expect(container.querySelector('#playback-status')?.textContent).toBe('Playing Dorian.')
   })
 
   it('given_played_example_when_replaying_then_uses_replay_label_and_stop_clears_status', async () => {
@@ -69,7 +68,6 @@ describe('ear gym screen', () => {
     container.querySelector<HTMLButtonElement>('#stop-audio')?.click()
     await Promise.resolve()
 
-    expect(container.querySelector('#playback-status')?.textContent).toBe('Audio stopped.')
   })
 
   it('given_listen_phase_when_answering_sixth_degree_then_reveals_feedback_and_streak', () => {
@@ -158,7 +156,6 @@ describe('ear gym screen', () => {
     renderEarGymScreen(container, createPlaybackFake().playback, createSettings(), createDiagnosticsFake(true))
 
     expect(() => container.querySelector<HTMLButtonElement>('#play-example-a')?.click()).not.toThrow()
-    expect(container.querySelector('#playback-status')?.textContent).toBe('Playing natural minor.')
   })
 
   it('given_unavailable_audio_when_playing_example_then_shows_visual_fallback_and_disables_scoring', async () => {

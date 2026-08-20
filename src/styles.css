@@ -52,8 +52,6 @@ select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: 0.6rem; bo
 .playback-icon { width: 1.25rem; height: 1.25rem; fill: currentColor; }
 .scale-selector { min-height: 44px; padding: .6rem .85rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
 .scale-selector-form { display: grid; gap: .8rem; padding: 1.25rem; }
-#generation-status { margin-left: auto; color: #8ee6c5; font-size: 0.85rem; }
-.audio-status { color: #8ee6c5; font-size: 0.85rem; }
 .scale-caption, .note-detail { color: #a9b8c7; line-height: 1.5; }
 .scale-notes { display: flex; flex-wrap: wrap; align-items: end; gap: 0.6rem; }
 .scale-note-wrapper { display: grid; justify-items: center; gap: 0.18rem; }
@@ -129,7 +127,6 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .comparison-prompt { color: #a9b8c7; line-height: 1.5; }
 .comparison-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .comparison-actions button, #restart-exercise { min-height: 44px; padding: 0.6rem 0.8rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
-#playback-status { min-height: 1.5rem; color: #8ee6c5; }
 .audio-fallback { padding: 0.75rem; border-left: 3px solid #f6bf62; color: #ffe4ad; background: #3d3020; line-height: 1.45; }
 .answer-options { margin: 1rem 0; padding: 0.8rem; border: 1px solid #34434e; border-radius: 0.6rem; }
 .answer-options legend { padding: 0 0.3rem; color: #a9b8c7; }
