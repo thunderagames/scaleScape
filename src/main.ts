@@ -11,4 +11,5 @@ if (!app) {
 }
 
 const settings = createSettingsStore()
-renderAppShell(app, createExploreApplication(settings.getSettings().last_root, settings.getSettings().last_formula), createBrowserPlayback(), settings, createDiagnosticsLogger())
+const diagnostics = createDiagnosticsLogger()
+renderAppShell(app, createExploreApplication(settings.getSettings().last_root, settings.getSettings().last_formula), createBrowserPlayback(diagnostics), settings, diagnostics)

@@ -1,12 +1,13 @@
 import { pitchToFrequency, transposePitch } from '../theory/frequency'
 import type { ScaleInstance } from '../theory/scale-instance'
+import type { EventLoggerPort } from '../observability/event-logger'
 import type { PlaybackListener, PlaybackPort, PlaybackState, PlayableNote } from './playback-port'
 
 interface BrowserAudioWindow extends Window {
   webkitAudioContext?: typeof AudioContext
 }
 
-export function createBrowserPlayback(): PlaybackPort {
+export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () => undefined }): PlaybackPort {
   let audio_context: AudioContext | null = null
   let active_nodes: OscillatorNode[] = []
   let context_nodes: OscillatorNode[] = []
@@ -19,6 +20,10 @@ export function createBrowserPlayback(): PlaybackPort {
   const listeners = new Set<PlaybackListener>()
   const state_listeners = new Set<(state: PlaybackState) => void>()
   let master_gain: GainNode | null = null
+
+  function log(event_name: string, attributes: Readonly<Record<string, string | number | boolean>>): void {
+    try { diagnostics.log(event_name, attributes) } catch { /* Diagnostics must not block audio. */ }
+  }
 
   function getContext(): AudioContext | null {
     if (audio_context) return audio_context
@@ -35,11 +40,20 @@ export function createBrowserPlayback(): PlaybackPort {
 
   async function unlock(): Promise<AudioContext | null> {
     const context = getContext()
-    if (!context) return null
+    if (!context) {
+      log('audio.unlock_failed', { audio_lifecycle: 'UNAVAILABLE' })
+      return null
+    }
     try {
       if (context.state === 'suspended') await context.resume()
-      return context.state === 'running' ? context : null
+      if (context.state !== 'running') {
+        log('audio.unlock_failed', { audio_lifecycle: 'SUSPENDED' })
+        return null
+      }
+      log('audio.unlock_completed', { audio_lifecycle: 'READY' })
+      return context
     } catch {
+      log('audio.unlock_failed', { audio_lifecycle: 'ERROR' })
       return null
     }
   }
@@ -104,6 +118,7 @@ export function createBrowserPlayback(): PlaybackPort {
         const start_time = context.currentTime + 0.05
         const duration = 0.6 + Math.max(0, scale_instance.notes.length - 1) * 0.7
         if (context_mode !== 'off') schedule_context(context, scale_instance.root_pitch_class, context_mode, start_time, duration)
+        if (context_mode !== 'off') log('audio.context_started', { generation_id: playback_generation, context_kind: context_mode === 'drone' ? 'DRONE' : 'PEDAL' })
         const scheduled_generation = playback_generation
         const frequencies = scale_instance.notes.map((note) => transposePitch(scale_instance.root_pitch_class, 4, note.semitones).frequency)
         frequencies.forEach((frequency, index) => {
@@ -119,6 +134,7 @@ export function createBrowserPlayback(): PlaybackPort {
         return { ok: true }
       } catch {
         stopScheduledAudio()
+        log('audio.lifecycle_changed', { previous_lifecycle: 'READY', new_lifecycle: 'ERROR', reason_code: 'ENGINE_ERROR' })
         return { ok: false }
       }
     },
@@ -129,10 +145,12 @@ export function createBrowserPlayback(): PlaybackPort {
         stopScheduledAudio()
         const start_time = context.currentTime + 0.02
         if (context_mode !== 'off') schedule_context(context, context_root_pitch_class, context_mode, start_time, 0.55)
+        if (context_mode !== 'off') log('audio.context_started', { generation_id: playback_generation, context_kind: context_mode === 'drone' ? 'DRONE' : 'PEDAL' })
         schedule_note(context, pitchToFrequency(note.pitch_class, note.octave), start_time, 0.55)
         return { ok: true }
       } catch {
         stopScheduledAudio()
+        log('audio.lifecycle_changed', { previous_lifecycle: 'READY', new_lifecycle: 'ERROR', reason_code: 'ENGINE_ERROR' })
         return { ok: false }
       }
     },
