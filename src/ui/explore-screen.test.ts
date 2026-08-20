@@ -187,6 +187,7 @@ describe('explore screen', () => {
     const container = createContainer()
     const settings = createSettings()
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, settings)
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
 
     settings.setLanguage('es')
 
@@ -200,27 +201,54 @@ describe('explore screen', () => {
     const container = createContainer()
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     const root_select = container.querySelector<HTMLSelectElement>('#root-select')
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
 
     if (root_select) {
       root_select.value = '7'
-      root_select.dispatchEvent(new Event('change', { bubbles: true }))
     }
+    container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(root_select?.value).toBe('7')
     expect(container.querySelector('#scale-title')?.textContent).toContain('G Dorian')
+  })
+
+  it('given_explore_screen_when_opening_scale_selector_then_shows_current_root_and_mode', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
+
+    expect(container.querySelector<HTMLSelectElement>('#root-select')?.value).toBe('4')
+    expect(container.querySelector<HTMLSelectElement>('#formula-select')?.value).toBe('dorian')
+  })
+
+  it('given_play_scale_when_clicked_twice_then_toggles_between_play_and_stop', async () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+    const play_button = container.querySelector<HTMLButtonElement>('#play-scale')
+
+    play_button?.click()
+    await Promise.resolve()
+    expect(play_button?.querySelector('.playback-icon path')?.getAttribute('d')).toContain('M7')
+    play_button?.click()
+    await Promise.resolve()
+    expect(play_button?.querySelector('.playback-icon path')?.getAttribute('d')).toContain('m8')
   })
 
   it('given_changed_mode_when_selecting_mode_then_keeps_new_mode_after_playback_stops', () => {
     const container = createContainer()
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     const formula_select = container.querySelector<HTMLSelectElement>('#formula-select')
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
 
     if (formula_select) {
       formula_select.value = 'lydian'
-      formula_select.dispatchEvent(new Event('change', { bubbles: true }))
     }
+    container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(formula_select?.value).toBe('lydian')
     expect(container.querySelector('#scale-title')?.textContent).toContain('E Lydian')
@@ -231,15 +259,17 @@ describe('explore screen', () => {
     const settings = createSettings()
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     const root_select = container.querySelector<HTMLSelectElement>('#root-select')
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     const formula_select = container.querySelector<HTMLSelectElement>('#formula-select')
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
 
     if (root_select && formula_select) {
       root_select.value = '9'
-      root_select.dispatchEvent(new Event('change', { bubbles: true }))
       formula_select.value = 'lydian'
-      formula_select.dispatchEvent(new Event('change', { bubbles: true }))
     }
+    container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(settings.getSettings().last_root).toBe(9)
     expect(settings.getSettings().last_formula).toBe('lydian')
@@ -251,11 +281,13 @@ describe('explore screen', () => {
     const root_select = '#root-select'
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings(), diagnostics)
 
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     const control = container.querySelector<HTMLSelectElement>(root_select)
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     if (control) {
       control.value = '7'
-      control.dispatchEvent(new Event('change', { bubbles: true }))
     }
+    container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(diagnostics.events).toEqual(['application.scale_change_completed'])
   })
@@ -265,11 +297,13 @@ describe('explore screen', () => {
     const diagnostics = createDiagnosticsFake(true)
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings(), diagnostics)
 
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     const control = container.querySelector<HTMLSelectElement>('#root-select')
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
     if (control) {
       control.value = '7'
-      control.dispatchEvent(new Event('change', { bubbles: true }))
     }
+    container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(container.querySelector('#scale-title')?.textContent).toContain('G Dorian')
   })

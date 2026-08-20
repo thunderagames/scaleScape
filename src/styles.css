@@ -48,6 +48,9 @@ h2 { color: #fff8e9; }
 .explore-controls label { display: grid; gap: 0.35rem; color: #a9b8c7; font-size: 0.8rem; font-weight: 750; }
 select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: 0.6rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; }
 #play-scale, #stop-audio { min-height: 44px; padding: 0.6rem 0.9rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
+.playback-icon { width: 1.25rem; height: 1.25rem; fill: currentColor; }
+.scale-selector { min-height: 44px; padding: .6rem .85rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
+.scale-selector-form { display: grid; gap: .8rem; padding: 1.25rem; }
 #generation-status { margin-left: auto; color: #8ee6c5; font-size: 0.85rem; }
 .audio-status { color: #8ee6c5; font-size: 0.85rem; }
 .scale-caption, .note-detail { color: #a9b8c7; line-height: 1.5; }
