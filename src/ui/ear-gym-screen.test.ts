@@ -97,4 +97,22 @@ describe('ear gym screen', () => {
     expect(container.querySelector('#feedback')?.textContent).toContain('Streak: 3')
     expect(JSON.parse(storage_data.get('scalescape.settings.v1') ?? '{}').ear_gym_streak).toBe(3)
   })
+
+  it('given_ear_gym_screen_when_selecting_major_mixolydian_then_updates_comparison_and_examples', async () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const playback_fake = createPlaybackFake()
+    renderEarGymScreen(container, playback_fake.playback, createSettings())
+
+    const selector = container.querySelector<HTMLSelectElement>('#comparison-selector')
+    if (selector) {
+      selector.value = 'major_mixolydian'
+      selector.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+    container.querySelector<HTMLButtonElement>('#play-example-b')?.click()
+    await Promise.resolve()
+
+    expect(container.querySelector('#comparison-title')?.textContent).toBe('Major vs Mixolydian')
+    expect(playback_fake.played_formulas).toContain('mixolydian')
+  })
 })

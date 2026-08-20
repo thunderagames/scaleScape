@@ -1,6 +1,6 @@
 import type { PlaybackPort } from '../audio/playback-port'
 import type { SettingsStore } from '../settings/settings-store'
-import { beginAnswer, createEarGymState, markExamplePlaying, restartExercise, submitAnswer, type EarGymState } from '../exercises/comparison-exercise'
+import { beginAnswer, COMPARISON_DEFINITIONS, createComparisonExercise, createEarGymState, markExamplePlaying, restartExercise, submitAnswer, type ComparisonId, type EarGymState } from '../exercises/comparison-exercise'
 
 export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPort, settings: SettingsStore): void {
   container.innerHTML = `
@@ -11,6 +11,8 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
       <section class="comparison-card" aria-labelledby="comparison-title">
         <p class="eyebrow" id="comparison-label"></p>
         <h2 id="comparison-title"></h2>
+        <label id="comparison-selector-label" for="comparison-selector"></label>
+        <select id="comparison-selector"></select>
         <p id="comparison-prompt" class="comparison-prompt"></p>
         <div class="comparison-actions">
           <button id="play-example-a" type="button"></button>
@@ -34,6 +36,8 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   const ear_gym_intro = container.querySelector<HTMLElement>('#ear-gym-intro')
   const comparison_label = container.querySelector<HTMLElement>('#comparison-label')
   const comparison_title = container.querySelector<HTMLElement>('#comparison-title')
+  const comparison_selector_label = container.querySelector<HTMLElement>('#comparison-selector-label')
+  const comparison_selector = container.querySelector<HTMLSelectElement>('#comparison-selector')
   const comparison_prompt = container.querySelector<HTMLElement>('#comparison-prompt')
   const play_example_a = container.querySelector<HTMLButtonElement>('#play-example-a')
   const play_example_b = container.querySelector<HTMLButtonElement>('#play-example-b')
@@ -45,8 +49,8 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   const answer_options = container.querySelector<HTMLElement>('#answer-options')
   const feedback = container.querySelector<HTMLElement>('#feedback')
   const restart_exercise = container.querySelector<HTMLButtonElement>('#restart-exercise')
-  if (!ear_gym_label || !ear_gym_title || !ear_gym_intro || !comparison_label || !comparison_title || !comparison_prompt || !play_example_a || !play_example_b || !stop_audio || !start_answer || !playback_status || !answer_fieldset || !answer_legend || !answer_options || !feedback || !restart_exercise) throw new Error('Ear Gym screen elements were not found')
-  const ui = { ear_gym_label, ear_gym_title, ear_gym_intro, comparison_label, comparison_title, comparison_prompt, play_example_a, play_example_b, stop_audio, start_answer, playback_status, answer_fieldset, answer_legend, answer_options, feedback, restart_exercise }
+  if (!ear_gym_label || !ear_gym_title || !ear_gym_intro || !comparison_label || !comparison_title || !comparison_selector_label || !comparison_selector || !comparison_prompt || !play_example_a || !play_example_b || !stop_audio || !start_answer || !playback_status || !answer_fieldset || !answer_legend || !answer_options || !feedback || !restart_exercise) throw new Error('Ear Gym screen elements were not found')
+  const ui = { ear_gym_label, ear_gym_title, ear_gym_intro, comparison_label, comparison_title, comparison_selector_label, comparison_selector, comparison_prompt, play_example_a, play_example_b, stop_audio, start_answer, playback_status, answer_fieldset, answer_legend, answer_options, feedback, restart_exercise }
 
   let state: EarGymState = createEarGymState(undefined, settings.getSettings().ear_gym_streak)
   const played_examples = new Set<'a' | 'b'>()
@@ -57,7 +61,9 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
     ui.ear_gym_title.textContent = translation.ear_gym_title
     ui.ear_gym_intro.textContent = translation.ear_gym_intro
     ui.comparison_label.textContent = translation.guided_comparison
-    ui.comparison_title.textContent = translation.natural_minor_vs_dorian
+    ui.comparison_title.textContent = translation.comparison_names[state.exercise.id] ?? translation.natural_minor_vs_dorian
+    ui.comparison_selector_label.textContent = translation.comparison_selector
+    Array.from(ui.comparison_selector.options).forEach((option) => { option.textContent = translation.comparison_names[option.value] ?? option.value })
     ui.comparison_prompt.textContent = translation.interval_prompt
     ui.play_example_a.textContent = played_examples.has('a') ? translation.replay_natural_minor : translation.play_natural_minor
     ui.play_example_b.textContent = played_examples.has('b') ? translation.replay_dorian : translation.play_dorian
@@ -80,6 +86,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
     apply_translations()
     const translation = settings.getTranslations()
     ui.answer_fieldset.disabled = state.phase !== 'answer'
+    ui.comparison_selector.value = state.exercise.id
     ui.start_answer.hidden = state.phase !== 'listen'
     ui.restart_exercise.hidden = state.phase !== 'feedback'
     ui.answer_options.replaceChildren(...state.exercise.choices.map((choice) => {
@@ -101,6 +108,9 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
     }
     if (state.playing_example) ui.playback_status.textContent = state.playing_example === 'a' ? translation.audio_playing_a : translation.audio_playing_b
   }
+
+  COMPARISON_DEFINITIONS.forEach((definition) => { const option = document.createElement('option'); option.value = definition.id; ui.comparison_selector.append(option) })
+  ui.comparison_selector.addEventListener('change', () => { state = createEarGymState(createComparisonExercise(state.exercise.root_pitch_class, ui.comparison_selector.value as ComparisonId), state.streak); void playback.stopAll(); render() })
 
   ui.play_example_a.addEventListener('click', () => play_example('a'))
   ui.play_example_b.addEventListener('click', () => play_example('b'))

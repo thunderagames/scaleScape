@@ -10,6 +10,20 @@ describe('comparison exercise', () => {
     expect(exercise.changed_note_b).toBe('C#')
   })
 
+  it('given_major_mixolydian_comparison_when_creating_exercise_then_identifies_minor_seventh', () => {
+    const exercise = createComparisonExercise(0, 'major_mixolydian')
+
+    expect(exercise.changed_degree).toBe(7)
+    expect(exercise.changed_note_a).toBe('B')
+    expect(exercise.changed_note_b).toBe('Bb')
+  })
+
+  it('given_supported_comparisons_when_creating_each_exercise_then_returns_three_degree_choices', () => {
+    const comparison_ids = ['natural_minor_dorian', 'major_mixolydian', 'major_lydian', 'natural_minor_phrygian'] as const
+
+    comparison_ids.forEach((comparison_id) => expect(createComparisonExercise(4, comparison_id).choices).toHaveLength(3))
+  })
+
   it('given_listen_phase_when_beginning_answer_then_enters_answer_without_streak_change', () => {
     const state = beginAnswer(createEarGymState())
 

@@ -19,7 +19,9 @@ export interface TranslationDictionary {
   readonly ear_gym_intro: string
   readonly ear_gym_placeholder: string
   readonly guided_comparison: string
+  readonly comparison_selector: string
   readonly natural_minor_vs_dorian: string
+  readonly comparison_names: Readonly<Record<string, string>>
   readonly interval_prompt: string
   readonly identify_prompt: string
   readonly begin_answer: string
@@ -85,7 +87,9 @@ const ENGLISH: TranslationDictionary = {
   ear_gym_intro: 'Train your ear by comparing related scales and modes.',
   ear_gym_placeholder: 'The first comparison exercise is the next step.',
   guided_comparison: 'Guided comparison',
+  comparison_selector: 'Comparison',
   natural_minor_vs_dorian: 'Natural minor vs Dorian',
+  comparison_names: { natural_minor_dorian: 'Natural minor vs Dorian', major_mixolydian: 'Major vs Mixolydian', major_lydian: 'Major vs Lydian', natural_minor_phrygian: 'Natural minor vs Phrygian' },
   interval_prompt: 'Which degree changed between the examples?',
   identify_prompt: 'Choose the degree that changed.',
   begin_answer: 'Identify the changed degree',
@@ -151,7 +155,9 @@ const SPANISH: TranslationDictionary = {
   ear_gym_intro: 'Entrená el oído comparando escalas y modos relacionados.',
   ear_gym_placeholder: 'El primer ejercicio de comparación es el próximo paso.',
   guided_comparison: 'Comparación guiada',
+  comparison_selector: 'Comparación',
   natural_minor_vs_dorian: 'Menor natural vs Dórico',
+  comparison_names: { natural_minor_dorian: 'Menor natural vs Dórico', major_mixolydian: 'Mayor vs Mixolidio', major_lydian: 'Mayor vs Lidio', natural_minor_phrygian: 'Menor natural vs Frigio' },
   interval_prompt: '¿Qué grado cambió entre los ejemplos?',
   identify_prompt: 'Elegí el grado que cambió.',
   begin_answer: 'Identificar el grado cambiado',
