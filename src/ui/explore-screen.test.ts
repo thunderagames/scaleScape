@@ -196,6 +196,7 @@ describe('explore screen', () => {
     expect(document.documentElement.lang).toBe('es')
     expect(container.querySelector('#app-label')).toBeNull()
     expect(container.querySelector('#scale-selection-hint')?.textContent).toBe('Selecciona la tónica y el modo')
+    expect(container.querySelector('#generated-scale-label')?.textContent).toBe('Selecciona la escala')
   })
 
   it('given_explore_screen_when_rendering_then_centers_main_title', () => {
@@ -220,7 +221,7 @@ describe('explore screen', () => {
     container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(root_select?.value).toBe('7')
-    expect(container.querySelector('#scale-title')?.textContent).toContain('G Dorian')
+    expect(container.querySelector('#scale-selector')?.textContent).toContain('G Dorian')
   })
 
   it('given_explore_screen_when_opening_scale_selector_then_shows_current_root_and_mode', () => {
@@ -260,7 +261,7 @@ describe('explore screen', () => {
     container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(formula_select?.value).toBe('lydian')
-    expect(container.querySelector('#scale-title')?.textContent).toContain('E Lydian')
+    expect(container.querySelector('#scale-selector')?.textContent).toContain('E Lydian')
   })
 
   it('given_scale_controls_when_changing_scale_then_persists_last_root_and_formula', () => {
@@ -314,6 +315,6 @@ describe('explore screen', () => {
     }
     container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
-    expect(container.querySelector('#scale-title')?.textContent).toContain('G Dorian')
+    expect(container.querySelector('#scale-selector')?.textContent).toContain('G Dorian')
   })
 })
