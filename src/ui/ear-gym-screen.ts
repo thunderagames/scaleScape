@@ -26,7 +26,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
           <legend id="answer-legend"></legend>
           <div id="answer-options"></div>
         </fieldset>
-        <div id="feedback" class="exercise-feedback" aria-live="assertive"></div>
+         <div id="feedback" class="exercise-feedback" tabindex="-1" aria-live="assertive"></div>
         <button id="restart-exercise" type="button" hidden></button>
       </section>
     </section>
@@ -106,7 +106,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
       input.name = 'changed-degree'
       input.value = String(choice.degree)
       input.checked = state.answer === choice.degree
-       input.addEventListener('change', () => { log_comparison_start(); state = submitAnswer(state, choice.degree); settings.setSettings({ ...settings.getSettings(), ear_gym_streak: state.streak }); try { diagnostics.log('application.submit_answer', { comparison_id: state.exercise.id, comparison_kind: 'FOCUSED', is_correct: state.is_correct === true }) } catch { /* Diagnostics must not block Ear Gym. */ } render() })
+       input.addEventListener('change', () => { log_comparison_start(); state = submitAnswer(state, choice.degree); settings.setSettings({ ...settings.getSettings(), ear_gym_streak: state.streak }); try { diagnostics.log('application.submit_answer', { comparison_id: state.exercise.id, comparison_kind: 'FOCUSED', is_correct: state.is_correct === true }) } catch { /* Diagnostics must not block Ear Gym. */ } render(); ui.feedback.focus() })
       label.append(input, ` ${choice.label}`)
       return label
     }))
