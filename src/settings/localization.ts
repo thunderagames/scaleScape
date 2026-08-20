@@ -13,6 +13,11 @@ export interface TranslationDictionary {
   readonly close: string
   readonly save: string
   readonly app_label: string
+  readonly nav_explore: string
+  readonly nav_ear_gym: string
+  readonly ear_gym_title: string
+  readonly ear_gym_intro: string
+  readonly ear_gym_placeholder: string
   readonly app_title: string
   readonly intro: string
   readonly scale_controls: string
@@ -52,6 +57,11 @@ const ENGLISH: TranslationDictionary = {
   close: 'Close',
   save: 'Save',
   app_label: 'ScaleScape MVP',
+  nav_explore: 'Explore',
+  nav_ear_gym: 'Ear Gym',
+  ear_gym_title: 'Ear Gym',
+  ear_gym_intro: 'Train your ear by comparing related scales and modes.',
+  ear_gym_placeholder: 'The first comparison exercise is the next step.',
   app_title: 'Explore what a scale sounds like.',
   intro: 'Choose a root and mode. Hear the scale, inspect interval roles, and find the same notes on piano and guitar.',
   scale_controls: 'Scale controls',
@@ -91,6 +101,11 @@ const SPANISH: TranslationDictionary = {
   close: 'Cerrar',
   save: 'Guardar',
   app_label: 'ScaleScape MVP',
+  nav_explore: 'Explorar',
+  nav_ear_gym: 'Gimnasio auditivo',
+  ear_gym_title: 'Gimnasio auditivo',
+  ear_gym_intro: 'Entrená el oído comparando escalas y modos relacionados.',
+  ear_gym_placeholder: 'El primer ejercicio de comparación es el próximo paso.',
   app_title: 'Explorá cómo suena una escala.',
   intro: 'Elegí una tónica y un modo. Escuchá la escala, mirá los roles de los intervalos y encontrá las mismas notas en piano y guitarra.',
   scale_controls: 'Controles de escala',
