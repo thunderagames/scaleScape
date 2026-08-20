@@ -11,7 +11,12 @@ export interface DiagnosticsExportPort {
   exportJsonl(): DiagnosticsExportResult
 }
 
-export type DiagnosticsPort = EventLoggerPort & DiagnosticsExportPort
+export interface DiagnosticsControlPort {
+  setEnabled(is_enabled: boolean): void
+  isEnabled(): boolean
+}
+
+export type DiagnosticsPort = EventLoggerPort & DiagnosticsExportPort & DiagnosticsControlPort
 
 export interface DiagnosticEvent {
   readonly schema_version: 1
@@ -43,9 +48,17 @@ export function createDiagnosticsLogger(max_events = MAX_EVENTS): DiagnosticsPor
   const session_id = create_uuid()
   const events: DiagnosticEvent[] = []
   let sequence_number = 0
+  let is_enabled = false
 
   return {
+    setEnabled(next_is_enabled) {
+      is_enabled = next_is_enabled
+    },
+    isEnabled() {
+      return is_enabled
+    },
     log(event_name, attributes) {
+      if (!is_enabled) return
       const sanitized_attributes = Object.fromEntries(Object.entries(attributes).map(([key, value]) => [key, sanitize_value(key, value)]))
       events.push({ schema_version: 1, event_id: create_uuid(), sequence_number, timestamp: new Date().toISOString(), event_name, attributes: sanitized_attributes })
       sequence_number += 1

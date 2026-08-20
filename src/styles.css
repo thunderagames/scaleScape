@@ -18,6 +18,7 @@ button:focus-visible, select:focus-visible { outline: 3px solid #8ee6c5; outline
 .audio-controls input[type="range"] { width: 90px; accent-color: #8ee6c5; }
 .audio-controls select { min-width: 8rem; min-height: 44px; }
 .audio-controls button { min-height: 44px; padding: 0.55rem 0.7rem; border: 1px solid #526b79; border-radius: 0.6rem; color: #fff8e9; background: #294958; cursor: pointer; font-weight: 750; }
+.audio-controls label { display: inline-flex; align-items: center; gap: 0.25rem; min-height: 44px; }
 .audio-controls [role="status"] { color: #f6bf62; }
 .guided-start-screen { width: min(720px, 100%); margin: 0 auto; padding: clamp(2rem, 8vw, 5rem) 0; }
 .guided-start-screen h1 { max-width: 12ch; margin: 0.35rem 0 1rem; font-size: clamp(2.2rem, 7vw, 4rem); line-height: 0.98; }

@@ -23,6 +23,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
           <label id="volume-label" for="volume-control"></label>
           <input id="volume-control" type="range" min="0" max="1" step="0.05" />
           <button id="mute-audio" type="button"></button>
+          <label id="diagnostics-mode-label"><input id="diagnostics-mode-control" type="checkbox" /><span id="diagnostics-mode-text"></span></label>
           <button id="export-diagnostics" type="button"></button>
           <span id="mute-status" role="status" aria-live="polite"></span>
           <span id="diagnostics-status" role="status" aria-live="polite"></span>
@@ -61,6 +62,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const volume_label = container.querySelector<HTMLElement>('#volume-label')
   const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
   const mute_audio = container.querySelector<HTMLButtonElement>('#mute-audio')
+  const diagnostics_mode_label = container.querySelector<HTMLLabelElement>('#diagnostics-mode-label')
+  const diagnostics_mode_control = container.querySelector<HTMLInputElement>('#diagnostics-mode-control')
+  const diagnostics_mode_text = container.querySelector<HTMLElement>('#diagnostics-mode-text')
   const export_diagnostics = container.querySelector<HTMLButtonElement>('#export-diagnostics')
   const mute_status = container.querySelector<HTMLElement>('#mute-status')
   const diagnostics_status = container.querySelector<HTMLElement>('#diagnostics-status')
@@ -73,8 +77,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const start_guided = container.querySelector<HTMLButtonElement>('#start-guided')
   const explore_directly = container.querySelector<HTMLButtonElement>('#explore-directly')
   const guided_start_status = container.querySelector<HTMLElement>('#guided-start-status')
-  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !shell_label || !audio_controls || !context_label || !context_control || !volume_label || !volume_control || !mute_audio || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status) throw new Error('Application shell elements were not found')
-  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, shell_label, audio_controls, context_label, context_control, volume_label, volume_control, mute_audio, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status }
+  if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !shell_label || !audio_controls || !context_label || !context_control || !volume_label || !volume_control || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !guided_start_status) throw new Error('Application shell elements were not found')
+  const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, shell_label, audio_controls, context_label, context_control, volume_label, volume_control, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, guided_start_status }
 
   let current_screen: AppScreen = 'guided_start'
 
@@ -99,6 +103,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.mute_status.textContent = playback.getPlaybackState().is_muted ? translation.muted : ''
     ui.export_diagnostics.textContent = translation.export_diagnostics
     ui.export_diagnostics.setAttribute('aria-label', translation.export_diagnostics)
+    ui.diagnostics_mode_label.setAttribute('aria-label', translation.diagnostics_mode)
+    ui.diagnostics_mode_text.textContent = translation.diagnostics_mode
+    ui.diagnostics_mode_control.checked = diagnostics.isEnabled()
     ui.guided_start_label.textContent = translation.guided_start
     ui.guided_start_title.textContent = translation.guided_start_title
     ui.guided_start_intro.textContent = translation.guided_start_intro
@@ -161,6 +168,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.volume_control.value = String(settings.getSettings().volume)
   ui.volume_control.addEventListener('input', () => { const volume = Number(ui.volume_control.value); playback.setVolume(volume); settings.setSettings({ ...settings.getSettings(), volume }) })
   ui.mute_audio.addEventListener('click', () => playback.setMuted(!playback.getPlaybackState().is_muted))
+  ui.diagnostics_mode_control.addEventListener('change', () => diagnostics.setEnabled(ui.diagnostics_mode_control.checked))
   settings.subscribe(apply_translations)
   playback.subscribePlaybackState(apply_translations)
   application.subscribe((state) => { const context = playback.getPlaybackState().context; if (context !== 'off') void playback.setContext(state.root_pitch_class, context) })

@@ -79,6 +79,7 @@ export interface TranslationDictionary {
   readonly explore_directly: string
   readonly guided_start_playing: string
   readonly export_diagnostics: string
+  readonly diagnostics_mode: string
   readonly diagnostics_exported: string
   readonly diagnostics_unavailable: string
   readonly context: string
@@ -164,6 +165,7 @@ const ENGLISH: TranslationDictionary = {
   ,explore_directly: 'Explore directly'
   ,guided_start_playing: 'Guided Start is playing.'
   ,export_diagnostics: 'Export diagnostics'
+  ,diagnostics_mode: 'Enable diagnostic mode'
   ,diagnostics_exported: 'Diagnostics exported.'
   ,diagnostics_unavailable: 'Diagnostics export unavailable.'
   ,context: 'Harmonic context'
@@ -249,6 +251,7 @@ const SPANISH: TranslationDictionary = {
   ,explore_directly: 'Explorar directamente'
   ,guided_start_playing: 'El inicio guiado está reproduciéndose.'
   ,export_diagnostics: 'Exportar diagnósticos'
+  ,diagnostics_mode: 'Activar modo diagnóstico'
   ,diagnostics_exported: 'Diagnósticos exportados.'
   ,diagnostics_unavailable: 'La exportación de diagnósticos no está disponible.'
   ,context: 'Contexto armónico'

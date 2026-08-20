@@ -46,10 +46,13 @@ function createCompletedSettings() {
 
 function createDiagnosticsFake(): DiagnosticsPort & { readonly events: string[] } {
   const events: string[] = []
+  let is_enabled = false
   return {
     events,
     log: (event_name) => events.push(event_name),
-    exportJsonl: () => ({ ok: true, content: '{"event_name":"test"}\n' })
+    exportJsonl: () => ({ ok: true, content: '{"event_name":"test"}\n' }),
+    setEnabled: (next_is_enabled) => { is_enabled = next_is_enabled },
+    isEnabled: () => is_enabled
   }
 }
 
@@ -145,6 +148,21 @@ describe('application shell', () => {
     URL.createObjectURL = create_object_url
     URL.revokeObjectURL = revoke_object_url
     HTMLAnchorElement.prototype.click = anchor_click
+  })
+
+  it('given_diagnostic_mode_when_toggling_then_updates_logger_state', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const diagnostics = createDiagnosticsFake()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), diagnostics)
+
+    const control = container.querySelector<HTMLInputElement>('#diagnostics-mode-control')
+    if (control) {
+      control.checked = true
+      control.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    expect(diagnostics.isEnabled()).toBe(true)
   })
 
   it('given_explore_screen_when_opening_ear_gym_then_switches_visible_screen_and_current_navigation', () => {
