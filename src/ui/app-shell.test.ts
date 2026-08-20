@@ -66,6 +66,6 @@ describe('application shell', () => {
 
     expect(container.querySelector('#navigate-explore')?.textContent).toBe('Explorar')
     expect(container.querySelector('#navigate-ear-gym')?.textContent).toBe('Gimnasio auditivo')
-    expect(container.querySelector('#ear-gym-placeholder')?.textContent).toContain('próximo paso')
+    expect(container.querySelector('#ear-gym-title')?.textContent).toBe('Gimnasio auditivo')
   })
 })

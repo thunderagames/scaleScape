@@ -18,6 +18,20 @@ export interface TranslationDictionary {
   readonly ear_gym_title: string
   readonly ear_gym_intro: string
   readonly ear_gym_placeholder: string
+  readonly guided_comparison: string
+  readonly natural_minor_vs_dorian: string
+  readonly interval_prompt: string
+  readonly identify_prompt: string
+  readonly begin_answer: string
+  readonly play_natural_minor: string
+  readonly play_dorian: string
+  readonly audio_playing_a: string
+  readonly audio_playing_b: string
+  readonly changed_degree_correct: string
+  readonly not_quite: string
+  readonly characteristic_explanation: string
+  readonly streak: string
+  readonly try_again: string
   readonly app_title: string
   readonly intro: string
   readonly scale_controls: string
@@ -62,6 +76,20 @@ const ENGLISH: TranslationDictionary = {
   ear_gym_title: 'Ear Gym',
   ear_gym_intro: 'Train your ear by comparing related scales and modes.',
   ear_gym_placeholder: 'The first comparison exercise is the next step.',
+  guided_comparison: 'Guided comparison',
+  natural_minor_vs_dorian: 'Natural minor vs Dorian',
+  interval_prompt: 'Which degree changed between the examples?',
+  identify_prompt: 'Choose the degree that changed.',
+  begin_answer: 'Identify the changed degree',
+  play_natural_minor: 'Play natural minor · Example A',
+  play_dorian: 'Play Dorian · Example B',
+  audio_playing_a: 'Playing natural minor.',
+  audio_playing_b: 'Playing Dorian.',
+  changed_degree_correct: 'That is the changed degree.',
+  not_quite: 'Not quite. The changed degree is VI.',
+  characteristic_explanation: 'Dorian raises the sixth degree from {lower} to {raised} in {root}.',
+  streak: 'Streak',
+  try_again: 'Try again',
   app_title: 'Explore what a scale sounds like.',
   intro: 'Choose a root and mode. Hear the scale, inspect interval roles, and find the same notes on piano and guitar.',
   scale_controls: 'Scale controls',
@@ -106,6 +134,20 @@ const SPANISH: TranslationDictionary = {
   ear_gym_title: 'Gimnasio auditivo',
   ear_gym_intro: 'Entrená el oído comparando escalas y modos relacionados.',
   ear_gym_placeholder: 'El primer ejercicio de comparación es el próximo paso.',
+  guided_comparison: 'Comparación guiada',
+  natural_minor_vs_dorian: 'Menor natural vs Dórico',
+  interval_prompt: '¿Qué grado cambió entre los ejemplos?',
+  identify_prompt: 'Elegí el grado que cambió.',
+  begin_answer: 'Identificar el grado cambiado',
+  play_natural_minor: 'Reproducir menor natural · Ejemplo A',
+  play_dorian: 'Reproducir dórico · Ejemplo B',
+  audio_playing_a: 'Reproduciendo menor natural.',
+  audio_playing_b: 'Reproduciendo dórico.',
+  changed_degree_correct: 'Ese es el grado cambiado.',
+  not_quite: 'No exactamente. El grado cambiado es VI.',
+  characteristic_explanation: 'El modo dórico eleva el sexto grado de {lower} a {raised} en {root}.',
+  streak: 'Racha',
+  try_again: 'Intentar de nuevo',
   app_title: 'Explorá cómo suena una escala.',
   intro: 'Elegí una tónica y un modo. Escuchá la escala, mirá los roles de los intervalos y encontrá las mismas notas en piano y guitarra.',
   scale_controls: 'Controles de escala',

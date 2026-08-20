@@ -2,6 +2,7 @@ import type { ExploreApplication } from '../application/explore-application'
 import type { PlaybackPort } from '../audio/playback-port'
 import type { SettingsStore } from '../settings/settings-store'
 import { renderExploreScreen } from './explore-screen'
+import { renderEarGymScreen } from './ear-gym-screen'
 
 export type AppScreen = 'explore' | 'ear_gym'
 
@@ -16,12 +17,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
         </nav>
       </header>
       <div id="explore-screen"></div>
-      <section id="ear-gym-screen" class="screen-placeholder" hidden aria-labelledby="ear-gym-title">
-        <p class="eyebrow" id="ear-gym-label"></p>
-        <h1 id="ear-gym-title"></h1>
-        <p id="ear-gym-intro"></p>
-        <p id="ear-gym-placeholder" class="placeholder-message"></p>
-      </section>
+      <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
     </div>
   `
 
@@ -30,12 +26,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const navigate_explore = container.querySelector<HTMLButtonElement>('#navigate-explore')
   const navigate_ear_gym = container.querySelector<HTMLButtonElement>('#navigate-ear-gym')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
-  const ear_gym_label = container.querySelector<HTMLElement>('#ear-gym-label')
-  const ear_gym_title = container.querySelector<HTMLElement>('#ear-gym-title')
-  const ear_gym_intro = container.querySelector<HTMLElement>('#ear-gym-intro')
-  const ear_gym_placeholder = container.querySelector<HTMLElement>('#ear-gym-placeholder')
-  if (!explore_screen || !ear_gym_screen || !navigate_explore || !navigate_ear_gym || !shell_label || !ear_gym_label || !ear_gym_title || !ear_gym_intro || !ear_gym_placeholder) throw new Error('Application shell elements were not found')
-  const ui = { explore_screen, ear_gym_screen, navigate_explore, navigate_ear_gym, shell_label, ear_gym_label, ear_gym_title, ear_gym_intro, ear_gym_placeholder }
+  if (!explore_screen || !ear_gym_screen || !navigate_explore || !navigate_ear_gym || !shell_label) throw new Error('Application shell elements were not found')
+  const ui = { explore_screen, ear_gym_screen, navigate_explore, navigate_ear_gym, shell_label }
 
   let current_screen: AppScreen = 'explore'
 
@@ -44,10 +36,6 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.shell_label.textContent = translation.app_label
     ui.navigate_explore.textContent = translation.nav_explore
     ui.navigate_ear_gym.textContent = translation.nav_ear_gym
-    ui.ear_gym_label.textContent = translation.nav_ear_gym
-    ui.ear_gym_title.textContent = translation.ear_gym_title
-    ui.ear_gym_intro.textContent = translation.ear_gym_intro
-    ui.ear_gym_placeholder.textContent = translation.ear_gym_placeholder
     ui.navigate_explore.setAttribute('aria-label', translation.nav_explore)
     ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
   }
@@ -68,4 +56,5 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   settings.subscribe(apply_translations)
   apply_translations()
   renderExploreScreen(ui.explore_screen, application, playback, settings)
+  renderEarGymScreen(ui.ear_gym_screen, playback, settings)
 }
