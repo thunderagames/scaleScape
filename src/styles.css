@@ -49,7 +49,9 @@ select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: 0.6rem; bo
 #generation-status { margin-left: auto; color: #8ee6c5; font-size: 0.85rem; }
 .audio-status { color: #8ee6c5; font-size: 0.85rem; }
 .scale-caption, .note-detail { color: #a9b8c7; line-height: 1.5; }
-.scale-notes { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.scale-notes { display: flex; flex-wrap: wrap; align-items: end; gap: 0.6rem; }
+.scale-note-wrapper { display: grid; justify-items: center; gap: 0.18rem; }
+.scale-degree { color: #a9b8c7; font-size: .7rem; font-weight: 800; line-height: 1; }
 .scale-interval { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .15rem; color: #f6bf62; font-size: .78rem; font-weight: 800; letter-spacing: .02em; }
 .scale-note { min-height: 44px; padding: 0.8rem; border: 1px solid #35566a; border-radius: 0.6rem; color: #e9f5fb; background: #244554; cursor: pointer; font-weight: 800; }
 .scale-note.tonic { border-color: #f6bf62; background: #84503a; }
@@ -134,4 +136,7 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
   .app-navigation { width: 100%; }
   .app-navigation button { flex: 1 1 0; }
   .audio-controls { width: 100%; }
+  .scale-notes { gap: .35rem; }
+  .scale-note { min-width: 44px; padding: .55rem .45rem; font-size: .9rem; }
+  .scale-interval { min-height: 44px; padding: 0; font-size: .68rem; }
 }
