@@ -10,7 +10,7 @@ function createPlaybackFake() {
   const playback: PlaybackPort = {
     playScale: async () => ({ ok: true }),
     previewNote: async (note) => { previewed_notes.push(note); return { ok: true } },
-    stopAll: async () => undefined,
+    stopAll: async () => { listener?.on_stopped() },
     setVolume: () => undefined,
     setMuted: () => undefined,
     getPlaybackState: () => ({ is_muted: false, volume: 0.7 }),
@@ -81,5 +81,35 @@ describe('explore screen', () => {
     expect(container.querySelector('#root-label')?.textContent).toBe('Tónica')
     expect(container.querySelector('#formula-select option[value="dorian"]')?.textContent).toBe('Dórico')
     expect(document.documentElement.lang).toBe('es')
+  })
+
+  it('given_changed_root_when_selecting_root_then_keeps_new_root_after_playback_stops', () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+    const root_select = container.querySelector<HTMLSelectElement>('#root-select')
+
+    if (root_select) {
+      root_select.value = '7'
+      root_select.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    expect(root_select?.value).toBe('7')
+    expect(container.querySelector('#scale-title')?.textContent).toContain('G Dorian')
+  })
+
+  it('given_changed_mode_when_selecting_mode_then_keeps_new_mode_after_playback_stops', () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+    const formula_select = container.querySelector<HTMLSelectElement>('#formula-select')
+
+    if (formula_select) {
+      formula_select.value = 'lydian'
+      formula_select.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    expect(formula_select?.value).toBe('lydian')
+    expect(container.querySelector('#scale-title')?.textContent).toContain('E Lydian')
   })
 })
