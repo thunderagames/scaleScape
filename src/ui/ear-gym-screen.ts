@@ -1,8 +1,9 @@
 import type { PlaybackPort } from '../audio/playback-port'
 import type { SettingsStore } from '../settings/settings-store'
 import { beginAnswer, COMPARISON_DEFINITIONS, createComparisonExercise, createEarGymState, markExamplePlaying, restartExercise, submitAnswer, type ComparisonId, type EarGymState } from '../exercises/comparison-exercise'
+import { createDiagnosticsLogger, type EventLoggerPort } from '../observability/event-logger'
 
-export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPort, settings: SettingsStore): void {
+export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPort, settings: SettingsStore, diagnostics: EventLoggerPort = createDiagnosticsLogger()): void {
   container.innerHTML = `
     <section class="ear-gym-content" aria-labelledby="ear-gym-title">
       <p class="eyebrow" id="ear-gym-label"></p>
@@ -54,6 +55,13 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
 
   let state: EarGymState = createEarGymState(undefined, settings.getSettings().ear_gym_streak)
   const played_examples = new Set<'a' | 'b'>()
+  let has_started_comparison = false
+
+  function log_comparison_start(): void {
+    if (has_started_comparison) return
+    has_started_comparison = true
+    try { diagnostics.log('application.start_guided_comparison', { comparison_id: state.exercise.id, comparison_kind: 'FOCUSED', generation_id: 0 }) } catch { /* Diagnostics must not block Ear Gym. */ }
+  }
 
   function apply_translations(): void {
     const translation = settings.getTranslations()
@@ -75,9 +83,11 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
 
   function play_example(example: 'a' | 'b'): void {
     const scale = example === 'a' ? state.exercise.scale_a : state.exercise.scale_b
+    log_comparison_start()
     state = markExamplePlaying(state, example)
     played_examples.add(example)
     ui.playback_status.textContent = example === 'a' ? settings.getTranslations().audio_playing_a : settings.getTranslations().audio_playing_b
+    try { diagnostics.log('application.replay_example', { example_id: example === 'a' ? state.exercise.formula_a : state.exercise.formula_b, generation_id: 0 }) } catch { /* Diagnostics must not block Ear Gym. */ }
     void playback.playScale(scale)
     render()
   }
@@ -96,7 +106,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
       input.name = 'changed-degree'
       input.value = String(choice.degree)
       input.checked = state.answer === choice.degree
-       input.addEventListener('change', () => { state = submitAnswer(state, choice.degree); settings.setSettings({ ...settings.getSettings(), ear_gym_streak: state.streak }); render() })
+       input.addEventListener('change', () => { log_comparison_start(); state = submitAnswer(state, choice.degree); settings.setSettings({ ...settings.getSettings(), ear_gym_streak: state.streak }); try { diagnostics.log('application.submit_answer', { comparison_id: state.exercise.id, comparison_kind: 'FOCUSED', is_correct: state.is_correct === true }) } catch { /* Diagnostics must not block Ear Gym. */ } render() })
       label.append(input, ` ${choice.label}`)
       return label
     }))
@@ -110,7 +120,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   }
 
   COMPARISON_DEFINITIONS.forEach((definition) => { const option = document.createElement('option'); option.value = definition.id; ui.comparison_selector.append(option) })
-  ui.comparison_selector.addEventListener('change', () => { state = createEarGymState(createComparisonExercise(state.exercise.root_pitch_class, ui.comparison_selector.value as ComparisonId), state.streak); void playback.stopAll(); render() })
+  ui.comparison_selector.addEventListener('change', () => { state = createEarGymState(createComparisonExercise(state.exercise.root_pitch_class, ui.comparison_selector.value as ComparisonId), state.streak); has_started_comparison = false; void playback.stopAll(); render() })
 
   ui.play_example_a.addEventListener('click', () => play_example('a'))
   ui.play_example_b.addEventListener('click', () => play_example('b'))

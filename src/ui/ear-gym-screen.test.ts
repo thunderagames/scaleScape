@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { PlaybackPort } from '../audio/playback-port'
 import { createSettingsStore } from '../settings/settings-store'
 import { renderEarGymScreen } from './ear-gym-screen'
+import type { EventLoggerPort } from '../observability/event-logger'
 
 function createPlaybackFake() {
   const played_formulas: string[] = []
@@ -32,6 +33,11 @@ function createSettings() {
     }
   })
   return createSettingsStore()
+}
+
+function createDiagnosticsFake(should_throw = false): EventLoggerPort & { readonly events: string[] } {
+  const events: string[] = []
+  return { events, log: (event_name) => { if (should_throw) throw new Error('diagnostics unavailable'); events.push(event_name) } }
 }
 
 describe('ear gym screen', () => {
@@ -115,5 +121,28 @@ describe('ear gym screen', () => {
 
     expect(container.querySelector('#comparison-title')?.textContent).toBe('Major vs Mixolydian')
     expect(playback_fake.played_formulas).toContain('mixolydian')
+  })
+
+  it('given_ear_gym_screen_when_answering_then_logs_comparison_feedback', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const diagnostics = createDiagnosticsFake()
+    renderEarGymScreen(container, createPlaybackFake().playback, createSettings(), diagnostics)
+
+    container.querySelector<HTMLButtonElement>('#start-answer')?.click()
+    container.querySelector<HTMLInputElement>('input[value="6"]')?.click()
+
+    expect(diagnostics.events).toContain('application.start_guided_comparison')
+    expect(diagnostics.events).toContain('application.submit_answer')
+  })
+
+  it('given_failing_diagnostics_when_playing_example_then_keeps_ear_gym_functional', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+
+    renderEarGymScreen(container, createPlaybackFake().playback, createSettings(), createDiagnosticsFake(true))
+
+    expect(() => container.querySelector<HTMLButtonElement>('#play-example-a')?.click()).not.toThrow()
+    expect(container.querySelector('#playback-status')?.textContent).toBe('Playing natural minor.')
   })
 })

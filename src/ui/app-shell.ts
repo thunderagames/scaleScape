@@ -159,5 +159,5 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   apply_translations()
   show_screen(settings.getSettings().guided_start_completed ? 'explore' : 'guided_start')
   renderExploreScreen(ui.explore_screen, application, playback, settings, diagnostics)
-  renderEarGymScreen(ui.ear_gym_screen, playback, settings)
+  renderEarGymScreen(ui.ear_gym_screen, playback, settings, diagnostics)
 }
