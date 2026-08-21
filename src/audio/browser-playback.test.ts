@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createBrowserPlayback } from './browser-playback'
 import { createScaleInstance } from '../theory/scale-instance'
 import type { EventLoggerPort } from '../observability/event-logger'
@@ -54,6 +54,7 @@ class FakeAudioContext {
 }
 
 afterEach(() => {
+  vi.useRealTimers()
   Object.defineProperty(window, 'AudioContext', { configurable: true, value: undefined })
   FakeAudioContext.last_instance = null
 })
@@ -79,6 +80,23 @@ describe('browser playback', () => {
 
     expect(result.ok).toBe(true)
     expect(diagnostics.events).toEqual(['audio.unlock_completed', 'audio.context_started'])
+    await playback.stopAll()
+  })
+
+  it('given_scale_when_playing_then_reaches_octave_and_returns_to_tonic', async () => {
+    vi.useFakeTimers()
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+    const started_note_indexes: number[] = []
+    let stopped_count = 0
+    playback.subscribe({ on_note_started: (note_index) => started_note_indexes.push(note_index), on_stopped: () => { stopped_count += 1 } })
+
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), ['piano'])
+    await vi.runAllTimersAsync()
+
+    expect(result.ok).toBe(true)
+    expect(started_note_indexes).toEqual([0, 1, 2, 3, 4, 5, 6, 0, 6, 5, 4, 3, 2, 1, 0])
+    expect(stopped_count).toBe(1)
     await playback.stopAll()
   })
 

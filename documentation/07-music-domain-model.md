@@ -84,6 +84,63 @@ ScaleInstance = {
 | Mixolydian | 0, 2, 4, 5, 7, 9, 10 |
 | Locrian | 0, 1, 3, 5, 6, 8, 10 |
 | Major pentatonic | 0, 2, 4, 7, 9 |
+| Minor pentatonic | 0, 3, 5, 7, 10 |
+| Phrygian dominant | 0, 1, 4, 5, 7, 8, 10 |
+| Hungarian minor | 0, 2, 3, 6, 7, 8, 11 |
+| Byzantine / double harmonic major | 0, 1, 4, 5, 7, 8, 11 |
+| Enigmatic | 0, 1, 4, 6, 8, 10 |
+| Prometheus | 0, 2, 4, 6, 10 |
+| Persian | 0, 1, 4, 5, 6, 8, 11 |
+| Egyptian | 0, 2, 5, 7, 10 |
+| Oriental | 0, 1, 4, 5, 6, 9, 10 |
+| Japanese | 0, 2, 5, 7, 8 |
+| Hirajoshi | 0, 2, 3, 7, 8 |
+| Romanian | 0, 2, 3, 6, 7, 9, 10 |
+| Man Gong | 0, 3, 5, 8, 10 |
+| Ritusen | 0, 2, 5, 7, 9 |
+| Dominant pentatonic | 0, 2, 4, 7, 10 |
+| Voodoo | 0, 3, 5, 7, 9 |
+| Neapolitan major | 0, 1, 3, 5, 7, 9, 11 |
+| Neapolitan minor | 0, 1, 3, 5, 7, 8, 11 |
+| Neapolitan Prometheus | 0, 1, 4, 6, 9, 10 |
+| Petrushka | 0, 1, 4, 6, 7, 10 |
+| Harmonic minor | 0, 2, 3, 5, 7, 8, 11 |
+| Locrian natural 6 | 0, 1, 3, 5, 6, 9, 10 |
+| Ionian augmented | 0, 2, 4, 5, 8, 9, 11 |
+| Lydian #2 | 0, 3, 4, 6, 7, 9, 11 |
+| Ultralocrian | 0, 1, 3, 4, 6, 8, 9 |
+| Melodic minor | 0, 2, 3, 5, 7, 9, 11 |
+| Dorian b2 | 0, 1, 3, 5, 7, 9, 10 |
+| Lydian augmented | 0, 2, 4, 6, 8, 9, 11 |
+| Lydian dominant | 0, 2, 4, 6, 7, 9, 10 |
+| Mixolydian b6 | 0, 2, 4, 5, 7, 8, 10 |
+| Aeolian b5 | 0, 2, 3, 5, 6, 8, 10 |
+| Altered | 0, 1, 3, 4, 6, 8, 10 |
+| Harmonic major | 0, 2, 4, 5, 7, 8, 11 |
+| Iwato | 0, 1, 5, 6, 10 |
+| Hon Kumoi Shiouzhi | 0, 4, 5, 9, 11 |
+| Kumoi | 0, 1, 5, 7, 8 |
+| Chinese pentatonic | 0, 4, 6, 7, 11 |
+| Blues | 0, 3, 5, 6, 7, 10 |
+| Major blues | 0, 2, 3, 4, 7, 9 |
+| Chromatic | 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 |
+| Whole tone | 0, 2, 4, 6, 8, 10 |
+| Diminished | 0, 2, 3, 5, 6, 8, 9, 11 |
+| Augmented | 0, 3, 4, 7, 8, 11 |
+| Hungarian major | 0, 3, 4, 6, 7, 9, 10 |
+| Kumoi (common) | 0, 2, 3, 7, 9 |
+| Insen | 0, 1, 5, 7, 10 |
+| Pelog | 0, 1, 3, 7, 8 |
+| Enigmatic (Verdi) | 0, 1, 4, 6, 8, 10, 11 |
+| Prometheus (Scriabin) | 0, 2, 4, 6, 9, 10 |
+| Istrian (12-TET approximation) | 0, 1, 3, 4, 6, 7 |
+| Baake's tritonic | 0, 3, 6 |
+| Far East | 0, 1, 5, 6, 9, 10 |
+| Slendro (12-TET approximation) | 0, 2, 5, 7, 10 |
+
+The Explore selector groups formulas into Fundamental scales, Greek modes, Pentatonic and blues, Symmetric scales, and Exotic and world scales. Each formula also exposes its degree formula and full octave interval structure for display beside the generated notes.
+
+The Byzantine formula uses the standard double-harmonic-major spelling `1, b2, 3, 4, 5, b6, 7`. The source article reviewed for the exotic-scale addition displays `b7`, which would duplicate Phrygian dominant; the standard formula avoids that duplicate.
 
 ## Reference Modes and Characteristic Degrees
 

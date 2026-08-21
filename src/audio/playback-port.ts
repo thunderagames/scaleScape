@@ -1,4 +1,5 @@
 import type { ScaleInstance } from '../theory/scale-instance'
+import type { TempoBpm } from '../shared/tempo'
 
 export type PlaybackInstrument = 'piano' | 'guitar'
 
@@ -24,6 +25,7 @@ export interface PlaybackPort {
   previewNote(note: PlayableNote, instruments: readonly PlaybackInstrument[]): Promise<{ readonly ok: boolean }>
   stopAll(): Promise<void>
   setContext(root_pitch_class: number, context: 'off' | 'drone' | 'pedal'): Promise<{ readonly ok: boolean }>
+  setTempo(tempo_bpm: TempoBpm): void
   setVolume(volume: number): void
   setMuted(is_muted: boolean): void
   getPlaybackState(): PlaybackState

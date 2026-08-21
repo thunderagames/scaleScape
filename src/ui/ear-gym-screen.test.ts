@@ -11,6 +11,7 @@ function createPlaybackFake() {
     previewNote: async () => ({ ok: true }),
     stopAll: async () => undefined,
     setContext: async () => ({ ok: true }),
+    setTempo: () => undefined,
     setVolume: () => undefined,
     setMuted: () => undefined,
     getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off' }),

@@ -2,6 +2,7 @@ import { pitchToFrequency, transposePitch } from '../theory/frequency'
 import type { ScaleInstance } from '../theory/scale-instance'
 import type { EventLoggerPort } from '../observability/event-logger'
 import type { PlaybackInstrument, PlaybackListener, PlaybackPort, PlaybackState, PlayableNote } from './playback-port'
+import type { TempoBpm } from '../shared/tempo'
 
 interface BrowserAudioWindow extends Window {
   webkitAudioContext?: typeof AudioContext
@@ -23,7 +24,7 @@ const GUITAR_PARTIALS = [
   { multiplier: 4, amplitude: 0.045, type: 'sine' as OscillatorType }
 ] as const
 
-const SCALE_NOTE_DURATION = 1.1
+const MAX_SCALE_NOTE_DURATION = 1.1
 const PREVIEW_NOTE_DURATION = 1.35
 
 function create_guitar_distortion_curve(amount: number): Float32Array<ArrayBuffer> {
@@ -48,6 +49,7 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
   let is_muted = false
   let context_mode: 'off' | 'drone' | 'pedal' = 'off'
   let context_root_pitch_class = 0
+  let tempo_bpm: TempoBpm = 120
   const listeners = new Set<PlaybackListener>()
   const state_listeners = new Set<(state: PlaybackState) => void>()
   let master_gain: GainNode | null = null
@@ -264,21 +266,33 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
       try {
         stopScheduledAudio()
         const start_time = context.currentTime + 0.05
-        const duration = SCALE_NOTE_DURATION + Math.max(0, scale_instance.notes.length - 1) * 0.7
+        const ascending_notes = scale_instance.notes.map((note, note_index) => ({ note_index, semitones: note.semitones }))
+        const playback_notes = [
+          ...ascending_notes,
+          { note_index: 0, semitones: 12 },
+          ...ascending_notes.slice().reverse()
+        ]
+        const note_step_seconds = 60 / tempo_bpm
+        const note_duration = Math.min(MAX_SCALE_NOTE_DURATION, note_step_seconds * 0.8)
+        const duration = note_duration + Math.max(0, playback_notes.length - 1) * note_step_seconds
         if (context_mode !== 'off') schedule_context(context, scale_instance.root_pitch_class, context_mode, start_time, duration)
         if (context_mode !== 'off') log('audio.context_started', { generation_id: playback_generation, context_kind: context_mode === 'drone' ? 'DRONE' : 'PEDAL' })
         const scheduled_generation = playback_generation
-        const frequencies = scale_instance.notes.map((note) => transposePitch(scale_instance.root_pitch_class, 4, note.semitones).frequency)
-        frequencies.forEach((frequency, index) => {
-          const note_start = start_time + index * 0.7
-          schedule_instrument_note(context, frequency, note_start, SCALE_NOTE_DURATION, instruments)
+        playback_notes.forEach(({ note_index, semitones }, index) => {
+          const frequency = transposePitch(scale_instance.root_pitch_class, 4, semitones).frequency
+          const note_start = start_time + index * note_step_seconds
+          schedule_instrument_note(context, frequency, note_start, note_duration, instruments)
           const timer = window.setTimeout(() => {
             if (scheduled_generation === playback_generation) {
-              listeners.forEach((listener) => listener.on_note_started(index))
+              listeners.forEach((listener) => listener.on_note_started(note_index))
             }
           }, Math.max(0, (note_start - context.currentTime) * 1000))
           active_timers.push(timer)
         })
+        const completion_timer = window.setTimeout(() => {
+          if (scheduled_generation === playback_generation) listeners.forEach((listener) => listener.on_stopped())
+        }, Math.max(0, (start_time - context.currentTime + duration) * 1000))
+        active_timers.push(completion_timer)
         return { ok: true }
       } catch {
         stopScheduledAudio()
@@ -311,6 +325,9 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
       context_mode = next_context
       state_listeners.forEach((listener) => listener({ is_muted, volume, context: context_mode }))
       return { ok: true }
+    },
+    setTempo(next_tempo_bpm) {
+      tempo_bpm = next_tempo_bpm
     },
     setVolume(next_volume) {
       volume = Math.min(1, Math.max(0, next_volume))

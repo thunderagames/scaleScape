@@ -11,12 +11,13 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 ### Explore View
 
 - Root selector for twelve pitch classes.
-- Mode selector for major, natural minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian, major pentatonic, and minor pentatonic. Major pentatonic serves as a familiar, low-friction reference and is defined by its omitted fourth and seventh degrees; minor pentatonic uses degrees 1, 3, 4, 5, and 7.
+- Mode selector for major, natural minor, harmonic minor, melodic minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian, major pentatonic, minor pentatonic, blues, major blues, chromatic, whole tone, diminished, augmented, Phrygian dominant, Hungarian minor, Hungarian major, Byzantine, Enigmatic, Prometheus, Persian, Egyptian, Oriental, Japanese, Hirajoshi, Romanian, Man Gong, Ritusen, dominant pentatonic, Voodoo, Neapolitan major, Neapolitan minor, Neapolitan Prometheus, Petrushka, Locrian natural 6, Ionian augmented, Lydian #2, Ultralocrian, Dorian b2, Lydian augmented, Lydian dominant, Mixolydian b6, Aeolian b5, altered, harmonic major, Iwato, Hon Kumoi Shiouzhi, Kumoi, Kumoi (common), Insen, Pelog, Chinese pentatonic, Enigmatic (Verdi), Prometheus (Scriabin), Istrian, Baake's tritonic, Far East, and approximate Slendro. Major pentatonic serves as a familiar, low-friction reference and is defined by its omitted fourth and seventh degrees; minor pentatonic uses degrees 1, 3, 4, 5, and 7.
 - Interval-based highlighting.
 - Tonic drone and optional tonic-fifth pedal.
 - Interactive piano.
 - Interactive six-string guitar fretboard.
 - Note detail panel with name, degree, interval, and role.
+- Scale formula panel with degree formula and full-octave interval structure; the mode selector groups formulas by category.
 
 ### Ear Gym View
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createExploreApplication } from '../application/explore-application'
 import type { PlaybackListener, PlaybackPort } from '../audio/playback-port'
 import { createSettingsStore } from '../settings/settings-store'
@@ -15,6 +15,7 @@ function createPlaybackFake() {
     previewNote: async (note, instruments) => { previewed_notes.push(note); previewed_instruments.push(instruments); return { ok: true } },
     stopAll: async () => { listener?.on_stopped() },
     setContext: async () => ({ ok: true }),
+    setTempo: () => undefined,
     setVolume: () => undefined,
     setMuted: () => undefined,
     getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off' }),
@@ -77,8 +78,48 @@ describe('explore screen', () => {
     const container = createContainer()
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
 
-    expect(Array.from(container.querySelectorAll('.scale-interval')).map((element) => element.textContent)).toEqual(['1', '1/2', '1', '1', '1', '1/2'])
+    expect(Array.from(container.querySelectorAll('.scale-interval')).map((element) => element.textContent)).toEqual(['T', 'S', 'T', 'T', 'T', 'S'])
     expect(container.querySelector('.scale-interval')?.getAttribute('aria-label')).toBe('2 semitones')
+  })
+
+  it('given_dorian_scale_when_rendering_generated_scale_then_shows_degree_formula_and_interval_structure', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    const formula_info = container.querySelector('.scale-formula-info')
+
+    expect(formula_info?.textContent).toContain('Degree formula1 - 2 - b3 - 4 - 5 - 6 - b7')
+    expect(formula_info?.textContent).toContain('Interval structureT - S - T - T - T - S - T')
+    expect(formula_info?.nextElementSibling?.id).toBe('scale-notes')
+  })
+
+  it('given_scale_selector_when_rendering_then_groups_modes_by_category', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    const groups = Array.from(container.querySelectorAll<HTMLOptGroupElement>('#formula-select optgroup'))
+
+    expect(groups.map((group) => group.label)).toEqual([
+      'Fundamental scales',
+      'Greek modes',
+      'Pentatonic and blues',
+      'Symmetric scales',
+      'Exotic and world scales'
+    ])
+    expect(groups[0]?.querySelector('option[value="major"]')).not.toBeNull()
+    expect(groups[1]?.querySelector('option[value="dorian"]')).not.toBeNull()
+    expect(groups[2]?.querySelector('option[value="blues"]')).not.toBeNull()
+    expect(groups[3]?.querySelector('option[value="chromatic"]')).not.toBeNull()
+    expect(groups[4]?.querySelector('option[value="pelog"]')).not.toBeNull()
+  })
+
+  it('given_approximate_slendro_when_rendering_then_shows_its_explicit_tuning_note', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(0, 'slendro')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector('#scale-formula-info')?.textContent).toContain('~240 cents - ~240 cents - ~240 cents - ~240 cents - ~240 cents')
   })
 
   it('given_major_pentatonic_scale_when_rendering_generated_scale_then_shows_one_and_a_half_tone_step', () => {
@@ -87,7 +128,7 @@ describe('explore screen', () => {
     application.changeScale(4, 'major_pentatonic')
     renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
 
-    expect(Array.from(container.querySelectorAll('.scale-interval')).map((element) => element.textContent)).toContain('1 1/2')
+    expect(Array.from(container.querySelectorAll('.scale-interval')).map((element) => element.textContent)).toContain('TS')
   })
 
   it('given_minor_pentatonic_mode_when_rendering_explore_then_lists_minor_pentatonic_and_notes', () => {
@@ -98,6 +139,46 @@ describe('explore screen', () => {
 
     expect(container.querySelector('#formula-select option[value="minor_pentatonic"]')?.textContent).toBe('Minor pentatonic')
     expect(Array.from(container.querySelectorAll('#scale-notes .scale-note')).map((note) => note.textContent)).toEqual(['E', 'G', 'A', 'B', 'D'])
+    expect(Array.from(container.querySelectorAll('#scale-notes .scale-degree')).map((degree) => degree.textContent)).toEqual(['1', '2', '3', '4', '5'])
+  })
+
+  it('given_major_pentatonic_mode_when_rendering_explore_then_numbers_notes_from_one_to_five', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(4, 'major_pentatonic')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(Array.from(container.querySelectorAll('#scale-notes .scale-degree')).map((degree) => degree.textContent)).toEqual(['1', '2', '3', '4', '5'])
+  })
+
+  it('given_prometheus_mode_when_rendering_explore_then_lists_five_sequential_scale_degrees', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(4, 'prometheus')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector('#formula-select option[value="prometheus"]')?.textContent).toBe('Prometheus')
+    expect(Array.from(container.querySelectorAll('#scale-notes .scale-degree')).map((degree) => degree.textContent)).toEqual(['1', '2', '3', '4', '5'])
+  })
+
+  it('given_japanese_mode_when_rendering_explore_then_lists_japanese_scale_with_sequential_degrees', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(9, 'japanese')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector('#formula-select option[value="japanese"]')?.textContent).toBe('Japanese')
+    expect(Array.from(container.querySelectorAll('#scale-notes .scale-degree')).map((degree) => degree.textContent)).toEqual(['1', '2', '3', '4', '5'])
+  })
+
+  it('given_guitarmonia_pentatonic_mode_when_rendering_explore_then_lists_sequential_scale_degrees', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(4, 'man_gong')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector('#formula-select option[value="man_gong"]')?.textContent).toBe('Man Gong')
+    expect(Array.from(container.querySelectorAll('#scale-notes .scale-degree')).map((degree) => degree.textContent)).toEqual(['1', '2', '3', '4', '5'])
   })
 
   it('given_generated_scale_when_playing_with_guitar_hidden_then_uses_only_visible_piano', async () => {
@@ -184,6 +265,102 @@ describe('explore screen', () => {
     expect(piano_buttons[1]?.tabIndex).toBe(0)
   })
 
+  it('given_explore_screen_when_rendering_piano_then_keeps_black_keys_separate_from_fretboard_controls', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    const black_key = container.querySelector('#piano-view .piano-key.altered-key')
+
+    expect(black_key).not.toBeNull()
+    expect(black_key?.classList.contains('guitar-position')).toBe(false)
+    expect(container.querySelector('.guitar-position')).not.toBeNull()
+  })
+
+  it('given_explore_screen_when_rendering_piano_then_marks_regular_scale_keys_with_full_overlay_class', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    const scale_overlays = Array.from(container.querySelectorAll('#piano-view .piano-key.is-scale-note'))
+
+    expect(scale_overlays.length).toBeGreaterThan(0)
+    expect(container.querySelector('#piano-view .piano-key.tonic.is-scale-note')).toBeNull()
+    expect(container.querySelector('#piano-view .piano-key.characteristic.is-scale-note')).toBeNull()
+    expect(container.querySelector('.guitar-position.is-scale-note')).toBeNull()
+  })
+
+  it('given_explore_screen_when_rendering_role_guide_then_shows_legends_and_toggleable_help', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelectorAll('.instrument-legend')).toHaveLength(0)
+    expect(container.querySelectorAll('.color-convention-table')).toHaveLength(3)
+    expect(container.querySelectorAll('.help-copy .color-swatch')).toHaveLength(12)
+    expect(container.querySelector('#scale-help')?.textContent).toContain('Light gray notes are chord tones')
+    expect(container.querySelector('#piano-help')?.textContent).toContain('primary musical role')
+    expect(container.querySelector('#scale-notes .scale-note.chord_tone')).not.toBeNull()
+    expect(container.querySelector('#scale-help .color-convention-table caption')?.textContent).toBe('Color guide')
+    expect(container.querySelector('#scale-help .color-convention-table th:last-child')?.textContent).toBe('Meaning')
+    expect(container.querySelector('#piano-help')?.closest('#piano-card')).not.toBeNull()
+    expect(container.querySelector('#guitar-help')?.closest('#guitar-card')).not.toBeNull()
+
+    const help_button = container.querySelector<HTMLButtonElement>('#scale-help-button')
+    help_button?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+    help_button?.click()
+    expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(true)
+    expect(help_button?.getAttribute('aria-expanded')).toBe('true')
+    help_button?.click()
+    expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(false)
+  })
+
+  it('given_open_help_when_opening_another_help_then_closes_the_previous_popup', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#scale-help-button')?.click()
+    container.querySelector<HTMLButtonElement>('#piano-help-button')?.click()
+
+    expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(false)
+    expect(container.querySelector('#piano-help')?.classList.contains('is-open')).toBe(true)
+  })
+
+  it('given_help_popup_when_opened_then_keeps_help_out_of_card_layout_flow', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    const help_copy = container.querySelector<HTMLElement>('#piano-help')
+
+    expect(help_copy?.parentElement?.classList.contains('help-cluster')).toBe(true)
+    expect(help_copy?.closest('.section-heading')).not.toBeNull()
+    expect(help_copy?.closest('#piano-card')?.querySelector('.piano-view')).not.toBeNull()
+    expect(help_copy?.classList.contains('is-open')).toBe(false)
+  })
+
+  it('given_open_help_when_opening_scale_selector_then_closes_help_before_modal', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#scale-help-button')?.click()
+    container.querySelector<HTMLButtonElement>('#scale-selector')?.click()
+
+    expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(false)
+  })
+
+  it('given_open_help_when_five_seconds_pass_then_closes_help_popup', () => {
+    vi.useFakeTimers()
+    try {
+      const container = createContainer()
+      renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+      container.querySelector<HTMLButtonElement>('#scale-help-button')?.click()
+
+      vi.advanceTimersByTime(4999)
+      expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(true)
+      vi.advanceTimersByTime(1)
+      expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('given_english_explore_screen_when_switching_to_spanish_then_localizes_controls_and_modes', () => {
     const container = createContainer()
     const settings = createSettings()
@@ -194,9 +371,12 @@ describe('explore screen', () => {
 
     expect(container.querySelector('#root-label')?.textContent).toBe('Tónica')
     expect(container.querySelector('#formula-select option[value="dorian"]')?.textContent).toBe('Dórico')
+    expect(container.querySelector<HTMLOptGroupElement>('#formula-select optgroup')?.label).toBe('Escalas fundamentales')
+    expect(container.querySelector('.scale-formula-info')?.textContent).toContain('Fórmula de grados1 - 2 - b3 - 4 - 5 - 6 - b7')
     expect(document.documentElement.lang).toBe('es')
     expect(container.querySelector('#app-label')).toBeNull()
     expect(container.querySelector('#generated-scale-label')?.textContent).toBe('Selecciona la escala')
+    expect(container.querySelector('#scale-selector-title')?.textContent).toBe('Escoja una nota y un modo')
   })
 
   it('given_explore_screen_when_rendering_then_centers_main_title', () => {
@@ -234,6 +414,21 @@ describe('explore screen', () => {
     expect(container.querySelector<HTMLSelectElement>('#formula-select')?.value).toBe('dorian')
   })
 
+  it('given_scale_selector_when_rendering_then_uses_an_icon_close_control_and_stacked_fields', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    const close_button = container.querySelector<HTMLButtonElement>('#close-scale-selector')
+
+    expect(container.querySelector('#scale-selector-modal')?.classList.contains('scale-selector-modal')).toBe(true)
+    expect(close_button?.textContent).toBe('')
+    expect(close_button?.getAttribute('aria-label')).toBe('Close')
+    expect(close_button?.querySelector('.modal-close-icon')).not.toBeNull()
+    expect(container.querySelectorAll('.scale-selector-field')).toHaveLength(2)
+    expect(container.querySelectorAll('.scale-selector-field select')).toHaveLength(2)
+    expect(container.querySelector('.scale-selector-actions')?.children).toHaveLength(2)
+  })
+
   it('given_play_scale_when_clicked_twice_then_toggles_between_play_and_stop', async () => {
     const container = createContainer()
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
@@ -241,7 +436,7 @@ describe('explore screen', () => {
 
     play_button?.click()
     await Promise.resolve()
-    expect(play_button?.querySelector('.playback-icon path')?.getAttribute('d')).toContain('M7')
+    expect(play_button?.querySelector('.playback-icon path')?.getAttribute('d')).toBe('M6 6h12v12H6z')
     play_button?.click()
     await Promise.resolve()
     expect(play_button?.querySelector('.playback-icon path')?.getAttribute('d')).toContain('m8')

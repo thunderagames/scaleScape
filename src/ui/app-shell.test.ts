@@ -13,9 +13,10 @@ function createPlaybackFake(): PlaybackPort {
   return {
     playScale: async () => ({ ok: true }),
     previewNote: async () => ({ ok: true }),
-    stopAll: async () => undefined,
-    setContext: async (_root_pitch_class, next_context) => { context = next_context; return { ok: true } },
-    setVolume: (next_volume) => { volume = next_volume; state_listeners.forEach((listener) => listener({ is_muted, volume, context })) },
+     stopAll: async () => undefined,
+     setContext: async (_root_pitch_class, next_context) => { context = next_context; return { ok: true } },
+     setTempo: () => undefined,
+     setVolume: (next_volume) => { volume = next_volume; state_listeners.forEach((listener) => listener({ is_muted, volume, context })) },
     setMuted: (next_is_muted) => { is_muted = next_is_muted; state_listeners.forEach((listener) => listener({ is_muted, volume, context })) },
     getPlaybackState: () => ({ is_muted, volume, context }),
     subscribePlaybackState: (listener) => { state_listeners.add(listener); return () => state_listeners.delete(listener) },
@@ -66,6 +67,7 @@ describe('application shell', () => {
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
     expect(container.querySelector<HTMLElement>('#ear-gym-screen')?.hidden).toBe(true)
     expect(container.querySelector('#explore-directly')?.textContent).toBe('Explore directly')
+    expect(container.querySelector('#app-footer')?.textContent).toBe('Developed by ThunderaGames · 2026')
   })
 
   it('given_small_navigation_when_toggling_menu_then_opens_and_closes_after_navigation', () => {
@@ -263,6 +265,7 @@ describe('application shell', () => {
     expect(container.querySelector('#navigate-explore')?.textContent).toBe('Explorar')
     expect(container.querySelector('#navigate-ear-gym')?.textContent).toBe('Gimnasio auditivo')
     expect(container.querySelector('#ear-gym-title')?.textContent).toBe('Gimnasio auditivo')
+    expect(container.querySelector('#app-footer')?.textContent).toBe('Desarrollado por ThunderaGames en 2026')
   })
 
   it('given_settings_modal_when_changing_volume_and_mute_then_updates_playback_and_persists_volume', () => {
@@ -295,6 +298,52 @@ describe('application shell', () => {
     expect(container.querySelector('#open-settings')?.getAttribute('aria-label')).toBe('Settings')
     expect(container.querySelector('#open-settings .settings-icon')).not.toBeNull()
     expect(container.querySelector('#open-settings')?.textContent).toBe('')
+  })
+
+  it('given_settings_modal_when_rendering_then_uses_shared_modal_controls_and_icon_close', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    const close_button = container.querySelector<HTMLButtonElement>('#close-settings')
+
+    expect(container.querySelector('#settings-modal')?.classList.contains('settings-modal')).toBe(true)
+    expect(close_button?.classList.contains('control-button--icon')).toBe(true)
+    expect(close_button?.textContent).toBe('')
+    expect(close_button?.getAttribute('aria-label')).toBe('Close')
+    expect(close_button?.querySelector('.modal-close-icon')).not.toBeNull()
+    expect(container.querySelectorAll('#settings-modal .modal-field')).toHaveLength(3)
+    expect(container.querySelectorAll('#settings-modal .settings-group')).toHaveLength(4)
+    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(5)
+    expect(container.querySelectorAll('#settings-modal .control-select')).toHaveLength(2)
+    expect(container.querySelectorAll('#settings-modal .control-range')).toHaveLength(1)
+    expect(container.querySelectorAll('#settings-modal .control-choice')).toHaveLength(6)
+    expect(container.querySelector('.settings-actions')?.children).toHaveLength(2)
+  })
+
+  it('given_settings_modal_when_selecting_tempo_then_persists_tempo_choice', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const tempo_select = container.querySelector<HTMLSelectElement>('#tempo-select')
+    if (tempo_select) tempo_select.value = '200'
+    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+
+    expect(settings.getSettings().tempo_bpm).toBe(200)
+  })
+
+  it('given_open_help_when_opening_settings_modal_then_closes_help_before_modal', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+
+    container.querySelector<HTMLButtonElement>('#scale-help-button')?.click()
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+
+    expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(false)
   })
 
   it('given_settings_modal_when_toggling_diagnostics_then_keeps_diagnostic_controls_inside_modal', () => {

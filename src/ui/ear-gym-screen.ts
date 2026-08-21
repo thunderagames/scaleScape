@@ -15,20 +15,20 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
         <p class="eyebrow" id="comparison-label"></p>
         <h2 id="comparison-title"></h2>
         <label id="comparison-selector-label" for="comparison-selector"></label>
-        <select id="comparison-selector"></select>
+         <select id="comparison-selector" class="control-select"></select>
         <p id="comparison-prompt" class="comparison-prompt"></p>
         <div class="comparison-actions">
-          <button id="play-example-a" type="button"></button>
-          <button id="play-example-b" type="button"></button>
-          <button id="stop-audio" type="button"></button>
-          <button id="start-answer" type="button"></button>
+           <button id="play-example-a" class="control-button" type="button"></button>
+           <button id="play-example-b" class="control-button" type="button"></button>
+           <button id="stop-audio" class="control-button" type="button"></button>
+           <button id="start-answer" class="control-button control-button--primary" type="button"></button>
         </div>
         <fieldset id="answer-fieldset" class="answer-options" disabled>
           <legend id="answer-legend"></legend>
           <div id="answer-options"></div>
         </fieldset>
          <div id="feedback" class="exercise-feedback" tabindex="-1" aria-live="assertive"></div>
-        <button id="restart-exercise" type="button" hidden></button>
+         <button id="restart-exercise" class="control-button" type="button" hidden></button>
       </section>
     </section>
   `
