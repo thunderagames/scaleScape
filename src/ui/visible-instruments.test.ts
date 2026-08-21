@@ -19,27 +19,34 @@ function createSettings() {
 
 describe('visible playback instruments', () => {
   it('given_both_instruments_visible_when_reading_playback_instruments_then_returns_piano_and_guitar', () => {
-    expect(getVisiblePlaybackInstruments(createSettings())).toEqual(['piano', 'guitar'])
+    expect(getVisiblePlaybackInstruments(createSettings())).toEqual(['piano', 'guitar', 'bass'])
   })
 
   it('given_hidden_guitar_when_reading_playback_instruments_then_returns_only_piano', () => {
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_guitar: false })
+    settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
 
     expect(getVisiblePlaybackInstruments(settings)).toEqual(['piano'])
   })
 
   it('given_hidden_piano_when_reading_playback_instruments_then_returns_only_guitar', () => {
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_piano: false })
+    settings.setSettings({ ...settings.getSettings(), show_piano: false, show_bass: false })
 
     expect(getVisiblePlaybackInstruments(settings)).toEqual(['guitar'])
   })
 
   it('given_both_instruments_hidden_when_reading_playback_instruments_then_returns_empty_list', () => {
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_piano: false, show_guitar: false })
+    settings.setSettings({ ...settings.getSettings(), show_piano: false, show_guitar: false, show_bass: false })
 
     expect(getVisiblePlaybackInstruments(settings)).toEqual([])
+  })
+
+  it('given_bass_visible_when_reading_playback_instruments_then_includes_bass', () => {
+    const settings = createSettings()
+    settings.setSettings({ ...settings.getSettings(), show_bass: true })
+
+    expect(getVisiblePlaybackInstruments(settings)).toEqual(['piano', 'guitar', 'bass'])
   })
 })

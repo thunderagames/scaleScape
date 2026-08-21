@@ -16,6 +16,7 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 - Tonic drone and optional tonic-fifth pedal.
 - Interactive piano.
 - Interactive six-string guitar fretboard.
+- Interactive four-string bass fretboard with standard E-A-D-G tuning.
 - Note detail panel with name, degree, interval, and role.
 - Scale formula panel with degree formula and full-octave interval structure; the mode selector groups formulas by category.
 
@@ -33,7 +34,7 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 - Responsive navigation between Explore and Ear Gym.
 - Guided Start as the primary first-session action, with Explore Directly always available.
 - Mute control and audio status.
-- Instrument preference stored locally.
+- Instrument visibility and tuning preferences stored locally.
 - No account required.
 
 ## Explicitly Excluded
@@ -47,7 +48,7 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 - Social sharing, leaderboards, and community content.
 - AI-generated lessons.
 - More than the minimum supported scale set.
-- Alternate and custom guitar tunings; the MVP ships standard tuning only.
+- Independent per-string and custom tunings; the MVP supports guitar and standard four-string bass tunings transposed uniformly by semitones.
 - Native mobile applications.
 
 ## MVP Screen Map

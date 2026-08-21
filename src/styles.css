@@ -147,6 +147,7 @@ select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: .65rem .75
 dialog { width: min(360px, calc(100% - 2rem)); padding: 0; border: 1px solid #526b79; border-radius: 1rem; color: #e9eef5; background: #19252d; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
 dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .settings-modal { width: min(460px, calc(100% - 2rem)); }
+.guitar-tuning-modal { width: min(420px, calc(100% - 2rem)); }
 .modal-form { display: grid; gap: 1.25rem; padding: 1.4rem; }
 .modal-heading { display: flex; align-items: center; gap: 1rem; }
 .modal-heading h2 { flex: 1; margin: 0; font-size: 1.35rem; line-height: 1.2; }
@@ -157,11 +158,17 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .scale-selector-heading h2 { flex: 1; margin: 0; font-size: 1.35rem; line-height: 1.2; }
 .modal-close-icon { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; }
 .settings-fields { display: grid; gap: 1rem; }
+.guitar-tuning-value { margin: 0; padding: .8rem; border: 1px solid #34434e; border-radius: .6rem; color: #f6bf62; background: #18232c; font-weight: 800; text-align: center; }
+.guitar-tuning-stepper { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.guitar-tuning-stepper .control-button { font-size: 1.3rem; }
 .modal-field { display: grid; gap: .45rem; color: #a9b8c7; font-size: .85rem; font-weight: 750; }
 .settings-field select { width: 100%; }
 .settings-group { display: grid; gap: .55rem; margin: 0; padding: .85rem; border: 1px solid #34434e; border-radius: .7rem; }
 .settings-group legend { padding: 0 .3rem; color: #a9b8c7; font-size: .85rem; font-weight: 750; }
 .settings-choice { display: flex; align-items: center; gap: .6rem; min-height: 44px; color: #e9eef5; font-size: .9rem; font-weight: 600; }
+.settings-choice-row { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.settings-choice-row .settings-choice { flex: 1; }
+.guitar-tuning-trigger { flex: 0 0 auto; width: auto; min-width: 0; min-height: 36px; padding: .4rem .6rem; font-size: .78rem; white-space: nowrap; }
 .settings-volume-field { gap: .6rem; }
 .settings-volume-field .control-range { margin-top: .1rem; }
 .settings-group [role="status"] { min-height: 1.2rem; color: #f6bf62; line-height: 1.35; }

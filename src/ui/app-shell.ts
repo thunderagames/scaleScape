@@ -7,6 +7,8 @@ import { renderEarGymScreen } from './ear-gym-screen'
 import { getVisiblePlaybackInstruments } from './visible-instruments'
 import type { AppConfig, AppModuleFlags, AppScreen } from '../app-config'
 import type { TempoBpm } from '../shared/tempo'
+import { getGuitarTuningNote } from '../instruments/guitar-view-model'
+import { getBassTuningNote } from '../instruments/bass-view-model'
 
 export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false } }): void {
   container.innerHTML = `
@@ -38,6 +40,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
       <div id="explore-screen"></div>
       <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
       <footer id="app-footer" class="app-footer"></footer>
+      <dialog id="guitar-tuning-modal" class="guitar-tuning-modal" aria-labelledby="guitar-tuning-title"><form method="dialog" class="modal-form guitar-tuning-form"><div class="modal-heading"><h2 id="guitar-tuning-title"></h2><button id="close-guitar-tuning" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><label id="guitar-tuning-value" class="guitar-tuning-value" for="raise-guitar-tuning"></label><div class="guitar-tuning-stepper"><button id="lower-guitar-tuning" class="control-button" type="button"></button><button id="raise-guitar-tuning" class="control-button" type="button"></button></div><div class="modal-actions"><button id="cancel-guitar-tuning" class="control-button" type="button"></button><button id="save-guitar-tuning" class="control-button control-button--primary" type="button"></button></div></form></dialog>
       <dialog id="settings-modal" class="settings-modal" aria-labelledby="settings-title"><form method="dialog" class="modal-form settings-form"><div class="modal-heading settings-heading"><h2 id="settings-title"></h2><button id="close-settings" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="settings-fields"><label class="modal-field settings-field" for="language-select"><span id="language-label"></span><select id="language-select" class="control-select"></select></label><fieldset class="settings-group instrument-settings"><legend id="instrument-visibility-label"></legend><label class="settings-choice"><input id="show-piano" class="control-choice" type="checkbox"> <span id="show-piano-label"></span></label><label class="settings-choice"><input id="show-guitar" class="control-choice" type="checkbox"> <span id="show-guitar-label"></span></label></fieldset><fieldset class="settings-group context-settings"><legend id="context-label"></legend><label class="settings-choice"><input id="context-off" class="control-choice" type="radio" name="harmonic-context" value="off"><span id="context-off-label"></span></label><label class="settings-choice"><input id="context-drone" class="control-choice" type="radio" name="harmonic-context" value="drone"><span id="context-drone-label"></span></label><label class="settings-choice"><input id="context-pedal" class="control-choice" type="radio" name="harmonic-context" value="pedal"><span id="context-pedal-label"></span></label></fieldset><fieldset class="settings-group audio-settings"><legend id="audio-settings-label"></legend><label class="modal-field settings-field settings-volume-field" for="volume-control"><span id="volume-label"></span><input id="volume-control" class="control-range" type="range" min="0" max="1" step="0.05" /></label><button id="mute-audio" class="control-button" type="button"></button><span id="mute-status" role="status" aria-live="polite"></span></fieldset><fieldset class="settings-group diagnostics-settings"><legend id="diagnostics-settings-label"></legend><label id="diagnostics-mode-label" class="settings-choice" for="diagnostics-mode-control"><input id="diagnostics-mode-control" class="control-choice" type="checkbox" /><span id="diagnostics-mode-text"></span></label><button id="export-diagnostics" class="control-button" type="button"></button><span id="diagnostics-status" role="status" aria-live="polite"></span></fieldset></div><div class="modal-actions settings-actions"><button id="cancel-settings" class="control-button" type="button"></button><button id="save-settings" class="control-button control-button--primary" type="button"></button></div></form></dialog>
     </div>
   `
@@ -52,6 +55,14 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const open_settings = container.querySelector<HTMLButtonElement>('#open-settings')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
   const app_footer = container.querySelector<HTMLElement>('#app-footer')
+  const guitar_tuning_modal = container.querySelector<HTMLDialogElement>('#guitar-tuning-modal')
+  const guitar_tuning_title = container.querySelector<HTMLElement>('#guitar-tuning-title')
+  const guitar_tuning_value = container.querySelector<HTMLElement>('#guitar-tuning-value')
+  const close_guitar_tuning = container.querySelector<HTMLButtonElement>('#close-guitar-tuning')
+  const cancel_guitar_tuning = container.querySelector<HTMLButtonElement>('#cancel-guitar-tuning')
+  const save_guitar_tuning = container.querySelector<HTMLButtonElement>('#save-guitar-tuning')
+  const lower_guitar_tuning = container.querySelector<HTMLButtonElement>('#lower-guitar-tuning')
+  const raise_guitar_tuning = container.querySelector<HTMLButtonElement>('#raise-guitar-tuning')
   const audio_settings = container.querySelector<HTMLElement>('.audio-settings')
   const diagnostics_settings = container.querySelector<HTMLElement>('.diagnostics-settings')
   const volume_label = container.querySelector<HTMLElement>('#volume-label')
@@ -77,10 +88,30 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const save_settings = container.querySelector<HTMLButtonElement>('#save-settings')
   const language_select = container.querySelector<HTMLSelectElement>('#language-select')
   language_select?.closest('label')?.insertAdjacentHTML('afterend', '<label class="modal-field settings-field" for="tempo-select"><span id="tempo-label"></span><select id="tempo-select" class="control-select"><option value="120">120 BPM</option><option value="150">150 BPM</option><option value="200">200 BPM</option></select></label>')
+  container.querySelector<HTMLElement>('.instrument-settings')?.insertAdjacentHTML('beforeend', '<label class="settings-choice"><input id="show-bass" class="control-choice" type="checkbox"> <span id="show-bass-label"></span></label>')
+  const guitar_visibility = container.querySelector<HTMLInputElement>('#show-guitar')?.closest('label')
+  if (guitar_visibility) {
+    const guitar_settings_row = document.createElement('div')
+    guitar_settings_row.className = 'settings-choice-row'
+    guitar_visibility.parentElement?.insertBefore(guitar_settings_row, guitar_visibility)
+    guitar_settings_row.append(guitar_visibility)
+    guitar_settings_row.insertAdjacentHTML('beforeend', '<button id="open-guitar-tuning" class="control-button guitar-tuning-trigger" type="button"></button>')
+  }
+  const bass_visibility = container.querySelector<HTMLInputElement>('#show-bass')?.closest('label')
+  if (bass_visibility) {
+    const bass_settings_row = document.createElement('div')
+    bass_settings_row.className = 'settings-choice-row'
+    bass_visibility.parentElement?.insertBefore(bass_settings_row, bass_visibility)
+    bass_settings_row.append(bass_visibility)
+    bass_settings_row.insertAdjacentHTML('beforeend', '<button id="open-bass-tuning" class="control-button guitar-tuning-trigger" type="button"></button>')
+  }
+  const open_guitar_tuning = container.querySelector<HTMLButtonElement>('#open-guitar-tuning')
+  const open_bass_tuning = container.querySelector<HTMLButtonElement>('#open-bass-tuning')
   const tempo_label = container.querySelector<HTMLElement>('#tempo-label')
   const tempo_select = container.querySelector<HTMLSelectElement>('#tempo-select')
   const show_piano = container.querySelector<HTMLInputElement>('#show-piano')
   const show_guitar = container.querySelector<HTMLInputElement>('#show-guitar')
+  const show_bass = container.querySelector<HTMLInputElement>('#show-bass')
   const context_label = container.querySelector<HTMLElement>('#context-label')
   const context_off = container.querySelector<HTMLInputElement>('#context-off')
   const context_drone = container.querySelector<HTMLInputElement>('#context-drone')
@@ -88,8 +119,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const context_off_label = container.querySelector<HTMLElement>('#context-off-label')
   const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
   const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
-    if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
-    const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, audio_settings, diagnostics_settings, volume_label, volume_control, tempo_label, tempo_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+    if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !show_bass || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+     const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, tempo_label, tempo_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   const modules: AppModuleFlags = config.modules
   const default_screen: AppScreen = modules[config.default_screen] ? config.default_screen : modules.explore ? 'explore' : modules.ear_gym ? 'ear_gym' : 'guided_start'
@@ -104,11 +135,32 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   let guided_progress: HTMLElement | null = null
   let guided_progress_text: HTMLElement | null = null
   let guided_progress_action: HTMLButtonElement | null = null
+  let pending_tuning_instrument: 'guitar' | 'bass' = 'guitar'
+  let pending_tuning_semitones = settings.getSettings().guitar_tuning_semitones
 
   function apply_translations(): void {
     const translation = settings.getTranslations()
+    const guitar_tuning_semitones = settings.getSettings().guitar_tuning_semitones
+    const bass_tuning_semitones = settings.getSettings().bass_tuning_semitones
+    const active_tuning_semitones = pending_tuning_instrument === 'guitar' ? guitar_tuning_semitones : bass_tuning_semitones
+    const active_tuning_note = pending_tuning_instrument === 'guitar' ? getGuitarTuningNote(active_tuning_semitones) : getBassTuningNote(active_tuning_semitones)
     ui.shell_label.textContent = translation.app_label
     ui.app_footer.textContent = translation.footer_credit
+     ui.open_guitar_tuning.setAttribute('aria-label', `${translation.guitar_tuning}: ${getGuitarTuningNote(guitar_tuning_semitones)}`)
+     ui.open_guitar_tuning.title = translation.guitar_tuning
+     ui.guitar_tuning_title.textContent = pending_tuning_instrument === 'guitar' ? translation.guitar_tuning : translation.bass_tuning
+     ui.open_guitar_tuning.textContent = translation.tuner
+     ui.guitar_tuning_value.textContent = `${active_tuning_note} · ${active_tuning_semitones > 0 ? '+' : ''}${active_tuning_semitones} ${translation.guitar_tuning_semitones}`
+     ui.open_bass_tuning.setAttribute('aria-label', `${translation.bass_tuning}: ${getBassTuningNote(bass_tuning_semitones)}`)
+     ui.open_bass_tuning.title = translation.bass_tuning
+     ui.open_bass_tuning.textContent = translation.tuner
+    ui.lower_guitar_tuning.textContent = '−'
+    ui.raise_guitar_tuning.textContent = '+'
+    ui.lower_guitar_tuning.setAttribute('aria-label', translation.lower_tuning)
+    ui.raise_guitar_tuning.setAttribute('aria-label', translation.raise_tuning)
+    ui.close_guitar_tuning.setAttribute('aria-label', translation.close)
+    ui.cancel_guitar_tuning.textContent = translation.close
+    ui.save_guitar_tuning.textContent = translation.save
     ui.navigate_explore.textContent = translation.nav_explore
     ui.navigate_ear_gym.textContent = translation.nav_ear_gym
     ui.navigate_guided_start.textContent = translation.nav_guided_start
@@ -148,6 +200,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.language_select.value = settings.getSettings().language
     ui.show_piano.checked = settings.getSettings().show_piano
     ui.show_guitar.checked = settings.getSettings().show_guitar
+    ui.show_bass.checked = settings.getSettings().show_bass
     ui.context_label.textContent = translation.context
     ui.context_off_label.textContent = translation.context_off
     ui.context_drone_label.textContent = translation.context_drone
@@ -159,6 +212,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.settings_modal.querySelector<HTMLElement>('#instrument-visibility-label')!.textContent = translation.instrument_visibility
     ui.settings_modal.querySelector<HTMLElement>('#show-piano-label')!.textContent = translation.show_piano
     ui.settings_modal.querySelector<HTMLElement>('#show-guitar-label')!.textContent = translation.show_guitar
+    ui.settings_modal.querySelector<HTMLElement>('#show-bass-label')!.textContent = translation.show_bass
     ui.settings_modal.querySelector<HTMLElement>('#audio-settings-label')!.textContent = translation.audio_controls
     ui.settings_modal.querySelector<HTMLElement>('#diagnostics-settings-label')!.textContent = translation.diagnostics_mode
     ui.cancel_settings.textContent = translation.close
@@ -197,6 +251,19 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     if (typeof ui.settings_modal.showModal === 'function') ui.settings_modal.showModal()
     else ui.settings_modal.setAttribute('open', '')
   }
+   const update_tuning_value = () => {
+     const tuning_note = pending_tuning_instrument === 'guitar' ? getGuitarTuningNote(pending_tuning_semitones) : getBassTuningNote(pending_tuning_semitones)
+     ui.guitar_tuning_value.textContent = `${tuning_note} · ${pending_tuning_semitones > 0 ? '+' : ''}${pending_tuning_semitones} ${settings.getTranslations().guitar_tuning_semitones}`
+   }
+   const close_tuning_dialog = () => { if (typeof ui.guitar_tuning_modal.close === 'function') ui.guitar_tuning_modal.close(); else ui.guitar_tuning_modal.removeAttribute('open'); (pending_tuning_instrument === 'guitar' ? ui.open_guitar_tuning : ui.open_bass_tuning).focus() }
+   const open_tuning_dialog = (instrument: 'guitar' | 'bass') => { pending_tuning_instrument = instrument; pending_tuning_semitones = instrument === 'guitar' ? settings.getSettings().guitar_tuning_semitones : settings.getSettings().bass_tuning_semitones; apply_translations(); if (typeof ui.guitar_tuning_modal.showModal === 'function') ui.guitar_tuning_modal.showModal(); else ui.guitar_tuning_modal.setAttribute('open', '') }
+   ui.open_guitar_tuning.addEventListener('click', () => open_tuning_dialog('guitar'))
+   ui.open_bass_tuning.addEventListener('click', () => open_tuning_dialog('bass'))
+   ui.lower_guitar_tuning.addEventListener('click', () => { pending_tuning_semitones = Math.max(-12, pending_tuning_semitones - 1); update_tuning_value() })
+   ui.raise_guitar_tuning.addEventListener('click', () => { pending_tuning_semitones = Math.min(12, pending_tuning_semitones + 1); update_tuning_value() })
+   ui.close_guitar_tuning.addEventListener('click', close_tuning_dialog)
+   ui.cancel_guitar_tuning.addEventListener('click', close_tuning_dialog)
+   ui.save_guitar_tuning.addEventListener('click', () => { const next_settings = pending_tuning_instrument === 'guitar' ? { ...settings.getSettings(), guitar_tuning_semitones: pending_tuning_semitones } : { ...settings.getSettings(), bass_tuning_semitones: pending_tuning_semitones }; settings.setSettings(next_settings); close_tuning_dialog() })
   ui.open_settings.addEventListener('click', open_settings_dialog)
   const close_settings_dialog = () => {
     if (typeof ui.settings_modal.close === 'function') ui.settings_modal.close()
@@ -208,7 +275,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.save_settings.addEventListener('click', () => {
     const context = ui.context_drone.checked ? 'drone' : ui.context_pedal.checked ? 'pedal' : 'off'
     const tempo_bpm = Number(ui.tempo_select.value) as TempoBpm
-    settings.setSettings({ ...settings.getSettings(), language: ui.language_select.value as 'en' | 'es', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked, tempo_bpm })
+    settings.setSettings({ ...settings.getSettings(), language: ui.language_select.value as 'en' | 'es', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked, show_bass: ui.show_bass.checked, tempo_bpm })
     playback.setTempo(tempo_bpm)
     void playback.setContext(application.getState().root_pitch_class, context)
     close_settings_dialog()

@@ -24,6 +24,13 @@ const GUITAR_PARTIALS = [
   { multiplier: 4, amplitude: 0.045, type: 'sine' as OscillatorType }
 ] as const
 
+const BASS_PARTIALS = [
+  { multiplier: 1, amplitude: 0.66, type: 'sawtooth' as OscillatorType },
+  { multiplier: 2, amplitude: 0.2, type: 'triangle' as OscillatorType },
+  { multiplier: 3, amplitude: 0.08, type: 'square' as OscillatorType },
+  { multiplier: 0.5, amplitude: 0.3, type: 'sine' as OscillatorType }
+] as const
+
 const MAX_SCALE_NOTE_DURATION = 1.1
 const PREVIEW_NOTE_DURATION = 1.35
 
@@ -38,6 +45,7 @@ function create_guitar_distortion_curve(amount: number): Float32Array<ArrayBuffe
 }
 
 const GUITAR_DISTORTION_CURVE = create_guitar_distortion_curve(42)
+const BASS_OVERDRIVE_CURVE = create_guitar_distortion_curve(8)
 
 export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () => undefined }): PlaybackPort {
   let audio_context: AudioContext | null = null
@@ -254,9 +262,37 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
     })
   }
 
+  function schedule_bass_note(context: AudioContext, frequency: number, start_time: number, duration: number): void {
+    const voice_gain = context.createGain()
+    const overdrive = context.createWaveShaper()
+    const filter = context.createBiquadFilter()
+    overdrive.curve = BASS_OVERDRIVE_CURVE
+    overdrive.oversample = '2x'
+    filter.type = 'lowpass'
+    filter.frequency.setValueAtTime(Math.min(3600, Math.max(900, frequency * 6)), start_time)
+    filter.Q.value = 0.9
+    voice_gain.connect(overdrive)
+    overdrive.connect(filter)
+    filter.connect(get_master_gain(context))
+    schedule_envelope(voice_gain, start_time, duration, 0.28, 0.42)
+    BASS_PARTIALS.forEach(({ multiplier, amplitude, type }) => {
+      const oscillator = context.createOscillator()
+      const partial_gain = context.createGain()
+      oscillator.type = type
+      oscillator.frequency.setValueAtTime(frequency * multiplier, start_time)
+      partial_gain.gain.value = amplitude
+      oscillator.connect(partial_gain)
+      partial_gain.connect(voice_gain)
+      oscillator.start(start_time)
+      oscillator.stop(start_time + duration)
+      active_nodes.push(oscillator)
+    })
+  }
+
   function schedule_instrument_note(context: AudioContext, frequency: number, start_time: number, duration: number, instruments: readonly PlaybackInstrument[]): void {
     if (instruments.includes('piano')) schedule_piano_note(context, frequency, start_time, duration)
     if (instruments.includes('guitar')) schedule_guitar_note(context, frequency, start_time, duration)
+    if (instruments.includes('bass')) schedule_bass_note(context, frequency, start_time, duration)
   }
 
   return {

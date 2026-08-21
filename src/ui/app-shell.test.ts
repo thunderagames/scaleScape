@@ -314,10 +314,16 @@ describe('application shell', () => {
     expect(close_button?.querySelector('.modal-close-icon')).not.toBeNull()
     expect(container.querySelectorAll('#settings-modal .modal-field')).toHaveLength(3)
     expect(container.querySelectorAll('#settings-modal .settings-group')).toHaveLength(4)
-    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(5)
+    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(7)
     expect(container.querySelectorAll('#settings-modal .control-select')).toHaveLength(2)
     expect(container.querySelectorAll('#settings-modal .control-range')).toHaveLength(1)
-    expect(container.querySelectorAll('#settings-modal .control-choice')).toHaveLength(6)
+    expect(container.querySelectorAll('#settings-modal .control-choice')).toHaveLength(7)
+    expect(container.querySelector('#open-guitar-tuning')?.textContent).toBe('Tuner')
+    expect(container.querySelector('#open-guitar-tuning')?.parentElement?.classList.contains('settings-choice-row')).toBe(true)
+    expect(container.querySelector('#open-guitar-tuning')?.previousElementSibling?.querySelector('input')?.id).toBe('show-guitar')
+    expect(container.querySelector('#open-bass-tuning')?.textContent).toBe('Tuner')
+    expect(container.querySelector('#open-bass-tuning')?.parentElement?.classList.contains('settings-choice-row')).toBe(true)
+    expect(container.querySelector('#open-bass-tuning')?.previousElementSibling?.querySelector('input')?.id).toBe('show-bass')
     expect(container.querySelector('.settings-actions')?.children).toHaveLength(2)
   })
 
@@ -333,6 +339,48 @@ describe('application shell', () => {
     container.querySelector<HTMLButtonElement>('#save-settings')?.click()
 
     expect(settings.getSettings().tempo_bpm).toBe(200)
+  })
+
+  it('given_settings_modal_when_adjusting_guitar_tuning_then_saves_common_semitone_shift', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    container.querySelector<HTMLButtonElement>('#open-guitar-tuning')?.click()
+    container.querySelector<HTMLButtonElement>('#lower-guitar-tuning')?.click()
+    container.querySelector<HTMLButtonElement>('#lower-guitar-tuning')?.click()
+
+    expect(container.querySelector('#guitar-tuning-modal')?.classList.contains('guitar-tuning-modal')).toBe(true)
+    expect(container.querySelector('#guitar-tuning-value')?.textContent).toContain('D')
+    expect(settings.getSettings().guitar_tuning_semitones).toBe(0)
+
+    container.querySelector<HTMLButtonElement>('#save-guitar-tuning')?.click()
+
+    expect(settings.getSettings().guitar_tuning_semitones).toBe(-2)
+    expect(container.querySelector('#guitar-card')?.textContent).toContain('Low D')
+  })
+
+  it('given_settings_modal_when_adjusting_bass_tuning_then_saves_common_semitone_shift', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    container.querySelector<HTMLButtonElement>('#open-bass-tuning')?.click()
+    container.querySelector<HTMLButtonElement>('#lower-guitar-tuning')?.click()
+    container.querySelector<HTMLButtonElement>('#lower-guitar-tuning')?.click()
+
+    expect(container.querySelector('#guitar-tuning-title')?.textContent).toBe('Bass tuning')
+    expect(container.querySelector('#guitar-tuning-value')?.textContent).toContain('D')
+    expect(settings.getSettings().bass_tuning_semitones).toBe(0)
+
+    container.querySelector<HTMLButtonElement>('#save-guitar-tuning')?.click()
+
+    expect(settings.getSettings().bass_tuning_semitones).toBe(-2)
+    expect(container.querySelector('#bass-card')?.textContent).toContain('D')
   })
 
   it('given_open_help_when_opening_settings_modal_then_closes_help_before_modal', () => {
@@ -401,5 +449,18 @@ describe('application shell', () => {
 
     expect(container.querySelector<HTMLElement>('#guitar-card')?.hidden).toBe(true)
     expect(container.querySelector<HTMLElement>('#piano-card')?.hidden).toBe(false)
+  })
+
+  it('given_settings_modal_when_enabling_bass_then_shows_bass_card', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const show_bass = container.querySelector<HTMLInputElement>('#show-bass')
+    if (show_bass) show_bass.checked = true
+    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+
+    expect(container.querySelector<HTMLElement>('#bass-card')?.hidden).toBe(false)
+    expect(container.querySelectorAll('#bass-view tbody tr')).toHaveLength(4)
   })
 })

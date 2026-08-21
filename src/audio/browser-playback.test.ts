@@ -150,4 +150,16 @@ describe('browser playback', () => {
     expect(FakeAudioContext.last_instance?.buffer_source_count).toBe(0)
     expect(FakeAudioContext.last_instance?.oscillator_types).toContain('sawtooth')
   })
+
+  it('given_bass_instrument_when_playing_scale_then_schedules_overdriven_low_voice_without_hammer_buffer', async () => {
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), ['bass'])
+
+    expect(result.ok).toBe(true)
+    expect(FakeAudioContext.last_instance?.wave_shaper_count).toBeGreaterThan(0)
+    expect(FakeAudioContext.last_instance?.buffer_source_count).toBe(0)
+    expect(FakeAudioContext.last_instance?.oscillator_types).toContain('sawtooth')
+  })
 })

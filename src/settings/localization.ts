@@ -76,6 +76,7 @@ export interface TranslationDictionary {
   readonly select_note: string
   readonly piano: string
   readonly guitar: string
+  readonly bass: string
   readonly generation: string
   readonly degree: string
   readonly role: string
@@ -83,8 +84,16 @@ export interface TranslationDictionary {
   readonly instrument_visibility: string
   readonly show_piano: string
   readonly show_guitar: string
+  readonly show_bass: string
   readonly instrument_region: string
   readonly guitar_table: string
+  readonly bass_table: string
+  readonly guitar_tuning: string
+  readonly bass_tuning: string
+  readonly tuner: string
+  readonly guitar_tuning_semitones: string
+  readonly lower_tuning: string
+  readonly raise_tuning: string
   readonly string_label: string
   readonly fret_label: string
   readonly audio_controls: string
@@ -191,16 +200,25 @@ const ENGLISH: TranslationDictionary = {
   interval_label: 'semitones',
   select_note: 'Select a scale note for interval and role detail.',
   piano: 'Piano · C3 to C5',
-  guitar: 'Guitar · standard tuning · frets 0 to 12',
+   guitar: 'Guitar · frets 0 to 12',
+    bass: 'Bass · frets 0 to 12',
   generation: 'Generation',
   degree: 'degree',
   role: 'role'
   ,roles: { tonic: 'tonic', characteristic: 'characteristic', chord_tone: 'chord tone', color_tone: 'color tone' }
   ,instrument_visibility: 'Instrument visibility'
   ,show_piano: 'Show piano'
-  ,show_guitar: 'Show guitar'
+   ,show_guitar: 'Show guitar'
+   ,show_bass: 'Show bass'
   ,instrument_region: 'Synchronized instruments'
-  ,guitar_table: 'Interactive six-string guitar fretboard'
+   ,guitar_table: 'Interactive six-string guitar fretboard'
+   ,bass_table: 'Interactive four-string bass fretboard'
+     ,guitar_tuning: 'Guitar tuning'
+     ,bass_tuning: 'Bass tuning'
+     ,tuner: 'Tuner'
+   ,guitar_tuning_semitones: 'semitones from standard tuning'
+   ,lower_tuning: 'Lower tuning'
+   ,raise_tuning: 'Raise tuning'
   ,string_label: 'String'
   ,fret_label: 'Fret'
   ,audio_controls: 'Audio controls'
@@ -307,16 +325,25 @@ const SPANISH: TranslationDictionary = {
   interval_label: 'semitonos',
   select_note: 'Selecciona una nota para ver el detalle del intervalo y su rol.',
   piano: 'Piano · Do3 a Do5',
-  guitar: 'Guitarra · afinación estándar · trastes 0 a 12',
+   guitar: 'Guitarra · trastes 0 a 12',
+    bass: 'Bajo · trastes 0 a 12',
   generation: 'Generación',
   degree: 'grado',
   role: 'rol'
   ,roles: { tonic: 'tónica', characteristic: 'característica', chord_tone: 'nota del acorde', color_tone: 'nota de color' }
   ,instrument_visibility: 'Visibilidad de instrumentos'
   ,show_piano: 'Mostrar piano'
-  ,show_guitar: 'Mostrar guitarra'
+   ,show_guitar: 'Mostrar guitarra'
+   ,show_bass: 'Mostrar bajo'
   ,instrument_region: 'Instrumentos sincronizados'
-  ,guitar_table: 'Diapasón interactivo de seis cuerdas'
+   ,guitar_table: 'Diapasón interactivo de seis cuerdas'
+   ,bass_table: 'Diapasón interactivo de cuatro cuerdas para bajo'
+     ,guitar_tuning: 'Afinación de guitarra'
+     ,bass_tuning: 'Afinación de bajo'
+     ,tuner: 'Afinador'
+   ,guitar_tuning_semitones: 'semitonos desde la afinación estándar'
+   ,lower_tuning: 'Bajar afinación'
+   ,raise_tuning: 'Subir afinación'
   ,string_label: 'Cuerda'
   ,fret_label: 'Traste'
   ,audio_controls: 'Controles de audio'

@@ -237,7 +237,9 @@ The guitar module's pure mapping requires:
 - Pitch class and octave.
 - Position geometry.
 
-The MVP uses standard tuning (`E2 A2 D3 G3 B3 E4`) and a fret range of 0 to 12. The mapping MUST accept tuning as input data instead of hard-coding standard tuning, so alternate and custom tunings can be added in a later release without changing the domain model.
+The MVP uses standard tuning (`E2 A2 D3 G3 B3 E4`) and a fret range of 0 to 12. It supports a uniform semitone transposition applied to all six strings. The mapping MUST accept tuning as input data instead of hard-coding standard tuning, so independent alternate and custom tunings can be added in a later release without changing the domain model.
+
+The MVP also maps a standard four-string bass (`E1 A1 D2 G2`) through the same configurable stringed-instrument mapping and fretboard interaction model. It supports a uniform semitone transposition applied to all four strings. Bass playback uses a separate synthesized voice with a restrained overdrive and low-pass character intended as a classic rock bass approximation.
 
 ### Piano
 

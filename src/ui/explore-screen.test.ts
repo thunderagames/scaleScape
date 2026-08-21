@@ -184,7 +184,7 @@ describe('explore screen', () => {
   it('given_generated_scale_when_playing_with_guitar_hidden_then_uses_only_visible_piano', async () => {
     const container = createContainer()
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_guitar: false })
+    settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
 
@@ -197,7 +197,9 @@ describe('explore screen', () => {
   it('given_generated_scale_when_both_instruments_visible_then_uses_piano_and_guitar', async () => {
     const container = createContainer()
     const playback_fake = createPlaybackFake()
-    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+    const settings = createSettings()
+    settings.setSettings({ ...settings.getSettings(), show_bass: false })
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
 
     container.querySelector<HTMLButtonElement>('#play-scale')?.click()
     await Promise.resolve()
@@ -208,7 +210,7 @@ describe('explore screen', () => {
   it('given_generated_scale_note_when_guitar_hidden_then_uses_only_visible_piano', () => {
     const container = createContainer()
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_guitar: false })
+    settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
 
@@ -237,6 +239,16 @@ describe('explore screen', () => {
     expect(playback_fake.previewed_instruments).toEqual([['guitar']])
   })
 
+  it('given_bass_note_when_selected_then_uses_bass_timbre', () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#bass-view .guitar-position.tonic')?.click()
+
+    expect(playback_fake.previewed_instruments).toEqual([['bass']])
+  })
+
   it('given_guitar_scroll_position_when_selecting_note_then_preserves_horizontal_scroll', () => {
     const container = createContainer()
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
@@ -248,6 +260,30 @@ describe('explore screen', () => {
     }
 
     expect(container.querySelector<HTMLElement>('.guitar-scroll')?.scrollLeft).toBe(240)
+  })
+
+  it('given_bass_scroll_position_when_selecting_note_then_preserves_horizontal_scroll', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+    const bass_scroll = container.querySelector<HTMLElement>('#bass-view .guitar-scroll')
+    const bass_note = container.querySelector<HTMLButtonElement>('#bass-view .guitar-position.tonic')
+    if (bass_scroll && bass_note) {
+      bass_scroll.scrollLeft = 240
+      bass_note.click()
+    }
+
+    expect(container.querySelector<HTMLElement>('#bass-view .guitar-scroll')?.scrollLeft).toBe(240)
+  })
+
+  it('given_shifted_bass_tuning_when_rendering_then_shows_shifted_open_string', () => {
+    const container = createContainer()
+    const settings = createSettings()
+    settings.setSettings({ ...settings.getSettings(), bass_tuning_semitones: -2 })
+
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, settings)
+
+    expect(container.querySelector('#bass-title')?.textContent).toContain('D')
+    expect(container.querySelector('#bass-view tbody tr:first-child th')?.textContent).toBe('D')
   })
 
   it('given_initial_explore_screen_when_moving_piano_focus_then_advances_to_next_scale_note', () => {
