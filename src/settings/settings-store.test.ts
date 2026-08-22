@@ -57,19 +57,19 @@ describe('settings store', () => {
     const observed_settings: Array<{ language: string; show_piano: boolean; show_guitar: boolean; show_bass: boolean; bass_tuning_semitones: number }> = []
     store.subscribe((settings) => observed_settings.push(settings))
 
-    store.setSettings({ language: 'es', show_piano: false, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
+    store.setSettings({ language: 'es', note_naming: 'letter', show_piano: false, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
 
-    expect(observed_settings).toEqual([{ language: 'es', show_piano: false, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false }])
+    expect(observed_settings).toEqual([{ language: 'es', note_naming: 'letter', show_piano: false, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false }])
   })
 
   it('given_saved_settings_when_creating_a_new_store_then_loads_them_from_local_storage', () => {
     window.localStorage.clear()
     const first_store = createSettingsStore()
-    first_store.setSettings({ language: 'es', show_piano: false, show_guitar: true, show_bass: false, ear_gym_streak: 3, volume: 0.45, tempo_bpm: 150, guitar_tuning_semitones: -2, bass_tuning_semitones: 3, last_root: 9, last_formula: 'lydian', guided_start_completed: true })
+    first_store.setSettings({ language: 'es', note_naming: 'letter', show_piano: false, show_guitar: true, show_bass: false, ear_gym_streak: 3, volume: 0.45, tempo_bpm: 150, guitar_tuning_semitones: -2, bass_tuning_semitones: 3, last_root: 9, last_formula: 'lydian', guided_start_completed: true })
 
     const second_store = createSettingsStore()
 
-    expect(second_store.getSettings()).toEqual({ language: 'es', show_piano: false, show_guitar: true, show_bass: false, ear_gym_streak: 3, volume: 0.45, tempo_bpm: 150, guitar_tuning_semitones: -2, bass_tuning_semitones: 3, last_root: 9, last_formula: 'lydian', guided_start_completed: true })
+    expect(second_store.getSettings()).toEqual({ language: 'es', note_naming: 'letter', show_piano: false, show_guitar: true, show_bass: false, ear_gym_streak: 3, volume: 0.45, tempo_bpm: 150, guitar_tuning_semitones: -2, bass_tuning_semitones: 3, last_root: 9, last_formula: 'lydian', guided_start_completed: true })
   })
 
   it('given_invalid_saved_settings_when_creating_a_store_then_uses_safe_defaults', () => {
@@ -77,7 +77,7 @@ describe('settings store', () => {
 
     const store = createSettingsStore()
 
-    expect(store.getSettings()).toEqual({ language: 'en', show_piano: true, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
+    expect(store.getSettings()).toEqual({ language: 'en', note_naming: 'letter', show_piano: true, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
   })
 
   it('given_legacy_saved_settings_when_creating_a_store_then_defaults_missing_streak', () => {
@@ -85,7 +85,7 @@ describe('settings store', () => {
 
     const store = createSettingsStore()
 
-    expect(store.getSettings()).toEqual({ language: 'es', show_piano: true, show_guitar: false, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
+    expect(store.getSettings()).toEqual({ language: 'es', note_naming: 'letter', show_piano: true, show_guitar: false, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false })
   })
 
   it('given_legacy_saved_settings_when_creating_a_store_then_defaults_bass_visibility_to_true', () => {

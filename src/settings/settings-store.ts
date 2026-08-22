@@ -2,9 +2,11 @@ import { getTranslations, type Language, type TranslationDictionary } from './lo
 import { SCALE_FORMULAS, type FormulaId } from '../theory/scale-formulas'
 import type { EventLoggerPort } from '../observability/event-logger'
 import type { TempoBpm } from '../shared/tempo'
+import type { NoteNamingStyle } from './note-naming'
 
 export interface AppSettings {
   readonly language: Language
+  readonly note_naming: NoteNamingStyle
   readonly show_piano: boolean
   readonly show_guitar: boolean
   readonly show_bass: boolean
@@ -33,13 +35,13 @@ function log_diagnostic(diagnostics: EventLoggerPort, event_name: string, attrib
   try { diagnostics.log(event_name, attributes) } catch { /* Diagnostics must not block settings. */ }
 }
 
-function isStoredSettings(value: unknown): value is Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly show_bass?: unknown; readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly tempo_bpm?: unknown; readonly guitar_tuning_semitones?: unknown; readonly bass_tuning_semitones?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown; readonly guided_start_completed?: unknown } {
+function isStoredSettings(value: unknown): value is Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly note_naming?: unknown; readonly show_bass?: unknown; readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly tempo_bpm?: unknown; readonly guitar_tuning_semitones?: unknown; readonly bass_tuning_semitones?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown; readonly guided_start_completed?: unknown } {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<AppSettings>
   return (candidate.language === 'en' || candidate.language === 'es') && typeof candidate.show_piano === 'boolean' && typeof candidate.show_guitar === 'boolean'
 }
 
-function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly show_bass?: unknown; readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly tempo_bpm?: unknown; readonly guitar_tuning_semitones?: unknown; readonly bass_tuning_semitones?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown; readonly guided_start_completed?: unknown }): AppSettings {
+function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 'show_guitar'> & { readonly note_naming?: unknown; readonly show_bass?: unknown; readonly ear_gym_streak?: unknown; readonly volume?: unknown; readonly tempo_bpm?: unknown; readonly guitar_tuning_semitones?: unknown; readonly bass_tuning_semitones?: unknown; readonly last_root?: unknown; readonly last_formula?: unknown; readonly guided_start_completed?: unknown }): AppSettings {
   const stored_streak = value.ear_gym_streak
   const ear_gym_streak = typeof stored_streak === 'number' && Number.isInteger(stored_streak) && stored_streak >= 0 ? stored_streak : 0
   const stored_volume = value.volume
@@ -51,7 +53,8 @@ function normalizeSettings(value: Pick<AppSettings, 'language' | 'show_piano' | 
   const last_formula = typeof value.last_formula === 'string' ? SCALE_FORMULAS.find((formula) => formula.id === value.last_formula)?.id ?? 'dorian' : 'dorian'
   const guided_start_completed = value.guided_start_completed === true
   const show_bass = value.show_bass !== false
-  return { language: value.language, show_piano: value.show_piano, show_guitar: value.show_guitar, show_bass, ear_gym_streak, volume, tempo_bpm, guitar_tuning_semitones, bass_tuning_semitones, last_root, last_formula, guided_start_completed }
+  const note_naming: NoteNamingStyle = value.note_naming === 'solfege' ? 'solfege' : 'letter'
+  return { language: value.language, note_naming, show_piano: value.show_piano, show_guitar: value.show_guitar, show_bass, ear_gym_streak, volume, tempo_bpm, guitar_tuning_semitones, bass_tuning_semitones, last_root, last_formula, guided_start_completed }
 }
 
 function loadSettings(fallback: AppSettings, diagnostics: EventLoggerPort): AppSettings {
@@ -79,7 +82,7 @@ function saveSettings(settings: AppSettings, diagnostics: EventLoggerPort): void
 }
 
 export function createSettingsStore(initial_language: Language = 'en', diagnostics: EventLoggerPort = { log: () => undefined }): SettingsStore {
-  const fallback_settings: AppSettings = { language: initial_language, show_piano: true, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false }
+  const fallback_settings: AppSettings = { language: initial_language, note_naming: 'letter', show_piano: true, show_guitar: true, show_bass: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false }
   let settings: AppSettings = loadSettings(fallback_settings, diagnostics)
   const listeners = new Set<(current_settings: AppSettings) => void>()
 

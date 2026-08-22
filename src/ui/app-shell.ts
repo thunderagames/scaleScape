@@ -9,6 +9,7 @@ import type { AppConfig, AppModuleFlags, AppScreen } from '../app-config'
 import type { TempoBpm } from '../shared/tempo'
 import { getGuitarTuningNote } from '../instruments/guitar-view-model'
 import { getBassTuningNote } from '../instruments/bass-view-model'
+import { displayNoteName } from '../settings/note-naming'
 
 export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false } }): void {
   container.innerHTML = `
@@ -87,7 +88,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const cancel_settings = container.querySelector<HTMLButtonElement>('#cancel-settings')
   const save_settings = container.querySelector<HTMLButtonElement>('#save-settings')
   const language_select = container.querySelector<HTMLSelectElement>('#language-select')
-  language_select?.closest('label')?.insertAdjacentHTML('afterend', '<label class="modal-field settings-field" for="tempo-select"><span id="tempo-label"></span><select id="tempo-select" class="control-select"><option value="120">120 BPM</option><option value="150">150 BPM</option><option value="200">200 BPM</option></select></label>')
+  language_select?.closest('label')?.insertAdjacentHTML('afterend', '<label class="modal-field settings-field" for="note-naming-select"><span id="note-naming-label"></span><select id="note-naming-select" class="control-select"><option value="letter"></option><option value="solfege"></option></select></label><label class="modal-field settings-field" for="tempo-select"><span id="tempo-label"></span><select id="tempo-select" class="control-select"><option value="120">120 BPM</option><option value="150">150 BPM</option><option value="200">200 BPM</option></select></label>')
   container.querySelector<HTMLElement>('.instrument-settings')?.insertAdjacentHTML('beforeend', '<label class="settings-choice"><input id="show-bass" class="control-choice" type="checkbox"> <span id="show-bass-label"></span></label>')
   const guitar_visibility = container.querySelector<HTMLInputElement>('#show-guitar')?.closest('label')
   if (guitar_visibility) {
@@ -109,6 +110,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const open_bass_tuning = container.querySelector<HTMLButtonElement>('#open-bass-tuning')
   const tempo_label = container.querySelector<HTMLElement>('#tempo-label')
   const tempo_select = container.querySelector<HTMLSelectElement>('#tempo-select')
+  const note_naming_label = container.querySelector<HTMLElement>('#note-naming-label')
+  const note_naming_select = container.querySelector<HTMLSelectElement>('#note-naming-select')
   const show_piano = container.querySelector<HTMLInputElement>('#show-piano')
   const show_guitar = container.querySelector<HTMLInputElement>('#show-guitar')
   const show_bass = container.querySelector<HTMLInputElement>('#show-bass')
@@ -119,8 +122,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const context_off_label = container.querySelector<HTMLElement>('#context-off-label')
   const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
   const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
-    if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !show_piano || !show_guitar || !show_bass || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
-     const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, tempo_label, tempo_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+    if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !note_naming_label || !note_naming_select || !show_piano || !show_guitar || !show_bass || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+     const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, tempo_label, tempo_select, note_naming_label, note_naming_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   const modules: AppModuleFlags = config.modules
   const default_screen: AppScreen = modules[config.default_screen] ? config.default_screen : modules.explore ? 'explore' : modules.ear_gym ? 'ear_gym' : 'guided_start'
@@ -140,18 +143,21 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
 
   function apply_translations(): void {
     const translation = settings.getTranslations()
+    const note_naming = settings.getSettings().note_naming
     const guitar_tuning_semitones = settings.getSettings().guitar_tuning_semitones
     const bass_tuning_semitones = settings.getSettings().bass_tuning_semitones
     const active_tuning_semitones = pending_tuning_instrument === 'guitar' ? guitar_tuning_semitones : bass_tuning_semitones
-    const active_tuning_note = pending_tuning_instrument === 'guitar' ? getGuitarTuningNote(active_tuning_semitones) : getBassTuningNote(active_tuning_semitones)
+    const active_tuning_note = displayNoteName(pending_tuning_instrument === 'guitar' ? getGuitarTuningNote(active_tuning_semitones) : getBassTuningNote(active_tuning_semitones), note_naming)
+    const display_guitar_tuning_note = displayNoteName(getGuitarTuningNote(guitar_tuning_semitones), note_naming)
+    const display_bass_tuning_note = displayNoteName(getBassTuningNote(bass_tuning_semitones), note_naming)
     ui.shell_label.textContent = translation.app_label
     ui.app_footer.textContent = translation.footer_credit
-     ui.open_guitar_tuning.setAttribute('aria-label', `${translation.guitar_tuning}: ${getGuitarTuningNote(guitar_tuning_semitones)}`)
+     ui.open_guitar_tuning.setAttribute('aria-label', `${translation.guitar_tuning}: ${display_guitar_tuning_note}`)
      ui.open_guitar_tuning.title = translation.guitar_tuning
      ui.guitar_tuning_title.textContent = pending_tuning_instrument === 'guitar' ? translation.guitar_tuning : translation.bass_tuning
      ui.open_guitar_tuning.textContent = translation.tuner
      ui.guitar_tuning_value.textContent = `${active_tuning_note} · ${active_tuning_semitones > 0 ? '+' : ''}${active_tuning_semitones} ${translation.guitar_tuning_semitones}`
-     ui.open_bass_tuning.setAttribute('aria-label', `${translation.bass_tuning}: ${getBassTuningNote(bass_tuning_semitones)}`)
+     ui.open_bass_tuning.setAttribute('aria-label', `${translation.bass_tuning}: ${display_bass_tuning_note}`)
      ui.open_bass_tuning.title = translation.bass_tuning
      ui.open_bass_tuning.textContent = translation.tuner
     ui.lower_guitar_tuning.textContent = '−'
@@ -198,6 +204,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.settings_modal.querySelector<HTMLElement>('#settings-title')!.textContent = translation.settings_title
     ui.language_select.innerHTML = `<option value="en">${translation.english}</option><option value="es">${translation.spanish}</option>`
     ui.language_select.value = settings.getSettings().language
+    ui.note_naming_label.textContent = translation.note_naming_label
+    ui.note_naming_select.innerHTML = `<option value="letter">${translation.note_naming_letter}</option><option value="solfege">${translation.note_naming_solfege}</option>`
+    ui.note_naming_select.value = settings.getSettings().note_naming
     ui.show_piano.checked = settings.getSettings().show_piano
     ui.show_guitar.checked = settings.getSettings().show_guitar
     ui.show_bass.checked = settings.getSettings().show_bass
@@ -252,8 +261,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     else ui.settings_modal.setAttribute('open', '')
   }
    const update_tuning_value = () => {
-     const tuning_note = pending_tuning_instrument === 'guitar' ? getGuitarTuningNote(pending_tuning_semitones) : getBassTuningNote(pending_tuning_semitones)
-     ui.guitar_tuning_value.textContent = `${tuning_note} · ${pending_tuning_semitones > 0 ? '+' : ''}${pending_tuning_semitones} ${settings.getTranslations().guitar_tuning_semitones}`
+      const tuning_note = displayNoteName(pending_tuning_instrument === 'guitar' ? getGuitarTuningNote(pending_tuning_semitones) : getBassTuningNote(pending_tuning_semitones), settings.getSettings().note_naming)
+      ui.guitar_tuning_value.textContent = `${tuning_note} · ${pending_tuning_semitones > 0 ? '+' : ''}${pending_tuning_semitones} ${settings.getTranslations().guitar_tuning_semitones}`
    }
    const close_tuning_dialog = () => { if (typeof ui.guitar_tuning_modal.close === 'function') ui.guitar_tuning_modal.close(); else ui.guitar_tuning_modal.removeAttribute('open'); (pending_tuning_instrument === 'guitar' ? ui.open_guitar_tuning : ui.open_bass_tuning).focus() }
    const open_tuning_dialog = (instrument: 'guitar' | 'bass') => { pending_tuning_instrument = instrument; pending_tuning_semitones = instrument === 'guitar' ? settings.getSettings().guitar_tuning_semitones : settings.getSettings().bass_tuning_semitones; apply_translations(); if (typeof ui.guitar_tuning_modal.showModal === 'function') ui.guitar_tuning_modal.showModal(); else ui.guitar_tuning_modal.setAttribute('open', '') }
@@ -275,7 +284,7 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.save_settings.addEventListener('click', () => {
     const context = ui.context_drone.checked ? 'drone' : ui.context_pedal.checked ? 'pedal' : 'off'
     const tempo_bpm = Number(ui.tempo_select.value) as TempoBpm
-    settings.setSettings({ ...settings.getSettings(), language: ui.language_select.value as 'en' | 'es', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked, show_bass: ui.show_bass.checked, tempo_bpm })
+    settings.setSettings({ ...settings.getSettings(), language: ui.language_select.value as 'en' | 'es', note_naming: ui.note_naming_select.value as 'letter' | 'solfege', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked, show_bass: ui.show_bass.checked, tempo_bpm })
     playback.setTempo(tempo_bpm)
     void playback.setContext(application.getState().root_pitch_class, context)
     close_settings_dialog()

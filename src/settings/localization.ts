@@ -125,6 +125,9 @@ export interface TranslationDictionary {
   readonly context_off: string
   readonly context_drone: string
   readonly context_pedal: string
+  readonly note_naming_label: string
+  readonly note_naming_letter: string
+  readonly note_naming_solfege: string
 }
 
 const ENGLISH: TranslationDictionary = {
@@ -246,10 +249,13 @@ const ENGLISH: TranslationDictionary = {
   ,diagnostics_mode: 'Enable diagnostic mode'
   ,diagnostics_exported: 'Diagnostics exported.'
   ,diagnostics_unavailable: 'Diagnostics export unavailable.'
-  ,context: 'Harmonic context'
+  ,  context: 'Harmonic context'
   ,context_off: 'No context'
   ,context_drone: 'Tonic drone'
   ,context_pedal: 'Tonic + fifth pedal'
+  ,note_naming_label: 'Note naming'
+  ,note_naming_letter: 'Classical (C D E)'
+  ,note_naming_solfege: 'Solfège (Do Re Mi)'
 }
 
 const SPANISH: TranslationDictionary = {
@@ -371,10 +377,13 @@ const SPANISH: TranslationDictionary = {
   ,diagnostics_mode: 'Activar modo diagnóstico'
   ,diagnostics_exported: 'Diagnósticos exportados.'
   ,diagnostics_unavailable: 'La exportación de diagnósticos no está disponible.'
-  ,context: 'Contexto armónico'
+  ,  context: 'Contexto armónico'
   ,context_off: 'Sin contexto'
   ,context_drone: 'Drone de tónica'
    ,context_pedal: 'Pedal de tónica y quinta'
+  ,note_naming_label: 'Nombre de notas'
+  ,note_naming_letter: 'Clásico (Do Re Mi)'
+  ,note_naming_solfege: 'Solfeo (Do Re Mi)'
 }
 
 export function getTranslations(language: Language): TranslationDictionary {

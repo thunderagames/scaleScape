@@ -16,6 +16,7 @@ function createRenderedBass() {
     instrument: 'bass',
     selected_pitch_class: null,
     aria_label: 'Interactive bass fretboard',
+    note_naming: 'letter',
     on_position_selected,
     on_preview,
     note_accessible_label: (position) => position.label
