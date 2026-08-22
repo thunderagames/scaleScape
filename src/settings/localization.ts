@@ -9,7 +9,7 @@ export interface TranslationDictionary {
   readonly language: string
   readonly english: string
   readonly spanish: string
-  readonly formula_names: Readonly<Record<FormulaId, string>>
+  readonly formula_names: Readonly<Partial<Record<FormulaId, string>>>
   readonly scale_categories: Readonly<Record<ScaleCategory, string>>
   readonly note: string
   readonly close: string
@@ -138,7 +138,7 @@ const ENGLISH: TranslationDictionary = {
   english: 'English',
   spanish: 'Spanish',
    formula_names: { major: 'Major', natural_minor: 'Natural minor', dorian: 'Dorian', phrygian: 'Phrygian', lydian: 'Lydian', mixolydian: 'Mixolydian', locrian: 'Locrian', major_pentatonic: 'Major pentatonic', minor_pentatonic: 'Minor pentatonic', phrygian_dominant: 'Phrygian dominant', hungarian_minor: 'Hungarian minor', byzantine: 'Byzantine', enigmatic: 'Enigmatic', prometheus: 'Prometheus', persian: 'Persian', egyptian: 'Egyptian', oriental: 'Oriental', japanese: 'Japanese', hirajoshi: 'Hirajoshi', romanian: 'Romanian', man_gong: 'Man Gong', ritusen: 'Ritusen', dominant_pentatonic: 'Dominant pentatonic', voodoo: 'Voodoo', neapolitan_major: 'Neapolitan major', neapolitan_minor: 'Neapolitan minor', neapolitan_prometheus: 'Neapolitan Prometheus', petrushka: 'Petrushka', harmonic_minor: 'Harmonic minor', locrian_natural_six: 'Locrian natural 6', ionian_augmented: 'Ionian augmented', lydian_sharp_two: 'Lydian #2', ultralocrian: 'Ultralocrian', melodic_minor: 'Melodic minor', dorian_flat_two: 'Dorian b2', lydian_augmented: 'Lydian augmented', lydian_dominant: 'Lydian dominant', mixolydian_flat_six: 'Mixolydian b6', aeolian_flat_five: 'Aeolian b5', altered: 'Altered', harmonic_major: 'Harmonic major', iwato: 'Iwato', hon_kumoi: 'Hon Kumoi Shiouzhi', kumoi: 'Kumoi (Hirajoshi mode)', chinese_pentatonic: 'Chinese pentatonic', blues: 'Blues', major_blues: 'Major blues', chromatic: 'Chromatic', whole_tone: 'Whole tone', diminished: 'Diminished', augmented: 'Augmented', hungarian_major: 'Hungarian major', kumoi_common: 'Kumoi', insen: 'Insen', pelog: 'Pelog', enigmatic_verdi: 'Enigmatic (Verdi)', prometheus_scriabin: 'Prometheus (Scriabin)', istrian: 'Istrian', baake_tritonic: "Baake's tritonic", far_east: 'Far East', slendro: 'Slendro (approx.)' },
-   scale_categories: { fundamental: 'Fundamental scales', greek_modes: 'Greek modes', pentatonic_blues: 'Pentatonic and blues', symmetric: 'Symmetric scales', exotic_world: 'Exotic and world scales' },
+   scale_categories: { fundamental: 'Fundamental scales', greek_modes: 'Greek modes', pentatonic_blues: 'Pentatonic and blues', symmetric: 'Symmetric scales', exotic_world: 'Exotic and world scales', probable_scales: 'Probable scales' },
   note: 'Note',
   close: 'Close',
   save: 'Save',
@@ -266,7 +266,7 @@ const SPANISH: TranslationDictionary = {
   english: 'Inglés',
   spanish: 'Español',
    formula_names: { major: 'Mayor', natural_minor: 'Menor natural', dorian: 'Dórico', phrygian: 'Frigio', lydian: 'Lidio', mixolydian: 'Mixolidio', locrian: 'Locrio', major_pentatonic: 'Pentatónica mayor', minor_pentatonic: 'Pentatónica menor', phrygian_dominant: 'Frigia dominante', hungarian_minor: 'Menor húngara', byzantine: 'Bizantina', enigmatic: 'Enigmática', prometheus: 'Prometheus', persian: 'Persa', egyptian: 'Egipcia', oriental: 'Oriental', japanese: 'Japonesa', hirajoshi: 'Hirajoshi', romanian: 'Rumana', man_gong: 'Man Gong', ritusen: 'Ritusen', dominant_pentatonic: 'Pentatónica dominante', voodoo: 'Voodoo', neapolitan_major: 'Napolitana mayor', neapolitan_minor: 'Napolitana menor', neapolitan_prometheus: 'Napolitana Prometheus', petrushka: 'Petrushka', harmonic_minor: 'Menor armónica', locrian_natural_six: 'Locrio 6 natural', ionian_augmented: 'Jónico aumentado', lydian_sharp_two: 'Lidio #2', ultralocrian: 'Ultralocrio', melodic_minor: 'Menor melódica', dorian_flat_two: 'Dórico b2', lydian_augmented: 'Lidio aumentado', lydian_dominant: 'Lidio dominante', mixolydian_flat_six: 'Mixolidio b6', aeolian_flat_five: 'Eólico b5', altered: 'Alterada', harmonic_major: 'Mayor armónica', iwato: 'Iwato', hon_kumoi: 'Hon Kumoi Shiouzhi', kumoi: 'Kumoi (modo de Hirajoshi)', chinese_pentatonic: 'Pentatónica china', blues: 'Blues', major_blues: 'Blues mayor', chromatic: 'Cromática', whole_tone: 'Tonos enteros', diminished: 'Disminuida', augmented: 'Aumentada', hungarian_major: 'Húngara mayor', kumoi_common: 'Kumoi', insen: 'Insen', pelog: 'Pelog', enigmatic_verdi: 'Enigmática (Verdi)', prometheus_scriabin: 'Prometeo (Scriabin)', istrian: 'Ístria', baake_tritonic: 'Tritónica de Baake', far_east: 'Lejano Oriente', slendro: 'Slendro (aproximada)' },
-   scale_categories: { fundamental: 'Escalas fundamentales', greek_modes: 'Modos griegos', pentatonic_blues: 'Pentatónicas y blues', symmetric: 'Escalas simétricas', exotic_world: 'Escalas exóticas y del mundo' },
+   scale_categories: { fundamental: 'Escalas fundamentales', greek_modes: 'Modos griegos', pentatonic_blues: 'Pentatónicas y blues', symmetric: 'Escalas simétricas', exotic_world: 'Escalas exóticas y del mundo', probable_scales: 'Escalas probables' },
   note: 'Nota',
   close: 'Cerrar',
   save: 'Guardar',

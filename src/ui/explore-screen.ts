@@ -191,12 +191,12 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
         ui.scale_help_button.title = translation.help; ui.piano_help_button.title = translation.help; ui.guitar_help_button.title = translation.help
         render_convention_help(ui.scale_help_copy, translation.scale_note_help, translation); render_convention_help(ui.piano_help_copy, translation.instrument_color_help, translation); render_convention_help(ui.guitar_help_copy, translation.instrument_color_help, translation)
       container.querySelector('#instrument-region')?.setAttribute('aria-label', translation.instrument_region)
-       Array.from(ui.formula_select.options).forEach((option) => { const formula = SCALE_FORMULAS.find((candidate) => candidate.id === option.value); if (formula) option.textContent = translation.formula_names[formula.id] })
+       Array.from(ui.formula_select.options).forEach((option) => { const formula = SCALE_FORMULAS.find((candidate) => candidate.id === option.value); if (formula) option.textContent = translation.formula_names[formula.id] ?? formula.name })
        Array.from(ui.formula_select.querySelectorAll('optgroup')).forEach((group, index) => { const category = SCALE_CATEGORY_ORDER[index]; if (category) group.label = translation.scale_categories[category] })
       set_text('#root-label', translation.root); set_text('#mode-label', translation.mode)
       rebuild_root_options(naming)
       const current_state = application.getState()
-      ui.scale_selector.textContent = `${displayNoteName(current_state.scale_instance.root_spelling.text, naming)} ${translation.formula_names[current_state.formula_id]}`
+      ui.scale_selector.textContent = `${displayNoteName(current_state.scale_instance.root_spelling.text, naming)} ${translation.formula_names[current_state.formula_id] ?? current_state.scale_instance.formula.name}`
      ui.scale_selector.setAttribute('aria-label', translation.scale_controls)
       ui.root_select.value = String(current_state.root_pitch_class)
       ui.formula_select.value = current_state.formula_id

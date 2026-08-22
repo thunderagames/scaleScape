@@ -1,6 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { createScaleInstance } from './scale-instance'
-import { getScaleStepSemitones, SCALE_FORMULAS, type FormulaId } from './scale-formulas'
+import { getScaleStepSemitones, SCALE_CATEGORY_ORDER, SCALE_FORMULAS, type FormulaId } from './scale-formulas'
+
+function enumerateHeptatonicSignatures(): Set<string> {
+  const signatures = new Set<string>()
+  for (let a = 1; a <= 6; a += 1) {
+    for (let b = a + 1; b <= 7; b += 1) {
+      for (let c = b + 1; c <= 8; c += 1) {
+        for (let d = c + 1; d <= 9; d += 1) {
+          for (let e = d + 1; e <= 10; e += 1) {
+            for (let f = e + 1; f <= 11; f += 1) {
+              signatures.add([0, a, b, c, d, e, f].join('-'))
+            }
+          }
+        }
+      }
+    }
+  }
+  return signatures
+}
 
 describe('exotic scale formulas', () => {
   it('given_exotic_formula_when_generating_scale_then_uses_the_published_interval_offsets', () => {
@@ -70,6 +88,28 @@ describe('exotic scale formulas', () => {
       expect(formula.degree_formula).toHaveLength(formula.degrees.length)
       expect(getScaleStepSemitones(formula).reduce((total, step) => total + step, 0)).toBe(12)
     })
+    expect(SCALE_CATEGORY_ORDER).toContain('probable_scales')
+  })
+
+  it('given_heptatonic_catalog_when_generating_probables_then_covers_missing_unique_sets', () => {
+    const all_possible_signatures = enumerateHeptatonicSignatures()
+    const known_non_probable_signatures = new Set(
+      SCALE_FORMULAS
+        .filter((formula) => formula.category !== 'probable_scales')
+        .map((formula) => [...new Set(formula.semitone_offsets)].sort((left, right) => left - right))
+        .filter((offsets) => offsets.length === 7 && offsets[0] === 0)
+        .map((offsets) => offsets.join('-'))
+    )
+    const probable_formulas = SCALE_FORMULAS.filter((formula) => formula.category === 'probable_scales')
+    const probable_signatures = new Set(probable_formulas.map((formula) => formula.semitone_offsets.join('-')))
+
+    expect(probable_formulas.length).toBe(462 - known_non_probable_signatures.size)
+    expect(probable_formulas.every((formula) => formula.id.startsWith('probable_heptatonic_'))).toBe(true)
+    expect(probable_formulas.every((formula) => formula.semitone_offsets.length === 7)).toBe(true)
+    expect(probable_formulas.every((formula) => formula.semitone_offsets[0] === 0)).toBe(true)
+    expect(probable_signatures.size).toBe(probable_formulas.length)
+    expect([...probable_signatures].every((signature) => all_possible_signatures.has(signature))).toBe(true)
+    expect([...known_non_probable_signatures].every((signature) => !probable_signatures.has(signature))).toBe(true)
   })
 
   it('given_user_formula_list_when_reading_matching_scales_then_uses_the_list_degree_formulas', () => {

@@ -104,13 +104,15 @@ describe('explore screen', () => {
       'Greek modes',
       'Pentatonic and blues',
       'Symmetric scales',
-      'Exotic and world scales'
+      'Exotic and world scales',
+      'Probable scales'
     ])
     expect(groups[0]?.querySelector('option[value="major"]')).not.toBeNull()
     expect(groups[1]?.querySelector('option[value="dorian"]')).not.toBeNull()
     expect(groups[2]?.querySelector('option[value="blues"]')).not.toBeNull()
     expect(groups[3]?.querySelector('option[value="chromatic"]')).not.toBeNull()
     expect(groups[4]?.querySelector('option[value="pelog"]')).not.toBeNull()
+    expect(groups[5]?.querySelector('option[value^="probable_heptatonic_"]')).not.toBeNull()
   })
 
   it('given_approximate_slendro_when_rendering_then_shows_its_explicit_tuning_note', () => {

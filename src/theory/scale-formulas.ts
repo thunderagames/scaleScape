@@ -1,71 +1,10 @@
-export type FormulaId =
-  | 'major'
-  | 'natural_minor'
-  | 'dorian'
-  | 'phrygian'
-  | 'lydian'
-  | 'mixolydian'
-  | 'locrian'
-  | 'major_pentatonic'
-  | 'minor_pentatonic'
-  | 'phrygian_dominant'
-  | 'hungarian_minor'
-  | 'byzantine'
-  | 'enigmatic'
-  | 'prometheus'
-  | 'persian'
-  | 'egyptian'
-  | 'oriental'
-  | 'japanese'
-  | 'hirajoshi'
-  | 'romanian'
-  | 'man_gong'
-  | 'ritusen'
-  | 'dominant_pentatonic'
-  | 'voodoo'
-  | 'neapolitan_major'
-  | 'neapolitan_minor'
-  | 'neapolitan_prometheus'
-  | 'petrushka'
-  | 'harmonic_minor'
-  | 'locrian_natural_six'
-  | 'ionian_augmented'
-  | 'lydian_sharp_two'
-  | 'ultralocrian'
-  | 'melodic_minor'
-  | 'dorian_flat_two'
-  | 'lydian_augmented'
-  | 'lydian_dominant'
-  | 'mixolydian_flat_six'
-  | 'aeolian_flat_five'
-  | 'altered'
-  | 'harmonic_major'
-  | 'iwato'
-  | 'hon_kumoi'
-  | 'kumoi'
-  | 'chinese_pentatonic'
-  | 'blues'
-  | 'major_blues'
-  | 'chromatic'
-  | 'whole_tone'
-  | 'diminished'
-  | 'augmented'
-  | 'hungarian_major'
-  | 'kumoi_common'
-  | 'insen'
-  | 'pelog'
-  | 'enigmatic_verdi'
-  | 'prometheus_scriabin'
-  | 'istrian'
-  | 'baake_tritonic'
-  | 'far_east'
-  | 'slendro'
+export type FormulaId = string
 
 export type NoteRole = 'tonic' | 'characteristic' | 'chord_tone' | 'color_tone'
 
-export type ScaleCategory = 'fundamental' | 'greek_modes' | 'pentatonic_blues' | 'symmetric' | 'exotic_world'
+export type ScaleCategory = 'fundamental' | 'greek_modes' | 'pentatonic_blues' | 'symmetric' | 'exotic_world' | 'probable_scales'
 
-export const SCALE_CATEGORY_ORDER: readonly ScaleCategory[] = ['fundamental', 'greek_modes', 'pentatonic_blues', 'symmetric', 'exotic_world']
+export const SCALE_CATEGORY_ORDER: readonly ScaleCategory[] = ['fundamental', 'greek_modes', 'pentatonic_blues', 'symmetric', 'exotic_world', 'probable_scales']
 
 export interface ScaleFormula {
   readonly id: FormulaId
@@ -100,12 +39,65 @@ const diatonic_roles = (characteristic_degree: number): Readonly<Record<number, 
   [characteristic_degree]: ['characteristic']
 })
 
-const FORMULA_CATEGORIES: Readonly<Record<FormulaId, ScaleCategory>> = {
+const FORMULA_CATEGORIES: Readonly<Record<string, ScaleCategory>> = {
   major: 'fundamental', natural_minor: 'fundamental', harmonic_minor: 'fundamental', melodic_minor: 'fundamental',
   dorian: 'greek_modes', phrygian: 'greek_modes', lydian: 'greek_modes', mixolydian: 'greek_modes', locrian: 'greek_modes',
   major_pentatonic: 'pentatonic_blues', minor_pentatonic: 'pentatonic_blues', blues: 'pentatonic_blues', major_blues: 'pentatonic_blues',
   chromatic: 'symmetric', whole_tone: 'symmetric', diminished: 'symmetric', augmented: 'symmetric',
   phrygian_dominant: 'exotic_world', hungarian_minor: 'exotic_world', hungarian_major: 'exotic_world', byzantine: 'exotic_world', enigmatic: 'exotic_world', prometheus: 'exotic_world', persian: 'exotic_world', oriental: 'exotic_world', romanian: 'exotic_world', egyptian: 'exotic_world', japanese: 'exotic_world', hirajoshi: 'exotic_world', man_gong: 'exotic_world', ritusen: 'exotic_world', dominant_pentatonic: 'exotic_world', voodoo: 'exotic_world', neapolitan_major: 'exotic_world', neapolitan_minor: 'exotic_world', neapolitan_prometheus: 'exotic_world', petrushka: 'exotic_world', locrian_natural_six: 'exotic_world', ionian_augmented: 'exotic_world', lydian_sharp_two: 'exotic_world', ultralocrian: 'exotic_world', dorian_flat_two: 'exotic_world', lydian_augmented: 'exotic_world', lydian_dominant: 'exotic_world', mixolydian_flat_six: 'exotic_world', aeolian_flat_five: 'exotic_world', altered: 'exotic_world', harmonic_major: 'exotic_world', iwato: 'exotic_world', hon_kumoi: 'exotic_world', kumoi: 'exotic_world', kumoi_common: 'exotic_world', chinese_pentatonic: 'exotic_world', insen: 'exotic_world', pelog: 'exotic_world', enigmatic_verdi: 'exotic_world', prometheus_scriabin: 'exotic_world', istrian: 'exotic_world', baake_tritonic: 'exotic_world', far_east: 'exotic_world', slendro: 'exotic_world'
+}
+
+function toSignature(semitone_offsets: readonly number[]): string {
+  return semitone_offsets.join('-')
+}
+
+function getUniqueSortedOffsets(semitone_offsets: readonly number[]): readonly number[] {
+  return [...new Set(semitone_offsets)].sort((left, right) => left - right)
+}
+
+function isHeptatonicUniqueScale(semitone_offsets: readonly number[]): boolean {
+  const unique_offsets = getUniqueSortedOffsets(semitone_offsets)
+  return unique_offsets.length === 7 && unique_offsets[0] === 0
+}
+
+function buildHeptatonicCombinations(): readonly (readonly number[])[] {
+  const combinations: number[][] = []
+  const current = [0]
+
+  function pickNext(start: number): void {
+    if (current.length === 7) {
+      combinations.push([...current])
+      return
+    }
+    for (let next = start; next <= 11; next += 1) {
+      current.push(next)
+      pickNext(next + 1)
+      current.pop()
+    }
+  }
+
+  pickNext(1)
+  return combinations
+}
+
+function buildProbableHeptatonicDefinitions(existing_definitions: readonly ScaleFormulaDefinition[]): readonly ScaleFormulaDefinition[] {
+  const existing_heptatonic_signatures = new Set(
+    existing_definitions
+      .map((formula) => getUniqueSortedOffsets(formula.semitone_offsets))
+      .filter(isHeptatonicUniqueScale)
+      .map(toSignature)
+  )
+
+  const missing_heptatonic_sets = buildHeptatonicCombinations().filter((offsets) => !existing_heptatonic_signatures.has(toSignature(offsets)))
+
+  return missing_heptatonic_sets.map((semitone_offsets, index) => ({
+    id: `probable_heptatonic_${String(index + 1).padStart(3, '0')}`,
+    name: `Probable heptatonic ${String(index + 1).padStart(3, '0')}`,
+    degrees: [1, 2, 3, 4, 5, 6, 7],
+    semitone_offsets,
+    characteristic_degrees: [],
+    degree_roles: { 1: ['tonic', 'chord_tone'] }
+  }))
 }
 
 const NATURAL_DEGREE_OFFSETS: Readonly<Record<number, number>> = { 1: 0, 2: 2, 3: 4, 4: 5, 5: 7, 6: 9, 7: 11 }
@@ -202,9 +194,12 @@ const SCALE_FORMULA_DEFINITIONS: readonly ScaleFormulaDefinition[] = [
   { id: 'slendro', name: 'Slendro (approx.)', degrees: [1, 2, 4, 5, 7], degree_formula: ['1', '2', '4', '5', 'b7'], interval_formula: ['~240 cents', '~240 cents', '~240 cents', '~240 cents', '~240 cents'], semitone_offsets: [0, 2, 5, 7, 10], characteristic_degrees: [], degree_roles: { 1: ['tonic', 'chord_tone'] } }
 ]
 
-export const SCALE_FORMULAS: readonly ScaleFormula[] = SCALE_FORMULA_DEFINITIONS.map((formula) => ({
+const PROBABLE_HEPTATONIC_DEFINITIONS = buildProbableHeptatonicDefinitions(SCALE_FORMULA_DEFINITIONS)
+const ALL_SCALE_FORMULA_DEFINITIONS = [...SCALE_FORMULA_DEFINITIONS, ...PROBABLE_HEPTATONIC_DEFINITIONS]
+
+export const SCALE_FORMULAS: readonly ScaleFormula[] = ALL_SCALE_FORMULA_DEFINITIONS.map((formula) => ({
   ...formula,
-  category: FORMULA_CATEGORIES[formula.id],
+  category: FORMULA_CATEGORIES[formula.id] ?? 'probable_scales',
   degree_formula: createDegreeFormula(formula),
   interval_formula: createIntervalFormula(formula)
 }))
