@@ -27,8 +27,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .control-choice { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: #8ee6c5; }
 .control-range { width: 100%; min-height: 2rem; accent-color: #8ee6c5; }
 .app-shell { min-height: 100vh; min-width: 0; overflow-x: clip; }
-.app-footer { width: min(980px, 100%); margin: 0 auto; padding: 1.5rem clamp(1rem, 5vw, 2.5rem) 1.25rem; color: #718392; font-size: .72rem; letter-spacing: .04em; text-align: center; }
-.app-shell-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(980px, 100%); min-width: 0; margin: 0 auto; padding: 1rem clamp(1rem, 5vw, 2.5rem) 0; }
+.app-footer { width: min(1200px, 100%); margin: 0 auto; padding: 1.5rem clamp(1rem, 5vw, 2.5rem) 1.25rem; color: #718392; font-size: .72rem; letter-spacing: .04em; text-align: center; }
+.app-shell-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(1200px, 100%); min-width: 0; margin: 0 auto; padding: 1rem clamp(1rem, 5vw, 2.5rem) 0; }
 .app-shell-header .eyebrow { margin-bottom: 0; }
 .app-navigation { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .navigation-toggle { display: none; }
@@ -49,7 +49,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .guided-start-steps { display: grid; gap: 0.8rem; margin: 2rem 0; padding-left: 1.5rem; color: #fff8e9; }
 .guided-start-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
 .guided-start-screen [role="status"] { min-height: 1.5rem; margin-top: 1rem; color: #f6bf62; }
-.explore-shell { width: min(980px, 100%); min-width: 0; min-height: 100vh; margin: 0 auto; padding: clamp(1.25rem, 5vw, 4rem) clamp(1rem, 5vw, 2.5rem); }
+.explore-shell { width: min(1200px, 100%); min-width: 0; min-height: 100vh; margin: 0 auto; padding: clamp(1.25rem, 5vw, 4rem) clamp(1rem, 5vw, 2.5rem); }
 header { max-width: 700px; }
 .title-row { display: flex; align-items: flex-start; justify-content: center; gap: 1rem; text-align: center; }
 .eyebrow { margin: 0 0 0.5rem; color: #f6bf62; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -113,7 +113,7 @@ select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: .65rem .75
 .legend-copy { display: grid; gap: .12rem; min-width: 0; }
 .legend-copy strong { color: #fff8e9; font-size: .78rem; }
 .piano-view, .guitar-scroll { width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding-bottom: 0.6rem; touch-action: pan-x; }
-.piano-keyboard { position: relative; width: 660px; min-width: 660px; height: 190px; }
+.piano-keyboard { position: relative; width: 660px; min-width: 660px; height: 190px; margin-inline: auto; }
 .piano-key { position: absolute; top: 0; cursor: pointer; font-size: 0.7rem; font-weight: 800; }
 .piano-key.natural-key { left: calc(var(--key-index) * 44px); z-index: 1; width: 44px; height: 184px; border: 2px solid #74818a; border-radius: 0 0 0.55rem 0.55rem; color: #34434e; background: #e8eef0; }
 .piano-key.altered-key { left: calc(var(--key-index) * 44px - 15px); z-index: 2; width: 30px; height: 116px; border: 1px solid #070b0e; border-radius: 0 0 0.3rem 0.3rem; color: #f2f6f7; background: linear-gradient(100deg, #080c10 0%, #252e34 48%, #070a0d 100%); box-shadow: 1px 0 0 rgba(255, 255, 255, .08) inset, -2px 3px 4px rgba(0, 0, 0, .38); }
@@ -178,7 +178,7 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .scale-selector-fields { display: grid; gap: 1rem; }
 .scale-selector-field select { width: 100%; min-width: 0; }
 .settings-actions { margin-top: 0; }
-.screen-placeholder { width: min(980px, 100%); min-height: calc(100vh - 6rem); margin: 0 auto; padding: clamp(2rem, 8vw, 6rem) clamp(1rem, 5vw, 2.5rem); }
+.screen-placeholder { width: min(1200px, 100%); min-height: calc(100vh - 6rem); margin: 0 auto; padding: clamp(2rem, 8vw, 6rem) clamp(1rem, 5vw, 2.5rem); }
 .ear-gym-content h1 { max-width: 12ch; }
 .ear-gym-intro { max-width: 42rem; color: #a9b8c7; line-height: 1.6; }
 .comparison-card { max-width: 700px; margin-top: 2rem; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, 0.9); }
