@@ -20,6 +20,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .control-button--primary:hover:not(:disabled) { border-color: #baf8df; background: #a9efd3; }
 .control-button--icon { width: 44px; min-width: 44px; padding: 0; }
 .control-button--icon > svg { width: 1.2rem; height: 1.2rem; }
+.control-button--chord { width: 120px; min-width: 120px; }
 .control-button--navigation { color: #a9b8c7; background: #182a33; }
 .control-button--navigation[aria-current="page"] { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
 .control-select { width: 100%; min-height: 44px; min-width: 0; padding: .65rem .75rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; }

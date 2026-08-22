@@ -9,9 +9,16 @@ function createPlaybackFake() {
   const previewed_notes: Array<{ readonly pitch_class: number; readonly octave: number }> = []
   const previewed_instruments: Array<readonly string[]> = []
   const played_instruments: Array<readonly string[]> = []
+  const played_chord_instruments: Array<readonly string[]> = []
   let listener: PlaybackListener | null = null
+  let chord_started_indexes: readonly number[][] = []
   const playback: PlaybackPort = {
     playScale: async (_scale, instruments) => { played_instruments.push(instruments); return { ok: true } },
+    playChord: async (_scale, instruments) => {
+      played_chord_instruments.push(instruments)
+      setTimeout(() => listener?.on_chord_started?.([0, 2, 4]), 0)
+      return { ok: true }
+    },
     previewNote: async (note, instruments) => { previewed_notes.push(note); previewed_instruments.push(instruments); return { ok: true } },
     stopAll: async () => { listener?.on_stopped() },
     setContext: async () => ({ ok: true }),
@@ -22,7 +29,7 @@ function createPlaybackFake() {
     subscribePlaybackState: () => () => undefined,
     subscribe: (next_listener) => { listener = next_listener; return () => { listener = null } }
   }
-  return { playback, previewed_notes, previewed_instruments, played_instruments, listener: () => listener }
+  return { playback, previewed_notes, previewed_instruments, played_instruments, played_chord_instruments, listener: () => listener, chord_started_indexes }
 }
 
 function createSettings() {
@@ -161,6 +168,15 @@ describe('explore screen', () => {
 
     expect(container.querySelector('#formula-select option[value="prometheus"]')?.textContent).toBe('Prometheus')
     expect(Array.from(container.querySelectorAll('#scale-notes .scale-degree')).map((degree) => degree.textContent)).toEqual(['1', '2', '3', '4', '5'])
+  })
+
+  it('given_prometheus_scriabin_scale_when_rendering_explore_then_numbers_notes_from_one_to_six', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(4, 'prometheus_scriabin')
+    renderExploreScreen(container, application, createPlaybackFake().playback, createSettings())
+
+    expect(Array.from(container.querySelectorAll('#scale-notes .scale-degree')).map((degree) => degree.textContent)).toEqual(['1', '2', '3', '4', '5', '6'])
   })
 
   it('given_japanese_mode_when_rendering_explore_then_lists_japanese_scale_with_sequential_degrees', () => {
@@ -549,5 +565,150 @@ describe('explore screen', () => {
     container.querySelector<HTMLButtonElement>('#apply-scale-selector')?.click()
 
     expect(container.querySelector('#scale-selector')?.textContent).toContain('G Dorian')
+  })
+
+  it('given_initial_explore_screen_when_rendering_then_shows_chord_button', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    const chord_button = container.querySelector<HTMLButtonElement>('#play-chord')
+
+    expect(chord_button).not.toBeNull()
+    expect(chord_button?.textContent).toBe('Play chord')
+    expect(chord_button?.getAttribute('aria-label')).toBe('Play chord')
+  })
+
+  it('given_generated_scale_when_playing_chord_then_invokes_play_chord_playback', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#play-chord')?.click()
+    await Promise.resolve()
+
+    expect(playback_fake.played_chord_instruments).toEqual([['piano', 'guitar', 'bass']])
+  })
+
+  it('given_generated_scale_when_playing_chord_with_guitar_hidden_then_uses_only_visible_piano', async () => {
+    const container = createContainer()
+    const settings = createSettings()
+    settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
+
+    container.querySelector<HTMLButtonElement>('#play-chord')?.click()
+    await Promise.resolve()
+
+    expect(playback_fake.played_chord_instruments).toEqual([['piano']])
+  })
+
+  it('given_tritonic_scale_when_playing_chord_then_does_not_crash', async () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    application.changeScale(0, 'baake_tritonic')
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, application, playback_fake.playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#play-chord')?.click()
+    await Promise.resolve()
+
+    expect(playback_fake.played_chord_instruments).toEqual([['piano', 'guitar', 'bass']])
+  })
+
+  it('given_spanish_explore_screen_when_switching_language_then_chord_button_localizes', () => {
+    const container = createContainer()
+    const settings = createSettings()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, settings)
+
+    settings.setLanguage('es')
+
+    const chord_button = container.querySelector<HTMLButtonElement>('#play-chord')
+    expect(chord_button?.textContent).toBe('Reproducir acorde')
+    expect(chord_button?.getAttribute('aria-label')).toBe('Reproducir acorde')
+  })
+
+  it('given_generated_scale_when_playing_chord_then_three_scale_note_buttons_are_selected_simultaneously', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    const chord_button = container.querySelector<HTMLButtonElement>('#play-chord')
+    chord_button?.click()
+    await Promise.resolve()
+    // Advance timers so on_chord_started callback fires
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    const selected_scale_buttons = container.querySelectorAll('#scale-notes .scale-note.selected')
+    expect(selected_scale_buttons).toHaveLength(3)
+    expect(Array.from(selected_scale_buttons).map((btn) => btn.textContent)).toEqual(['E', 'G', 'B'])
+  })
+
+  it('given_generated_scale_when_playing_chord_then_matching_piano_keys_are_selected_simultaneously', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    const chord_button = container.querySelector<HTMLButtonElement>('#play-chord')
+    chord_button?.click()
+    await Promise.resolve()
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    const selected_piano_keys = container.querySelectorAll('#piano-view .piano-key.selected')
+    expect(selected_piano_keys.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('given_generated_scale_when_playing_chord_then_matching_guitar_positions_are_selected_simultaneously', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    const chord_button = container.querySelector<HTMLButtonElement>('#play-chord')
+    chord_button?.click()
+    await Promise.resolve()
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    const selected_guitar_positions = container.querySelectorAll('#guitar-view .guitar-position.selected')
+    expect(selected_guitar_positions.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('given_generated_scale_when_single_note_clicked_then_only_one_selected_across_ui', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    // Click a scale note
+    const second_scale_note = container.querySelectorAll<HTMLButtonElement>('#scale-notes .scale-note')[1]
+    second_scale_note?.click()
+
+    const selected_scale_buttons = container.querySelectorAll('#scale-notes .scale-note.selected')
+    expect(selected_scale_buttons).toHaveLength(1)
+    expect(selected_scale_buttons[0]?.textContent).toBe('F#')
+
+    const selected_piano_keys = container.querySelectorAll('#piano-view .piano-key.selected')
+    expect(selected_piano_keys.length).toBeGreaterThanOrEqual(1)
+
+    const selected_guitar_positions = container.querySelectorAll('#guitar-view .guitar-position.selected')
+    expect(selected_guitar_positions.length).not.toBe(0)
+  })
+
+  it('given_chord_playing_when_playback_stops_then_no_notes_remain_selected', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    const chord_button = container.querySelector<HTMLButtonElement>('#play-chord')
+    chord_button?.click()
+    await Promise.resolve()
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    // At this point chord notes are selected
+    const selected_during_chord = container.querySelectorAll('#scale-notes .scale-note.selected')
+    expect(selected_during_chord).toHaveLength(3)
+
+    // Trigger on_stopped
+    playback_fake.listener()?.on_stopped()
+
+    const selected_after_stop = container.querySelectorAll('#scale-notes .scale-note.selected')
+    expect(selected_after_stop).toHaveLength(0)
   })
 })

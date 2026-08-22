@@ -25,8 +25,8 @@ function format_interval(semitones: number): string {
   return `${semitones / 2}T`
 }
 
-function display_scale_degree(formula_id: FormulaId, note_index: number, domain_degree: number): number {
-  return ['major_pentatonic', 'minor_pentatonic', 'prometheus', 'egyptian', 'japanese', 'hirajoshi', 'man_gong', 'ritusen', 'dominant_pentatonic', 'voodoo', 'iwato', 'hon_kumoi', 'kumoi', 'kumoi_common', 'insen', 'pelog', 'chinese_pentatonic', 'slendro'].includes(formula_id) ? note_index + 1 : domain_degree
+function display_scale_degree(note_count: number, note_index: number, domain_degree: number): number {
+  return note_count === 7 ? domain_degree : note_index + 1
 }
 
 export interface ExploreGuidedStartPort {
@@ -42,7 +42,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
       </header>
          <section class="scale-card" aria-labelledby="generated-scale-label">
           <div class="section-heading scale-heading"><h2 id="generated-scale-label"></h2><div class="help-cluster"><button id="scale-help-button" class="help-button" type="button" aria-expanded="false" aria-controls="scale-help">?</button><div id="scale-help" class="help-copy" role="tooltip"></div></div></div>
-          <div class="scale-selection-row"><button id="scale-selector" class="control-button scale-selector" type="button" aria-haspopup="dialog"></button><button id="play-scale" class="control-button control-button--icon" type="button" aria-label=""></button></div>
+          <div class="scale-selection-row"><button id="scale-selector" class="control-button scale-selector" type="button" aria-haspopup="dialog"></button><button id="play-scale" class="control-button control-button--icon" type="button" aria-label=""></button><button id="play-chord" class="control-button control-button--chord" type="button" aria-label=""></button></div>
           <p id="scale-caption" class="scale-caption"></p>
          <div id="scale-formula-info" class="scale-formula-info" aria-live="polite"></div><div id="scale-notes" class="scale-notes"></div>
         <div id="note-detail" class="note-detail" aria-live="polite"></div>
@@ -59,9 +59,10 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
 
    const root_select = container.querySelector<HTMLSelectElement>('#root-select')
    const formula_select = container.querySelector<HTMLSelectElement>('#formula-select')
-   const scale_selector = container.querySelector<HTMLButtonElement>('#scale-selector')
-   const play_scale = container.querySelector<HTMLButtonElement>('#play-scale')
-   const scale_selector_modal = container.querySelector<HTMLDialogElement>('#scale-selector-modal')
+    const scale_selector = container.querySelector<HTMLButtonElement>('#scale-selector')
+    const play_scale = container.querySelector<HTMLButtonElement>('#play-scale')
+    const play_chord = container.querySelector<HTMLButtonElement>('#play-chord')
+    const scale_selector_modal = container.querySelector<HTMLDialogElement>('#scale-selector-modal')
    const close_scale_selector = container.querySelector<HTMLButtonElement>('#close-scale-selector')
    const cancel_scale_selector = container.querySelector<HTMLButtonElement>('#cancel-scale-selector')
    const apply_scale_selector = container.querySelector<HTMLButtonElement>('#apply-scale-selector')
@@ -84,10 +85,10 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   const guided_progress = container.querySelector<HTMLElement>('#guided-progress')
   const guided_progress_text = container.querySelector<HTMLElement>('#guided-progress-text')
   const guided_progress_action = container.querySelector<HTMLButtonElement>('#guided-progress-action')
-    if (!root_select || !formula_select || !scale_selector || !play_scale || !scale_selector_modal || !close_scale_selector || !cancel_scale_selector || !apply_scale_selector || !scale_help_button || !scale_help_copy || !piano_help_button || !piano_help_copy || !guitar_help_button || !guitar_help_copy || !scale_caption || !scale_formula_info || !scale_notes || !note_detail || !piano_view || !guitar_view || !bass_view || !piano_card || !guitar_card || !bass_card || !guided_progress || !guided_progress_text || !guided_progress_action) throw new Error('Explore screen elements were not found')
+     if (!root_select || !formula_select || !scale_selector || !play_scale || !play_chord || !scale_selector_modal || !close_scale_selector || !cancel_scale_selector || !apply_scale_selector || !scale_help_button || !scale_help_copy || !piano_help_button || !piano_help_copy || !guitar_help_button || !guitar_help_copy || !scale_caption || !scale_formula_info || !scale_notes || !note_detail || !piano_view || !guitar_view || !bass_view || !piano_card || !guitar_card || !bass_card || !guided_progress || !guided_progress_text || !guided_progress_action) throw new Error('Explore screen elements were not found')
 
-   const ui = { root_select, formula_select, scale_selector, play_scale, scale_selector_modal, close_scale_selector, cancel_scale_selector, apply_scale_selector, scale_help_button, scale_help_copy, piano_help_button, piano_help_copy, guitar_help_button, guitar_help_copy, scale_caption, scale_formula_info, scale_notes, note_detail, piano_view, guitar_view, bass_view, piano_card, guitar_card, bass_card, guided_progress, guided_progress_text, guided_progress_action }
-   let selected_pitch_class: number | null = null
+   const ui = { root_select, formula_select, scale_selector, play_scale, play_chord, scale_selector_modal, close_scale_selector, cancel_scale_selector, apply_scale_selector, scale_help_button, scale_help_copy, piano_help_button, piano_help_copy, guitar_help_button, guitar_help_copy, scale_caption, scale_formula_info, scale_notes, note_detail, piano_view, guitar_view, bass_view, piano_card, guitar_card, bass_card, guided_progress, guided_progress_text, guided_progress_action }
+   let selected_pitch_classes = new Set<number>()
    let is_playing = false
 
    function rebuild_root_options(naming: NoteNamingStyle): void {
@@ -200,14 +201,16 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
      ui.scale_selector.setAttribute('aria-label', translation.scale_controls)
       ui.root_select.value = String(current_state.root_pitch_class)
       ui.formula_select.value = current_state.formula_id
-       ui.play_scale.innerHTML = is_playing ? '<svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>' : '<svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>'
-      ui.play_scale.setAttribute('aria-label', is_playing ? translation.stop : translation.play_scale)
+        ui.play_scale.innerHTML = is_playing ? '<svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>' : '<svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>'
+       ui.play_scale.setAttribute('aria-label', is_playing ? translation.stop : translation.play_scale)
+       ui.play_chord.textContent = translation.play_chord
+       ui.play_chord.setAttribute('aria-label', translation.play_chord)
   }
 
   function select_note(pitch_class: number, focus_target: 'scale' | 'piano' | 'guitar' | 'bass' | null = null): void {
     const guitar_scroll_left = ui.guitar_view.querySelector<HTMLElement>('.guitar-scroll')?.scrollLeft ?? 0
     const bass_scroll_left = ui.bass_view.querySelector<HTMLElement>('.guitar-scroll')?.scrollLeft ?? 0
-    selected_pitch_class = pitch_class
+    selected_pitch_classes = new Set([pitch_class])
     render(application.getState())
     const next_guitar_scroll = ui.guitar_view.querySelector<HTMLElement>('.guitar-scroll')
     const next_bass_scroll = ui.bass_view.querySelector<HTMLElement>('.guitar-scroll')
@@ -259,7 +262,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
     const piano = createPianoViewModel(state.scale_instance, state.generation_id)
     const keyboard = document.createElement('div'); keyboard.className = 'piano-keyboard'
     const scale_buttons: HTMLButtonElement[] = []
-    piano.keys.forEach((key, key_index) => { const button = document.createElement('button'); const is_selected = selected_pitch_class === key.pitch_class && key.is_scale_note; const natural_key_count = piano.keys.slice(0, key_index + (key.is_natural ? 1 : 0)).filter((candidate) => candidate.is_natural).length; const has_scale_overlay = key.is_scale_note && key.primary_role !== 'tonic' && key.primary_role !== 'characteristic'; button.type = 'button'; button.className = `piano-key ${key.is_natural ? 'natural-key' : 'altered-key'} ${key.is_scale_note ? key.primary_role : 'outside-scale'} ${has_scale_overlay ? 'is-scale-note' : ''} ${is_selected ? 'selected' : ''}`; button.style.setProperty('--key-index', String(key.is_natural ? natural_key_count - 1 : natural_key_count)); button.textContent = key.is_scale_note ? displayNoteName(key.label, settings.getSettings().note_naming) : ''; button.setAttribute('aria-label', key.is_scale_note ? `${note_accessible_label({ label: displayNoteName(key.label, settings.getSettings().note_naming), degree: key.degree, primary_role: key.primary_role }, settings.getTranslations())}, octave ${key.octave}` : ''); button.setAttribute('aria-pressed', String(is_selected)); if (key.is_scale_note) { scale_buttons.push(button); button.tabIndex = is_selected || (selected_pitch_class === null && scale_buttons.length === 1) ? 0 : -1; button.addEventListener('click', () => { select_note(key.pitch_class, 'piano'); preview_instrument_midi(key.midi, 'piano') }); button.addEventListener('keydown', (event) => { if (event.key === 'ArrowLeft') { event.preventDefault(); move_focus(scale_buttons, button, -1) } if (event.key === 'ArrowRight') { event.preventDefault(); move_focus(scale_buttons, button, 1) } if (event.key === 'Home') { event.preventDefault(); focus_first(scale_buttons) } }) } else { button.tabIndex = -1; button.setAttribute('aria-hidden', 'true'); button.disabled = true } keyboard.append(button) })
+    piano.keys.forEach((key, key_index) => { const button = document.createElement('button'); const is_selected = selected_pitch_classes.has(key.pitch_class) && key.is_scale_note; const natural_key_count = piano.keys.slice(0, key_index + (key.is_natural ? 1 : 0)).filter((candidate) => candidate.is_natural).length; const has_scale_overlay = key.is_scale_note && key.primary_role !== 'tonic' && key.primary_role !== 'characteristic'; button.type = 'button'; button.className = `piano-key ${key.is_natural ? 'natural-key' : 'altered-key'} ${key.is_scale_note ? key.primary_role : 'outside-scale'} ${has_scale_overlay ? 'is-scale-note' : ''} ${is_selected ? 'selected' : ''}`; button.style.setProperty('--key-index', String(key.is_natural ? natural_key_count - 1 : natural_key_count)); button.textContent = key.is_scale_note ? displayNoteName(key.label, settings.getSettings().note_naming) : ''; button.setAttribute('aria-label', key.is_scale_note ? `${note_accessible_label({ label: displayNoteName(key.label, settings.getSettings().note_naming), degree: key.degree, primary_role: key.primary_role }, settings.getTranslations())}, octave ${key.octave}` : ''); button.setAttribute('aria-pressed', String(is_selected)); if (key.is_scale_note) { scale_buttons.push(button); button.tabIndex = is_selected || (selected_pitch_classes.size === 0 && scale_buttons.length === 1) ? 0 : -1; button.addEventListener('click', () => { select_note(key.pitch_class, 'piano'); preview_instrument_midi(key.midi, 'piano') }); button.addEventListener('keydown', (event) => { if (event.key === 'ArrowLeft') { event.preventDefault(); move_focus(scale_buttons, button, -1) } if (event.key === 'ArrowRight') { event.preventDefault(); move_focus(scale_buttons, button, 1) } if (event.key === 'Home') { event.preventDefault(); focus_first(scale_buttons) } }) } else { button.tabIndex = -1; button.setAttribute('aria-hidden', 'true'); button.disabled = true } keyboard.append(button) })
     ui.piano_card.hidden = !settings.getSettings().show_piano; ui.piano_view.replaceChildren(keyboard)
   }
 
@@ -270,7 +273,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
       model: createGuitarViewModel(state.scale_instance, state.generation_id, 12, shiftTuning(STANDARD_TUNING, settings.getSettings().guitar_tuning_semitones)),
       translation: settings.getTranslations(),
       instrument: 'guitar',
-      selected_pitch_class,
+      selected_pitch_classes,
       aria_label: settings.getTranslations().guitar_table,
       note_naming: settings.getSettings().note_naming,
       on_position_selected: (pitch_class, target) => select_note(pitch_class, target),
@@ -286,7 +289,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
       model: createBassViewModel(state.scale_instance, state.generation_id, 12, shiftTuning(STANDARD_BASS_TUNING, settings.getSettings().bass_tuning_semitones)),
       translation: settings.getTranslations(),
       instrument: 'bass',
-      selected_pitch_class,
+      selected_pitch_classes,
       aria_label: settings.getTranslations().bass_table,
       note_naming: settings.getSettings().note_naming,
       on_position_selected: (pitch_class, target) => select_note(pitch_class, target),
@@ -297,13 +300,13 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   }
 
   function render(state: ScaleState): void {
-     apply_translations(); const naming = settings.getSettings().note_naming; const translation = settings.getTranslations(); ui.root_select.value = String(state.root_pitch_class); ui.formula_select.value = state.formula_id; ui.scale_caption.textContent = state.scale_instance.notes.map((note) => displayNoteName(note.spelling.text, naming)).join(' · '); const note_steps = getStepSemitones(state.scale_instance.formula); ui.scale_formula_info.replaceChildren(); ui.scale_formula_info.setAttribute('aria-label', translation.formula_information); const formula_label = document.createElement('strong'); formula_label.textContent = translation.degree_formula; const formula_value = document.createElement('span'); formula_value.textContent = state.scale_instance.formula.degree_formula.join(' - '); const structure_label = document.createElement('strong'); structure_label.textContent = translation.interval_structure; const structure_value = document.createElement('span'); structure_value.textContent = state.scale_instance.formula.interval_formula.join(' - '); ui.scale_formula_info.append(formula_label, formula_value, structure_label, structure_value); ui.scale_notes.replaceChildren(...state.scale_instance.notes.flatMap((note, note_index) => { const note_wrapper = document.createElement('div'); note_wrapper.className = 'scale-note-wrapper'; const degree_label = document.createElement('span'); degree_label.className = 'scale-degree'; degree_label.textContent = String(display_scale_degree(state.formula_id, note_index, note.degree)); const note_element = document.createElement('button'); note_element.type = 'button'; note_element.className = `scale-note ${note.primary_role} ${selected_pitch_class === note.pitch_class ? 'selected' : ''}`; note_element.textContent = displayNoteName(note.spelling.text, naming); note_element.setAttribute('aria-label', note_accessible_label({ label: displayNoteName(note.spelling.text, naming), degree: note.degree, primary_role: note.primary_role }, translation)); note_element.setAttribute('aria-pressed', String(selected_pitch_class === note.pitch_class)); note_element.addEventListener('click', () => { select_note(note.pitch_class, 'scale'); preview_scale_note(note_index) }); note_wrapper.append(degree_label, note_element); const interval = note_steps[note_index]; if (interval === undefined) return [note_wrapper]; const interval_element = document.createElement('span'); interval_element.className = 'scale-interval'; interval_element.textContent = format_interval(interval); interval_element.setAttribute('aria-label', `${interval} ${translation.interval_label}`); return [note_wrapper, interval_element] })); const selected_note = state.scale_instance.notes.find((note) => note.pitch_class === selected_pitch_class); ui.note_detail.textContent = selected_note ? `${displayNoteName(selected_note.spelling.text, naming)} · ${translation.degree} ${selected_note.degree} · ${translation.role} ${translation.roles[selected_note.primary_role]}` : translation.select_note; render_piano(state); render_guitar(state); render_bass(state)
+     apply_translations(); const naming = settings.getSettings().note_naming; const translation = settings.getTranslations(); ui.root_select.value = String(state.root_pitch_class); ui.formula_select.value = state.formula_id; ui.scale_caption.textContent = state.scale_instance.notes.map((note) => displayNoteName(note.spelling.text, naming)).join(' · '); const note_steps = getStepSemitones(state.scale_instance.formula); ui.scale_formula_info.replaceChildren(); ui.scale_formula_info.setAttribute('aria-label', translation.formula_information); const formula_label = document.createElement('strong'); formula_label.textContent = translation.degree_formula; const formula_value = document.createElement('span'); formula_value.textContent = state.scale_instance.formula.degree_formula.join(' - '); const structure_label = document.createElement('strong'); structure_label.textContent = translation.interval_structure; const structure_value = document.createElement('span'); structure_value.textContent = state.scale_instance.formula.interval_formula.join(' - '); ui.scale_formula_info.append(formula_label, formula_value, structure_label, structure_value); ui.scale_notes.replaceChildren(...state.scale_instance.notes.flatMap((note, note_index) => { const note_wrapper = document.createElement('div'); note_wrapper.className = 'scale-note-wrapper'; const degree_label = document.createElement('span'); degree_label.className = 'scale-degree'; degree_label.textContent = String(display_scale_degree(state.scale_instance.notes.length, note_index, note.degree)); const note_element = document.createElement('button'); note_element.type = 'button'; note_element.className = `scale-note ${note.primary_role} ${selected_pitch_classes.has(note.pitch_class) ? 'selected' : ''}`; note_element.textContent = displayNoteName(note.spelling.text, naming); note_element.setAttribute('aria-label', note_accessible_label({ label: displayNoteName(note.spelling.text, naming), degree: note.degree, primary_role: note.primary_role }, translation)); note_element.setAttribute('aria-pressed', String(selected_pitch_classes.has(note.pitch_class))); note_element.addEventListener('click', () => { select_note(note.pitch_class, 'scale'); preview_scale_note(note_index) }); note_wrapper.append(degree_label, note_element); const interval = note_steps[note_index]; if (interval === undefined) return [note_wrapper]; const interval_element = document.createElement('span'); interval_element.className = 'scale-interval'; interval_element.textContent = format_interval(interval); interval_element.setAttribute('aria-label', `${interval} ${translation.interval_label}`); return [note_wrapper, interval_element] })); const selected_note = selected_pitch_classes.size !== 1 ? null : state.scale_instance.notes.find((note) => selected_pitch_classes.has(note.pitch_class)); ui.note_detail.textContent = selected_note ? `${displayNoteName(selected_note.spelling.text, naming)} · ${translation.degree} ${selected_note.degree} · ${translation.role} ${translation.roles[selected_note.primary_role]}` : translation.select_note; render_piano(state); render_guitar(state); render_bass(state)
   }
 
   function change_scale_from_controls(): void {
     const next_root_pitch_class = Number(ui.root_select.value)
     const next_formula_id = ui.formula_select.value as FormulaId
-    selected_pitch_class = null
+    selected_pitch_classes = new Set()
     void playback.stopAll()
     try {
       const next_state = application.changeScale(next_root_pitch_class, next_formula_id)
@@ -320,5 +323,5 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
   ui.close_scale_selector.addEventListener('click', close_scale_selector_dialog)
   ui.cancel_scale_selector.addEventListener('click', close_scale_selector_dialog)
   ui.apply_scale_selector.addEventListener('click', () => { change_scale_from_controls(); close_scale_selector_dialog() })
-  ui.play_scale.addEventListener('click', async () => { if (is_playing) { await playback.stopAll(); is_playing = false; render(application.getState()); return } selected_pitch_class = null; const result = await playback.playScale(application.getState().scale_instance, getVisiblePlaybackInstruments(settings)); is_playing = result.ok; render(application.getState()) }); playback.subscribe({ on_note_started: (note_index) => { const note = application.getState().scale_instance.notes[note_index]; if (note) { selected_pitch_class = note.pitch_class; render(application.getState()) } }, on_stopped: () => { selected_pitch_class = null; is_playing = false; render(application.getState()) } }); settings.subscribe(() => render(application.getState())); application.subscribe(render); render(application.getState())
+   ui.play_scale.addEventListener('click', async () => { if (is_playing) { await playback.stopAll(); is_playing = false; render(application.getState()); return } selected_pitch_classes = new Set(); const result = await playback.playScale(application.getState().scale_instance, getVisiblePlaybackInstruments(settings)); is_playing = result.ok; render(application.getState()) }); ui.play_chord.addEventListener('click', async () => { if (is_playing) { await playback.stopAll(); is_playing = false; render(application.getState()); return } selected_pitch_classes = new Set(); const state = application.getState(); const chord_notes = state.scale_instance.notes.filter((note) => note.degree === 1 || note.degree === 3 || note.degree === 5); if (chord_notes.length < 2) return; const result = await playback.playChord(state.scale_instance, getVisiblePlaybackInstruments(settings)); is_playing = result.ok; render(application.getState()) }); playback.subscribe({ on_note_started: (note_index) => { const note = application.getState().scale_instance.notes[note_index]; if (note) { selected_pitch_classes = new Set([note.pitch_class]); render(application.getState()) } }, on_chord_started: (note_indexes) => { const chord_pitch_classes = note_indexes.map((note_index) => application.getState().scale_instance.notes[note_index]?.pitch_class).filter((pitch_class): pitch_class is number => pitch_class !== undefined); if (chord_pitch_classes.length > 0) { selected_pitch_classes = new Set(chord_pitch_classes); render(application.getState()) } }, on_stopped: () => { selected_pitch_classes = new Set(); is_playing = false; render(application.getState()) } }); settings.subscribe(() => render(application.getState())); application.subscribe(render); render(application.getState())
 }

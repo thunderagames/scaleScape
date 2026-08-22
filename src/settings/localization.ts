@@ -63,6 +63,7 @@ export interface TranslationDictionary {
   readonly root: string
   readonly mode: string
   readonly play_scale: string
+  readonly play_chord: string
   readonly stop: string
   readonly audio_locked: string
   readonly audio_playing: string
@@ -190,8 +191,9 @@ const ENGLISH: TranslationDictionary = {
   instrument_color_help: "Colors show each note's primary musical role. Tonic and characteristic take precedence when roles overlap.",
   root: 'Root',
   mode: 'Mode',
-  play_scale: 'Play scale',
-  stop: 'Stop',
+   play_scale: 'Play scale',
+   play_chord: 'Play chord',
+   stop: 'Stop',
   audio_locked: 'Audio starts after your first action.',
   audio_playing: 'Audio playing.',
   audio_unavailable: 'Audio unavailable.',
@@ -318,8 +320,9 @@ const SPANISH: TranslationDictionary = {
   instrument_color_help: 'Los colores muestran el rol musical principal de cada nota. La tónica y la nota característica tienen prioridad cuando los roles se superponen.',
   root: 'Tónica',
   mode: 'Modo',
-  play_scale: 'Reproducir escala',
-  stop: 'Detener',
+   play_scale: 'Reproducir escala',
+   play_chord: 'Reproducir acorde',
+   stop: 'Detener',
   audio_locked: 'El audio comienza después de tu primera acción.',
   audio_playing: 'Audio reproduciéndose.',
   audio_unavailable: 'Audio no disponible.',

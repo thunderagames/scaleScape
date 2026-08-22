@@ -8,7 +8,7 @@ export interface StringedInstrumentViewOptions {
   readonly model: StringedInstrumentViewModel
   readonly translation: TranslationDictionary
   readonly instrument: PlaybackInstrument
-  readonly selected_pitch_class: number | null
+  readonly selected_pitch_classes: ReadonlySet<number>
   readonly aria_label: string
   readonly note_naming: NoteNamingStyle
   readonly on_position_selected: (pitch_class: number, target: 'guitar' | 'bass') => void
@@ -33,7 +33,7 @@ function focus_edge(buttons: readonly HTMLButtonElement[], current_button: HTMLB
 }
 
 export function renderStringedInstrument(options: StringedInstrumentViewOptions): void {
-  const { container, model, translation, instrument, selected_pitch_class, aria_label, note_naming, on_position_selected, on_preview, note_accessible_label } = options
+  const { container, model, translation, instrument, selected_pitch_classes, aria_label, note_naming, on_position_selected, on_preview, note_accessible_label } = options
   const scroll = document.createElement('div')
   scroll.className = 'guitar-scroll'
   const table = document.createElement('table')
@@ -71,13 +71,13 @@ export function renderStringedInstrument(options: StringedInstrumentViewOptions)
       const cell = document.createElement('td')
       const button = document.createElement('button')
       const is_scale_note = position.is_scale_note
-      const is_selected = selected_pitch_class === position.pitch_class && is_scale_note
+      const is_selected = selected_pitch_classes.has(position.pitch_class) && is_scale_note
       button.type = 'button'
       button.className = `guitar-position ${is_scale_note ? position.primary_role : 'outside-scale'} ${is_selected ? 'selected' : ''}`
       button.textContent = is_scale_note ? displayNoteName(position.label, note_naming) : ''
       button.setAttribute('aria-label', is_scale_note ? `${position.string_name}, ${translation.fret_label} ${position.fret}, ${note_accessible_label(position)}, octave ${position.octave}` : '')
       button.setAttribute('aria-pressed', String(is_selected))
-      button.tabIndex = is_selected || (selected_pitch_class === null && all_scale_buttons.length === 0 && is_scale_note) ? 0 : -1
+      button.tabIndex = is_selected || (selected_pitch_classes.size === 0 && all_scale_buttons.length === 0 && is_scale_note) ? 0 : -1
       position_buttons.push(button)
       if (is_scale_note) {
         scale_buttons.push(button)

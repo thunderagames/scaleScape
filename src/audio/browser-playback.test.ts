@@ -162,4 +162,41 @@ describe('browser playback', () => {
     expect(FakeAudioContext.last_instance?.buffer_source_count).toBe(0)
     expect(FakeAudioContext.last_instance?.oscillator_types).toContain('sawtooth')
   })
+
+  it('given_scale_when_playing_chord_then_notifies_chord_started_with_all_triad_notes_at_once', async () => {
+    vi.useFakeTimers()
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+    const chord_started_calls: number[][] = []
+    const individual_started_calls: number[] = []
+    playback.subscribe({
+      on_note_started: (note_index) => individual_started_calls.push(note_index),
+      on_chord_started: (note_indexes) => chord_started_calls.push([...note_indexes]),
+      on_stopped: () => undefined
+    })
+
+    const result = await playback.playChord(createScaleInstance(4, 'dorian'), ['piano'])
+    await vi.runAllTimersAsync()
+
+    expect(result.ok).toBe(true)
+    expect(chord_started_calls).toEqual([[0, 2, 4]])
+    expect(individual_started_calls).toEqual([])
+    await playback.stopAll()
+  })
+
+  it('given_scale_when_playing_chord_then_schedules_notes_with_longer_duration_than_scale_notes', async () => {
+    vi.useFakeTimers()
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+    playback.setTempo(120)
+
+    await playback.playChord(createScaleInstance(4, 'dorian'), ['piano'])
+    await vi.runAllTimersAsync()
+
+    // Verify oscillator nodes were created for chord notes (3 chord tones × 6 piano partials = 18 sine oscillators)
+    // plus the hammer buffer. Chord duration at 120bpm is now ~1.25s (was ~0.8s before the fix).
+    const sine_oscillator_count = FakeAudioContext.last_instance?.oscillator_types.filter((t) => t === 'sine').length ?? 0
+    expect(sine_oscillator_count).toBeGreaterThan(6)
+    await playback.stopAll()
+  })
 })

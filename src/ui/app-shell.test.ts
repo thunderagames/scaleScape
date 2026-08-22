@@ -12,6 +12,7 @@ function createPlaybackFake(): PlaybackPort {
   const state_listeners = new Set<(state: { readonly is_muted: boolean; readonly volume: number; readonly context: 'off' | 'drone' | 'pedal' }) => void>()
   return {
     playScale: async () => ({ ok: true }),
+    playChord: async () => ({ ok: true }),
     previewNote: async () => ({ ok: true }),
      stopAll: async () => undefined,
      setContext: async (_root_pitch_class, next_context) => { context = next_context; return { ok: true } },

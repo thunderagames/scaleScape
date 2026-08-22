@@ -336,6 +336,46 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
         return { ok: false }
       }
     },
+    async playChord(scale_instance, instruments) {
+      const context = await unlock()
+      if (!context) return { ok: false }
+      try {
+        stopScheduledAudio()
+        const chord_notes = scale_instance.notes
+          .map((note, index) => ({ note_index: index, semitones: note.semitones, degree: note.degree }))
+          .filter(({ degree }) => degree === 1 || degree === 3 || degree === 5)
+        if (chord_notes.length === 0) return { ok: true }
+        const start_time = context.currentTime + 0.05
+        const note_step_seconds = 60 / tempo_bpm
+        const note_duration = Math.min(MAX_SCALE_NOTE_DURATION + 0.8, note_step_seconds * 2.5)
+        const duration = note_duration
+        if (context_mode !== 'off') schedule_context(context, scale_instance.root_pitch_class, context_mode, start_time, duration)
+        if (context_mode !== 'off') log('audio.context_started', { generation_id: playback_generation, context_kind: context_mode === 'drone' ? 'DRONE' : 'PEDAL' })
+        const scheduled_generation = playback_generation
+        const chord_note_indexes: number[] = []
+        chord_notes.forEach(({ note_index, semitones }) => {
+          const frequency = transposePitch(scale_instance.root_pitch_class, 4, semitones).frequency
+          const note_start = start_time
+          schedule_instrument_note(context, frequency, note_start, note_duration, instruments)
+          chord_note_indexes.push(note_index)
+        })
+        const chord_timer = window.setTimeout(() => {
+          if (scheduled_generation === playback_generation) {
+            listeners.forEach((listener) => listener.on_chord_started?.(chord_note_indexes))
+          }
+        }, Math.max(0, (start_time - context.currentTime) * 1000))
+        active_timers.push(chord_timer)
+        const completion_timer = window.setTimeout(() => {
+          if (scheduled_generation === playback_generation) listeners.forEach((listener) => listener.on_stopped())
+        }, Math.max(0, (start_time - context.currentTime + duration) * 1000))
+        active_timers.push(completion_timer)
+        return { ok: true }
+      } catch {
+        stopScheduledAudio()
+        log('audio.lifecycle_changed', { previous_lifecycle: 'READY', new_lifecycle: 'ERROR', reason_code: 'ENGINE_ERROR' })
+        return { ok: false }
+      }
+    },
     async previewNote(note: PlayableNote, instruments) {
       const context = await unlock()
       if (!context) return { ok: false }

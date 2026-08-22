@@ -11,6 +11,7 @@ export interface PlayableNote {
 
 export interface PlaybackListener {
   on_note_started(note_index: number): void
+  on_chord_started?(note_indexes: readonly number[]): void
   on_stopped(): void
 }
 
@@ -22,6 +23,7 @@ export interface PlaybackState {
 
 export interface PlaybackPort {
   playScale(scale_instance: ScaleInstance, instruments: readonly PlaybackInstrument[]): Promise<{ readonly ok: boolean }>
+  playChord(scale_instance: ScaleInstance, instruments: readonly PlaybackInstrument[]): Promise<{ readonly ok: boolean }>
   previewNote(note: PlayableNote, instruments: readonly PlaybackInstrument[]): Promise<{ readonly ok: boolean }>
   stopAll(): Promise<void>
   setContext(root_pitch_class: number, context: 'off' | 'drone' | 'pedal'): Promise<{ readonly ok: boolean }>

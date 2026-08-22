@@ -8,6 +8,7 @@ function createPlaybackFake() {
   const played_formulas: string[] = []
   const playback: PlaybackPort = {
     playScale: async (scale) => { played_formulas.push(scale.formula.id); return { ok: true } },
+    playChord: async () => ({ ok: true }),
     previewNote: async () => ({ ok: true }),
     stopAll: async () => undefined,
     setContext: async () => ({ ok: true }),

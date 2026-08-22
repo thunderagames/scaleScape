@@ -4,7 +4,7 @@ import { createScaleInstance } from '../theory/scale-instance'
 import { getTranslations } from '../settings/localization'
 import { renderStringedInstrument } from './stringed-instrument-view'
 
-function createRenderedBass() {
+function createRenderedBass(selected_pitch_classes: ReadonlySet<number> = new Set()) {
   const container = document.createElement('div')
   document.body.append(container)
   const on_position_selected = vi.fn()
@@ -14,7 +14,7 @@ function createRenderedBass() {
     model: createBassViewModel(createScaleInstance(4, 'dorian'), 1),
     translation: getTranslations('en'),
     instrument: 'bass',
-    selected_pitch_class: null,
+    selected_pitch_classes,
     aria_label: 'Interactive bass fretboard',
     note_naming: 'letter',
     on_position_selected,
