@@ -1,7 +1,7 @@
 import type { ScaleInstance } from '../theory/scale-instance'
 import type { TempoBpm } from '../shared/tempo'
 
-export type PlaybackInstrument = 'piano' | 'guitar' | 'bass'
+export type PlaybackInstrument = 'piano' | 'guitar' | 'bass' | 'ukulele'
 
 export interface PlayableNote {
   readonly pitch_class: number

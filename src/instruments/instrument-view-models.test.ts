@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createGuitarViewModel, shiftTuning, STANDARD_TUNING } from './guitar-view-model'
 import { createBassViewModel, getBassTuningNote, STANDARD_BASS_TUNING } from './bass-view-model'
+import { createUkuleleViewModel, getUkuleleTuningNote, STANDARD_UKULELE_TUNING } from './ukulele-view-model'
 import { createPianoViewModel } from './piano-view-model'
 import { createScaleInstance } from '../theory/scale-instance'
 
@@ -35,5 +36,17 @@ describe('instrument view models', () => {
 
   it('given_bass_tuning_shift_when_reading_the_open_note_then_returns_the_shifted_e_note', () => {
     expect(getBassTuningNote(-2)).toBe('D')
+  })
+
+  it('given_standard_ukulele_tuning_when_mapping_then_creates_reentrant_gcea_fretboard', () => {
+    const ukulele = createUkuleleViewModel(createScaleInstance(4, 'dorian'), 4)
+
+    expect(ukulele.strings).toHaveLength(4)
+    expect(ukulele.strings.map((string_model) => string_model.tuning.open_midi)).toEqual([67, 60, 64, 69])
+    expect(ukulele.strings.map((string_model) => string_model.tuning.open_midi)).toEqual(STANDARD_UKULELE_TUNING.map((tuning) => tuning.open_midi))
+  })
+
+  it('given_ukulele_tuning_shift_when_reading_the_open_note_then_returns_the_shifted_g_note', () => {
+    expect(getUkuleleTuningNote(-2)).toBe('F')
   })
 })

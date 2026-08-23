@@ -7,5 +7,6 @@ export function getVisiblePlaybackInstruments(settings: SettingsStore): readonly
   if (current_settings.show_piano) instruments.push('piano')
   if (current_settings.show_guitar) instruments.push('guitar')
   if (current_settings.show_bass) instruments.push('bass')
+  if (current_settings.show_ukulele) instruments.push('ukulele')
   return instruments
 }

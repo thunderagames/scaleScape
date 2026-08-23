@@ -78,6 +78,7 @@ export interface TranslationDictionary {
   readonly piano: string
   readonly guitar: string
   readonly bass: string
+  readonly ukulele: string
   readonly generation: string
   readonly degree: string
   readonly role: string
@@ -86,11 +87,16 @@ export interface TranslationDictionary {
   readonly show_piano: string
   readonly show_guitar: string
   readonly show_bass: string
+  readonly show_ukulele: string
+  readonly scale_description_visibility: string
+  readonly show_scale_description: string
   readonly instrument_region: string
   readonly guitar_table: string
   readonly bass_table: string
+  readonly ukulele_table: string
   readonly guitar_tuning: string
   readonly bass_tuning: string
+  readonly ukulele_tuning: string
   readonly tuner: string
   readonly guitar_tuning_semitones: string
   readonly lower_tuning: string
@@ -129,6 +135,8 @@ export interface TranslationDictionary {
   readonly note_naming_label: string
   readonly note_naming_letter: string
   readonly note_naming_solfege: string
+  readonly scale_history: string
+  readonly scale_usage: string
 }
 
 const ENGLISH: TranslationDictionary = {
@@ -206,7 +214,8 @@ const ENGLISH: TranslationDictionary = {
   select_note: 'Select a scale note for interval and role detail.',
   piano: 'Piano · C3 to C5',
    guitar: 'Guitar · frets 0 to 12',
-    bass: 'Bass · frets 0 to 12',
+     bass: 'Bass · frets 0 to 12',
+     ukulele: 'Ukulele · frets 0 to 12',
   generation: 'Generation',
   degree: 'degree',
   role: 'role'
@@ -215,11 +224,16 @@ const ENGLISH: TranslationDictionary = {
   ,show_piano: 'Show piano'
    ,show_guitar: 'Show guitar'
    ,show_bass: 'Show bass'
+   ,show_ukulele: 'Show ukulele'
+   ,scale_description_visibility: 'Scale information'
+   ,show_scale_description: 'Show scale history and uses'
   ,instrument_region: 'Synchronized instruments'
    ,guitar_table: 'Interactive six-string guitar fretboard'
-   ,bass_table: 'Interactive four-string bass fretboard'
+    ,bass_table: 'Interactive four-string bass fretboard'
+    ,ukulele_table: 'Interactive four-string ukulele fretboard'
      ,guitar_tuning: 'Guitar tuning'
-     ,bass_tuning: 'Bass tuning'
+      ,bass_tuning: 'Bass tuning'
+      ,ukulele_tuning: 'Ukulele tuning'
      ,tuner: 'Tuner'
    ,guitar_tuning_semitones: 'semitones from standard tuning'
    ,lower_tuning: 'Lower tuning'
@@ -257,7 +271,9 @@ const ENGLISH: TranslationDictionary = {
   ,context_pedal: 'Tonic + fifth pedal'
   ,note_naming_label: 'Note naming'
   ,note_naming_letter: 'Classical (C D E)'
-  ,note_naming_solfege: 'Solfège (Do Re Mi)'
+   ,note_naming_solfege: 'Solfège (Do Re Mi)'
+   ,scale_history: 'Brief history'
+   ,scale_usage: 'Common uses'
 }
 
 const SPANISH: TranslationDictionary = {
@@ -335,7 +351,8 @@ const SPANISH: TranslationDictionary = {
   select_note: 'Selecciona una nota para ver el detalle del intervalo y su rol.',
   piano: 'Piano · Do3 a Do5',
    guitar: 'Guitarra · trastes 0 a 12',
-    bass: 'Bajo · trastes 0 a 12',
+     bass: 'Bajo · trastes 0 a 12',
+     ukulele: 'Ukelele · trastes 0 a 12',
   generation: 'Generación',
   degree: 'grado',
   role: 'rol'
@@ -344,11 +361,16 @@ const SPANISH: TranslationDictionary = {
   ,show_piano: 'Mostrar piano'
    ,show_guitar: 'Mostrar guitarra'
    ,show_bass: 'Mostrar bajo'
+   ,show_ukulele: 'Mostrar ukelele'
+   ,scale_description_visibility: 'Información de la escala'
+   ,show_scale_description: 'Mostrar historia y usos de la escala'
   ,instrument_region: 'Instrumentos sincronizados'
    ,guitar_table: 'Diapasón interactivo de seis cuerdas'
    ,bass_table: 'Diapasón interactivo de cuatro cuerdas para bajo'
+    ,ukulele_table: 'Diapasón interactivo de cuatro cuerdas para ukelele'
      ,guitar_tuning: 'Afinación de guitarra'
-     ,bass_tuning: 'Afinación de bajo'
+      ,bass_tuning: 'Afinación de bajo'
+      ,ukulele_tuning: 'Afinación de ukelele'
      ,tuner: 'Afinador'
    ,guitar_tuning_semitones: 'semitonos desde la afinación estándar'
    ,lower_tuning: 'Bajar afinación'
@@ -386,7 +408,9 @@ const SPANISH: TranslationDictionary = {
    ,context_pedal: 'Pedal de tónica y quinta'
   ,note_naming_label: 'Nombre de notas'
   ,note_naming_letter: 'Clásico (Do Re Mi)'
-  ,note_naming_solfege: 'Solfeo (Do Re Mi)'
+   ,note_naming_solfege: 'Solfeo (Do Re Mi)'
+   ,scale_history: 'Historia breve'
+   ,scale_usage: 'Usos habituales'
 }
 
 export function getTranslations(language: Language): TranslationDictionary {

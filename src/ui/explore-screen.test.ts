@@ -81,6 +81,37 @@ describe('explore screen', () => {
     expect(container.querySelector('#generated-scale-label')?.textContent).toBe('Select Scale')
   })
 
+  it('given_named_scale_when_rendering_then_shows_history_and_common_uses', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector<HTMLElement>('#scale-description')?.hidden).toBe(false)
+    expect(container.querySelector('#scale-description')?.textContent).toContain('Brief history')
+    expect(container.querySelector('#scale-description')?.textContent).toContain('Common uses')
+    expect(container.querySelector('#scale-description')?.textContent).toContain('Dorian')
+  })
+
+  it('given_probable_scale_when_rendering_then_does_not_show_scale_description', () => {
+    const container = createContainer()
+    const application = createExploreApplication()
+    const settings = createSettings()
+    application.changeScale(4, 'probable_heptatonic_001')
+
+    renderExploreScreen(container, application, createPlaybackFake().playback, settings)
+
+    expect(container.querySelector<HTMLElement>('#scale-description')?.hidden).toBe(true)
+  })
+
+  it('given_scale_description_preference_when_disabled_then_hides_scale_description', () => {
+    const container = createContainer()
+    const settings = createSettings()
+    settings.setSettings({ ...settings.getSettings(), show_scale_description: false })
+
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, settings)
+
+    expect(container.querySelector<HTMLElement>('#scale-description')?.hidden).toBe(true)
+  })
+
   it('given_dorian_scale_when_rendering_generated_scale_then_shows_tone_and_semitone_steps', () => {
     const container = createContainer()
     renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
@@ -202,7 +233,7 @@ describe('explore screen', () => {
   it('given_generated_scale_when_playing_with_guitar_hidden_then_uses_only_visible_piano', async () => {
     const container = createContainer()
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
+     settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false, show_ukulele: false })
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
 
@@ -216,7 +247,7 @@ describe('explore screen', () => {
     const container = createContainer()
     const playback_fake = createPlaybackFake()
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_bass: false })
+     settings.setSettings({ ...settings.getSettings(), show_bass: false, show_ukulele: false })
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
 
     container.querySelector<HTMLButtonElement>('#play-scale')?.click()
@@ -228,7 +259,7 @@ describe('explore screen', () => {
   it('given_generated_scale_note_when_guitar_hidden_then_uses_only_visible_piano', () => {
     const container = createContainer()
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
+     settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false, show_ukulele: false })
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
 
@@ -265,6 +296,25 @@ describe('explore screen', () => {
     container.querySelector<HTMLButtonElement>('#bass-view .guitar-position.tonic')?.click()
 
     expect(playback_fake.previewed_instruments).toEqual([['bass']])
+  })
+
+  it('given_ukulele_note_when_selected_then_uses_ukulele_timbre', () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    container.querySelector<HTMLButtonElement>('#ukulele-view .guitar-position.tonic')?.click()
+
+    expect(playback_fake.previewed_instruments).toEqual([['ukulele']])
+  })
+
+  it('given_standard_ukulele_when_rendering_then_shows_reentrant_tuning_and_four_strings', () => {
+    const container = createContainer()
+    renderExploreScreen(container, createExploreApplication(), createPlaybackFake().playback, createSettings())
+
+    expect(container.querySelector('#ukulele-title')?.textContent).toContain('G')
+    expect(container.querySelectorAll('#ukulele-view tbody tr')).toHaveLength(4)
+    expect(container.querySelector('#ukulele-view tbody tr:first-child th')?.textContent).toBe('High G')
   })
 
   it('given_guitar_scroll_position_when_selecting_note_then_preserves_horizontal_scroll', () => {
@@ -586,13 +636,13 @@ describe('explore screen', () => {
     container.querySelector<HTMLButtonElement>('#play-chord')?.click()
     await Promise.resolve()
 
-    expect(playback_fake.played_chord_instruments).toEqual([['piano', 'guitar', 'bass']])
+    expect(playback_fake.played_chord_instruments).toEqual([['piano', 'guitar', 'bass', 'ukulele']])
   })
 
   it('given_generated_scale_when_playing_chord_with_guitar_hidden_then_uses_only_visible_piano', async () => {
     const container = createContainer()
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
+     settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false, show_ukulele: false })
     const playback_fake = createPlaybackFake()
     renderExploreScreen(container, createExploreApplication(), playback_fake.playback, settings)
 
@@ -612,7 +662,7 @@ describe('explore screen', () => {
     container.querySelector<HTMLButtonElement>('#play-chord')?.click()
     await Promise.resolve()
 
-    expect(playback_fake.played_chord_instruments).toEqual([['piano', 'guitar', 'bass']])
+    expect(playback_fake.played_chord_instruments).toEqual([['piano', 'guitar', 'bass', 'ukulele']])
   })
 
   it('given_spanish_explore_screen_when_switching_language_then_chord_button_localizes', () => {

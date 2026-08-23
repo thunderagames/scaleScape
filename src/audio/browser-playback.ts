@@ -31,6 +31,13 @@ const BASS_PARTIALS = [
   { multiplier: 0.5, amplitude: 0.3, type: 'sine' as OscillatorType }
 ] as const
 
+const UKULELE_PARTIALS = [
+  { multiplier: 1, amplitude: 0.68, type: 'triangle' as OscillatorType },
+  { multiplier: 2, amplitude: 0.22, type: 'sine' as OscillatorType },
+  { multiplier: 3, amplitude: 0.09, type: 'triangle' as OscillatorType },
+  { multiplier: 4, amplitude: 0.025, type: 'sine' as OscillatorType }
+] as const
+
 const MAX_SCALE_NOTE_DURATION = 1.1
 const PREVIEW_NOTE_DURATION = 1.35
 
@@ -289,10 +296,35 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
     })
   }
 
+  function schedule_ukulele_note(context: AudioContext, frequency: number, start_time: number, duration: number): void {
+    const voice_gain = context.createGain()
+    const filter = context.createBiquadFilter()
+    filter.type = 'lowpass'
+    filter.frequency.setValueAtTime(Math.min(7000, Math.max(1800, frequency * 10)), start_time)
+    filter.Q.value = 0.65
+    voice_gain.connect(filter)
+    filter.connect(get_master_gain(context))
+    schedule_envelope(voice_gain, start_time, duration, 0.16, 0.28)
+    UKULELE_PARTIALS.forEach(({ multiplier, amplitude, type }) => {
+      const oscillator = context.createOscillator()
+      const partial_gain = context.createGain()
+      oscillator.type = type
+      oscillator.frequency.setValueAtTime(frequency * multiplier * 1.002, start_time)
+      oscillator.frequency.linearRampToValueAtTime(frequency * multiplier, start_time + 0.05)
+      partial_gain.gain.value = amplitude
+      oscillator.connect(partial_gain)
+      partial_gain.connect(voice_gain)
+      oscillator.start(start_time)
+      oscillator.stop(start_time + duration)
+      active_nodes.push(oscillator)
+    })
+  }
+
   function schedule_instrument_note(context: AudioContext, frequency: number, start_time: number, duration: number, instruments: readonly PlaybackInstrument[]): void {
     if (instruments.includes('piano')) schedule_piano_note(context, frequency, start_time, duration)
     if (instruments.includes('guitar')) schedule_guitar_note(context, frequency, start_time, duration)
     if (instruments.includes('bass')) schedule_bass_note(context, frequency, start_time, duration)
+    if (instruments.includes('ukulele')) schedule_ukulele_note(context, frequency, start_time, duration)
   }
 
   return {

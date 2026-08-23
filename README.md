@@ -38,6 +38,7 @@ Start with these documents:
 
 - Guided Start with tonic context, characteristic-note progression, and Ear Gym handoff.
 - Explore root/mode selection, interval-role explanations, piano and guitar interaction.
+- Explore piano, guitar, bass, and standard high-G ukulele fretboard interaction.
 - Tonic drone and tonic-fifth pedal playback with volume and mute controls.
 - Ear Gym focused comparisons, replay, feedback, and persisted streak.
 - Local preferences for language, instrument visibility, volume, last scale, and Guided Start completion.

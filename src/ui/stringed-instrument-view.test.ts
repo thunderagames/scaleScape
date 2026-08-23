@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createBassViewModel } from '../instruments/bass-view-model'
+import { createUkuleleViewModel } from '../instruments/ukulele-view-model'
 import { createScaleInstance } from '../theory/scale-instance'
 import { getTranslations } from '../settings/localization'
 import { renderStringedInstrument } from './stringed-instrument-view'
@@ -21,6 +22,15 @@ function createRenderedBass(selected_pitch_classes: ReadonlySet<number> = new Se
     on_preview,
     note_accessible_label: (position) => position.label
   })
+  return { container, on_position_selected, on_preview }
+}
+
+function createRenderedUkulele() {
+  const container = document.createElement('div')
+  document.body.append(container)
+  const on_position_selected = vi.fn()
+  const on_preview = vi.fn()
+  renderStringedInstrument({ container, model: createUkuleleViewModel(createScaleInstance(4, 'dorian'), 1), translation: getTranslations('en'), instrument: 'ukulele', selected_pitch_classes: new Set(), aria_label: 'Interactive ukulele fretboard', note_naming: 'letter', on_position_selected, on_preview, note_accessible_label: (position) => position.label })
   return { container, on_position_selected, on_preview }
 }
 
@@ -67,5 +77,16 @@ describe('stringed instrument view', () => {
 
     expect(document.activeElement).toBe(last_scale_note)
     expect(first_scale_note?.tabIndex).toBe(-1)
+  })
+
+  it('given_ukulele_model_when_rendering_then_creates_four_string_table_and_previews_ukulele', () => {
+    const { container, on_position_selected, on_preview } = createRenderedUkulele()
+    const tonic = container.querySelector<HTMLButtonElement>('tbody tr:first-child .guitar-position.tonic')
+
+    tonic?.click()
+
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(4)
+    expect(on_position_selected).toHaveBeenCalledWith(4, 'ukulele')
+    expect(on_preview).toHaveBeenCalledWith(76, 'ukulele')
   })
 })

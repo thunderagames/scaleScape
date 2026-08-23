@@ -17,6 +17,7 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 - Interactive piano.
 - Interactive six-string guitar fretboard.
 - Interactive four-string bass fretboard with standard E-A-D-G tuning.
+- Interactive four-string ukulele fretboard with standard reentrant C6 tuning (high G-C-E-A).
 - Note detail panel with name, degree, interval, and role.
 - Scale formula panel with degree formula and full-octave interval structure; the mode selector groups formulas by category.
 
@@ -34,7 +35,7 @@ A user starts with Guided Start or Explore Directly, hears a scale in tonic cont
 - Responsive navigation between Explore and Ear Gym.
 - Guided Start as the primary first-session action, with Explore Directly always available.
 - Mute control and audio status.
-- Instrument visibility and tuning preferences stored locally.
+- Instrument visibility and tuning preferences stored locally for piano, guitar, bass, and ukulele.
 - No account required.
 
 ## Explicitly Excluded

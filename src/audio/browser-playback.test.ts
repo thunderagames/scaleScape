@@ -163,6 +163,18 @@ describe('browser playback', () => {
     expect(FakeAudioContext.last_instance?.oscillator_types).toContain('sawtooth')
   })
 
+  it('given_ukulele_instrument_when_playing_scale_then_schedules_clean_nylon_voice_without_hammer_buffer', async () => {
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+
+    const result = await playback.playScale(createScaleInstance(4, 'dorian'), ['ukulele'])
+
+    expect(result.ok).toBe(true)
+    expect(FakeAudioContext.last_instance?.wave_shaper_count).toBe(0)
+    expect(FakeAudioContext.last_instance?.buffer_source_count).toBe(0)
+    expect(FakeAudioContext.last_instance?.oscillator_types).toContain('triangle')
+  })
+
   it('given_scale_when_playing_chord_then_notifies_chord_started_with_all_triad_notes_at_once', async () => {
     vi.useFakeTimers()
     Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })

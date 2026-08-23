@@ -19,26 +19,26 @@ function createSettings() {
 
 describe('visible playback instruments', () => {
   it('given_both_instruments_visible_when_reading_playback_instruments_then_returns_piano_and_guitar', () => {
-    expect(getVisiblePlaybackInstruments(createSettings())).toEqual(['piano', 'guitar', 'bass'])
+    expect(getVisiblePlaybackInstruments(createSettings())).toEqual(['piano', 'guitar', 'bass', 'ukulele'])
   })
 
   it('given_hidden_guitar_when_reading_playback_instruments_then_returns_only_piano', () => {
     const settings = createSettings()
     settings.setSettings({ ...settings.getSettings(), show_guitar: false, show_bass: false })
 
-    expect(getVisiblePlaybackInstruments(settings)).toEqual(['piano'])
+    expect(getVisiblePlaybackInstruments(settings)).toEqual(['piano', 'ukulele'])
   })
 
   it('given_hidden_piano_when_reading_playback_instruments_then_returns_only_guitar', () => {
     const settings = createSettings()
     settings.setSettings({ ...settings.getSettings(), show_piano: false, show_bass: false })
 
-    expect(getVisiblePlaybackInstruments(settings)).toEqual(['guitar'])
+    expect(getVisiblePlaybackInstruments(settings)).toEqual(['guitar', 'ukulele'])
   })
 
   it('given_both_instruments_hidden_when_reading_playback_instruments_then_returns_empty_list', () => {
     const settings = createSettings()
-    settings.setSettings({ ...settings.getSettings(), show_piano: false, show_guitar: false, show_bass: false })
+    settings.setSettings({ ...settings.getSettings(), show_piano: false, show_guitar: false, show_bass: false, show_ukulele: false })
 
     expect(getVisiblePlaybackInstruments(settings)).toEqual([])
   })
@@ -47,6 +47,6 @@ describe('visible playback instruments', () => {
     const settings = createSettings()
     settings.setSettings({ ...settings.getSettings(), show_bass: true })
 
-    expect(getVisiblePlaybackInstruments(settings)).toEqual(['piano', 'guitar', 'bass'])
+    expect(getVisiblePlaybackInstruments(settings)).toEqual(['piano', 'guitar', 'bass', 'ukulele'])
   })
 })

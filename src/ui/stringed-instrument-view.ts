@@ -11,7 +11,7 @@ export interface StringedInstrumentViewOptions {
   readonly selected_pitch_classes: ReadonlySet<number>
   readonly aria_label: string
   readonly note_naming: NoteNamingStyle
-  readonly on_position_selected: (pitch_class: number, target: 'guitar' | 'bass') => void
+  readonly on_position_selected: (pitch_class: number, target: PlaybackInstrument) => void
   readonly on_preview: (midi: number, instrument: PlaybackInstrument) => void
   readonly note_accessible_label: (position: StringedInstrumentPosition) => string
 }
@@ -37,7 +37,7 @@ export function renderStringedInstrument(options: StringedInstrumentViewOptions)
   const scroll = document.createElement('div')
   scroll.className = 'guitar-scroll'
   const table = document.createElement('table')
-  table.className = 'guitar-table'
+  table.className = `guitar-table ${instrument === 'ukulele' ? 'ukulele-table' : ''}`
   table.setAttribute('aria-label', aria_label)
   const head = document.createElement('tr')
   const string_heading = document.createElement('th')
@@ -56,7 +56,6 @@ export function renderStringedInstrument(options: StringedInstrumentViewOptions)
   const body = document.createElement('tbody')
   const fret_buttons: HTMLButtonElement[][] = []
   const all_scale_buttons: HTMLButtonElement[] = []
-  const target = instrument === 'bass' ? 'bass' : 'guitar'
 
   model.strings.forEach((string_model, string_index) => {
     const row = document.createElement('tr')
@@ -82,7 +81,7 @@ export function renderStringedInstrument(options: StringedInstrumentViewOptions)
       if (is_scale_note) {
         scale_buttons.push(button)
         all_scale_buttons.push(button)
-        button.addEventListener('click', () => { on_position_selected(position.pitch_class, target); on_preview(position.midi, instrument) })
+         button.addEventListener('click', () => { on_position_selected(position.pitch_class, instrument); on_preview(position.midi, instrument) })
         button.addEventListener('keydown', (event) => {
           if (event.key === 'ArrowLeft') { event.preventDefault(); move_focus(scale_buttons, button, -1) }
           if (event.key === 'ArrowRight') { event.preventDefault(); move_focus(scale_buttons, button, 1) }

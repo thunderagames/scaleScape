@@ -314,11 +314,13 @@ describe('application shell', () => {
     expect(close_button?.getAttribute('aria-label')).toBe('Close')
     expect(close_button?.querySelector('.modal-close-icon')).not.toBeNull()
     expect(container.querySelectorAll('#settings-modal .modal-field')).toHaveLength(4)
-    expect(container.querySelectorAll('#settings-modal .settings-group')).toHaveLength(4)
-    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(7)
+    expect(container.querySelectorAll('#settings-modal .settings-group')).toHaveLength(5)
+    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(8)
     expect(container.querySelectorAll('#settings-modal .control-select')).toHaveLength(3)
     expect(container.querySelectorAll('#settings-modal .control-range')).toHaveLength(1)
-    expect(container.querySelectorAll('#settings-modal .control-choice')).toHaveLength(7)
+    expect(container.querySelectorAll('#settings-modal .control-choice')).toHaveLength(9)
+    expect(container.querySelector('#show-scale-description-label')?.textContent).toBe('Show scale history and uses')
+    expect(container.querySelector('#show-ukulele-label')?.textContent).toBe('Show ukulele')
     expect(container.querySelector('#open-guitar-tuning')?.textContent).toBe('Tuner')
     expect(container.querySelector('#open-guitar-tuning')?.parentElement?.classList.contains('settings-choice-row')).toBe(true)
     expect(container.querySelector('#open-guitar-tuning')?.previousElementSibling?.querySelector('input')?.id).toBe('show-guitar')
@@ -340,6 +342,21 @@ describe('application shell', () => {
     container.querySelector<HTMLButtonElement>('#save-settings')?.click()
 
     expect(settings.getSettings().tempo_bpm).toBe(200)
+  })
+
+  it('given_settings_modal_when_hiding_scale_information_then_persists_visibility_choice', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const control = container.querySelector<HTMLInputElement>('#show-scale-description')
+    if (control) control.checked = false
+    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+
+    expect(settings.getSettings().show_scale_description).toBe(false)
+    expect(container.querySelector<HTMLElement>('#scale-description')?.hidden).toBe(true)
   })
 
   it('given_settings_modal_when_adjusting_guitar_tuning_then_saves_common_semitone_shift', () => {
@@ -382,6 +399,26 @@ describe('application shell', () => {
 
     expect(settings.getSettings().bass_tuning_semitones).toBe(-2)
     expect(container.querySelector('#bass-card')?.textContent).toContain('D')
+  })
+
+  it('given_settings_modal_when_adjusting_ukulele_tuning_then_saves_common_semitone_shift', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    container.querySelector<HTMLButtonElement>('#open-ukulele-tuning')?.click()
+    container.querySelector<HTMLButtonElement>('#lower-guitar-tuning')?.click()
+
+    expect(container.querySelector('#guitar-tuning-title')?.textContent).toBe('Ukulele tuning')
+    expect(container.querySelector('#guitar-tuning-value')?.textContent).toContain('F')
+    expect(settings.getSettings().ukulele_tuning_semitones).toBe(0)
+
+    container.querySelector<HTMLButtonElement>('#save-guitar-tuning')?.click()
+
+    expect(settings.getSettings().ukulele_tuning_semitones).toBe(-1)
+    expect(container.querySelector('#ukulele-card')?.textContent).toContain('F')
   })
 
   it('given_open_help_when_opening_settings_modal_then_closes_help_before_modal', () => {
