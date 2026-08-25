@@ -68,7 +68,7 @@ describe('application shell', () => {
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
     expect(container.querySelector<HTMLElement>('#ear-gym-screen')?.hidden).toBe(true)
     expect(container.querySelector('#explore-directly')?.textContent).toBe('Explore directly')
-    expect(container.querySelector('#app-footer')?.textContent).toBe('Developed by ThunderaGames · 2026')
+    expect(container.querySelector('#footer-credit')?.textContent).toBe('Developed by ThunderaGames · 2026')
   })
 
   it('given_small_navigation_when_toggling_menu_then_opens_and_closes_after_navigation', () => {
@@ -266,7 +266,7 @@ describe('application shell', () => {
     expect(container.querySelector('#navigate-explore')?.textContent).toBe('Explorar')
     expect(container.querySelector('#navigate-ear-gym')?.textContent).toBe('Gimnasio auditivo')
     expect(container.querySelector('#ear-gym-title')?.textContent).toBe('Gimnasio auditivo')
-    expect(container.querySelector('#app-footer')?.textContent).toBe('Desarrollado por ThunderaGames en 2026')
+    expect(container.querySelector('#footer-credit')?.textContent).toBe('Desarrollado por ThunderaGames en 2026')
   })
 
   it('given_settings_modal_when_changing_volume_and_mute_then_updates_playback_and_persists_volume', () => {

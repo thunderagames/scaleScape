@@ -11,6 +11,7 @@ import { getGuitarTuningNote } from '../instruments/guitar-view-model'
 import { getBassTuningNote } from '../instruments/bass-view-model'
 import { getUkuleleTuningNote } from '../instruments/ukulele-view-model'
 import { displayNoteName } from '../settings/note-naming'
+import { submitFeedback } from '../integrations/web3forms'
 
 export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false } }): void {
   container.innerHTML = `
@@ -41,7 +42,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
       </section>
       <div id="explore-screen"></div>
       <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
-      <footer id="app-footer" class="app-footer"></footer>
+      <footer id="app-footer" class="app-footer"><span id="footer-credit"></span><button id="open-feedback" class="control-button feedback-trigger" type="button" aria-haspopup="dialog"></button></footer>
+      <dialog id="feedback-modal" class="feedback-modal" aria-labelledby="feedback-title"><form id="feedback-form" class="modal-form feedback-form"><div class="modal-heading"><h2 id="feedback-title"></h2><button id="close-feedback" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><p id="feedback-intro" class="feedback-intro"></p><label class="modal-field" for="feedback-name"><span id="feedback-name-label"></span><input id="feedback-name" class="control-input" name="name" type="text" autocomplete="name" required /></label><label class="modal-field" for="feedback-email"><span id="feedback-email-label"></span><input id="feedback-email" class="control-input" name="email" type="email" autocomplete="email" required /></label><label class="modal-field" for="feedback-message"><span id="feedback-message-label"></span><textarea id="feedback-message" class="control-input feedback-message" name="message" rows="5" required></textarea></label><input name="botcheck" type="checkbox" tabindex="-1" aria-hidden="true" class="feedback-honeypot" /><p id="feedback-status" class="feedback-status" role="status" aria-live="polite"></p><div class="modal-actions"><button id="cancel-feedback" class="control-button" type="button"></button><button id="send-feedback" class="control-button control-button--primary" type="submit"></button></div></form></dialog>
       <dialog id="guitar-tuning-modal" class="guitar-tuning-modal" aria-labelledby="guitar-tuning-title"><form method="dialog" class="modal-form guitar-tuning-form"><div class="modal-heading"><h2 id="guitar-tuning-title"></h2><button id="close-guitar-tuning" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><label id="guitar-tuning-value" class="guitar-tuning-value" for="raise-guitar-tuning"></label><div class="guitar-tuning-stepper"><button id="lower-guitar-tuning" class="control-button" type="button"></button><button id="raise-guitar-tuning" class="control-button" type="button"></button></div><div class="modal-actions"><button id="cancel-guitar-tuning" class="control-button" type="button"></button><button id="save-guitar-tuning" class="control-button control-button--primary" type="button"></button></div></form></dialog>
       <dialog id="settings-modal" class="settings-modal" aria-labelledby="settings-title"><form method="dialog" class="modal-form settings-form"><div class="modal-heading settings-heading"><h2 id="settings-title"></h2><button id="close-settings" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="settings-fields"><label class="modal-field settings-field" for="language-select"><span id="language-label"></span><select id="language-select" class="control-select"></select></label><fieldset class="settings-group instrument-settings"><legend id="instrument-visibility-label"></legend><label class="settings-choice"><input id="show-piano" class="control-choice" type="checkbox"> <span id="show-piano-label"></span></label><label class="settings-choice"><input id="show-guitar" class="control-choice" type="checkbox"> <span id="show-guitar-label"></span></label></fieldset><fieldset class="settings-group context-settings"><legend id="context-label"></legend><label class="settings-choice"><input id="context-off" class="control-choice" type="radio" name="harmonic-context" value="off"><span id="context-off-label"></span></label><label class="settings-choice"><input id="context-drone" class="control-choice" type="radio" name="harmonic-context" value="drone"><span id="context-drone-label"></span></label><label class="settings-choice"><input id="context-pedal" class="control-choice" type="radio" name="harmonic-context" value="pedal"><span id="context-pedal-label"></span></label></fieldset><fieldset class="settings-group audio-settings"><legend id="audio-settings-label"></legend><label class="modal-field settings-field settings-volume-field" for="volume-control"><span id="volume-label"></span><input id="volume-control" class="control-range" type="range" min="0" max="1" step="0.05" /></label><button id="mute-audio" class="control-button" type="button"></button><span id="mute-status" role="status" aria-live="polite"></span></fieldset><fieldset class="settings-group diagnostics-settings"><legend id="diagnostics-settings-label"></legend><label id="diagnostics-mode-label" class="settings-choice" for="diagnostics-mode-control"><input id="diagnostics-mode-control" class="control-choice" type="checkbox" /><span id="diagnostics-mode-text"></span></label><button id="export-diagnostics" class="control-button" type="button"></button><span id="diagnostics-status" role="status" aria-live="polite"></span></fieldset></div><div class="modal-actions settings-actions"><button id="cancel-settings" class="control-button" type="button"></button><button id="save-settings" class="control-button control-button--primary" type="button"></button></div></form></dialog>
     </div>
@@ -57,6 +59,22 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const open_settings = container.querySelector<HTMLButtonElement>('#open-settings')
   const shell_label = container.querySelector<HTMLElement>('#shell-label')
   const app_footer = container.querySelector<HTMLElement>('#app-footer')
+  const footer_credit = container.querySelector<HTMLElement>('#footer-credit')
+  const open_feedback = container.querySelector<HTMLButtonElement>('#open-feedback')
+  const feedback_modal = container.querySelector<HTMLDialogElement>('#feedback-modal')
+  const feedback_form = container.querySelector<HTMLFormElement>('#feedback-form')
+  const close_feedback = container.querySelector<HTMLButtonElement>('#close-feedback')
+  const cancel_feedback = container.querySelector<HTMLButtonElement>('#cancel-feedback')
+  const feedback_name = container.querySelector<HTMLInputElement>('#feedback-name')
+  const feedback_email = container.querySelector<HTMLInputElement>('#feedback-email')
+  const feedback_message = container.querySelector<HTMLTextAreaElement>('#feedback-message')
+  const send_feedback = container.querySelector<HTMLButtonElement>('#send-feedback')
+  const feedback_status = container.querySelector<HTMLElement>('#feedback-status')
+  const feedback_title = container.querySelector<HTMLElement>('#feedback-title')
+  const feedback_intro = container.querySelector<HTMLElement>('#feedback-intro')
+  const feedback_name_label = container.querySelector<HTMLElement>('#feedback-name-label')
+  const feedback_email_label = container.querySelector<HTMLElement>('#feedback-email-label')
+  const feedback_message_label = container.querySelector<HTMLElement>('#feedback-message-label')
   const guitar_tuning_modal = container.querySelector<HTMLDialogElement>('#guitar-tuning-modal')
   const guitar_tuning_title = container.querySelector<HTMLElement>('#guitar-tuning-title')
   const guitar_tuning_value = container.querySelector<HTMLElement>('#guitar-tuning-value')
@@ -136,8 +154,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const context_off_label = container.querySelector<HTMLElement>('#context-off-label')
   const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
   const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
-     if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !open_ukulele_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !note_naming_label || !note_naming_select || !show_piano || !show_guitar || !show_bass || !show_ukulele || !show_scale_description || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
-      const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, open_ukulele_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, tempo_label, tempo_select, note_naming_label, note_naming_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, show_ukulele, show_scale_description, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+       if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !footer_credit || !open_feedback || !feedback_modal || !feedback_form || !close_feedback || !cancel_feedback || !feedback_name || !feedback_email || !feedback_message || !send_feedback || !feedback_status || !feedback_title || !feedback_intro || !feedback_name_label || !feedback_email_label || !feedback_message_label || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !open_ukulele_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !note_naming_label || !note_naming_select || !show_piano || !show_guitar || !show_bass || !show_ukulele || !show_scale_description || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+       const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, footer_credit, open_feedback, feedback_modal, feedback_form, close_feedback, cancel_feedback, feedback_name, feedback_email, feedback_message, send_feedback, feedback_status, feedback_title, feedback_intro, feedback_name_label, feedback_email_label, feedback_message_label, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, open_ukulele_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, tempo_label, tempo_select, note_naming_label, note_naming_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, show_ukulele, show_scale_description, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   const modules: AppModuleFlags = config.modules
   const default_screen: AppScreen = modules[config.default_screen] ? config.default_screen : modules.explore ? 'explore' : modules.ear_gym ? 'ear_gym' : 'guided_start'
@@ -167,7 +185,17 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     const display_bass_tuning_note = displayNoteName(getBassTuningNote(bass_tuning_semitones), note_naming)
     const display_ukulele_tuning_note = displayNoteName(getUkuleleTuningNote(ukulele_tuning_semitones), note_naming)
     ui.shell_label.textContent = translation.app_label
-    ui.app_footer.textContent = translation.footer_credit
+     ui.footer_credit.textContent = translation.footer_credit
+     ui.open_feedback.textContent = translation.feedback
+     ui.open_feedback.setAttribute('aria-label', translation.feedback)
+     ui.feedback_title.textContent = translation.feedback_title
+     ui.feedback_intro.textContent = translation.feedback_intro
+     ui.feedback_name_label.textContent = translation.feedback_name
+     ui.feedback_email_label.textContent = translation.feedback_email
+     ui.feedback_message_label.textContent = translation.feedback_message
+     ui.close_feedback.setAttribute('aria-label', translation.close)
+     ui.cancel_feedback.textContent = translation.close
+     ui.send_feedback.textContent = translation.send_feedback
      ui.open_guitar_tuning.setAttribute('aria-label', `${translation.guitar_tuning}: ${display_guitar_tuning_note}`)
      ui.open_guitar_tuning.title = translation.guitar_tuning
       ui.guitar_tuning_title.textContent = pending_tuning_instrument === 'guitar' ? translation.guitar_tuning : pending_tuning_instrument === 'bass' ? translation.bass_tuning : translation.ukulele_tuning
@@ -299,6 +327,32 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
    ui.cancel_guitar_tuning.addEventListener('click', close_tuning_dialog)
    ui.save_guitar_tuning.addEventListener('click', () => { const next_settings = pending_tuning_instrument === 'guitar' ? { ...settings.getSettings(), guitar_tuning_semitones: pending_tuning_semitones } : pending_tuning_instrument === 'bass' ? { ...settings.getSettings(), bass_tuning_semitones: pending_tuning_semitones } : { ...settings.getSettings(), ukulele_tuning_semitones: pending_tuning_semitones }; settings.setSettings(next_settings); close_tuning_dialog() })
   ui.open_settings.addEventListener('click', open_settings_dialog)
+  const close_feedback_dialog = () => {
+    if (typeof ui.feedback_modal.close === 'function') ui.feedback_modal.close()
+    else ui.feedback_modal.removeAttribute('open')
+    ui.open_feedback.focus()
+  }
+  ui.open_feedback.addEventListener('click', () => {
+    ui.feedback_status.textContent = ''
+    if (typeof ui.feedback_modal.showModal === 'function') ui.feedback_modal.showModal()
+    else ui.feedback_modal.setAttribute('open', '')
+    ui.feedback_name.focus()
+  })
+  ui.close_feedback.addEventListener('click', close_feedback_dialog)
+  ui.cancel_feedback.addEventListener('click', close_feedback_dialog)
+  ui.feedback_form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    ui.send_feedback.disabled = true
+    ui.send_feedback.textContent = settings.getTranslations().feedback_sending
+    const result = await submitFeedback({ name: ui.feedback_name.value.trim(), email: ui.feedback_email.value.trim(), message: ui.feedback_message.value.trim() }, import.meta.env.VITE_WEB3FORMS_ACCESS_KEY ?? '')
+    ui.send_feedback.disabled = false
+    ui.send_feedback.textContent = settings.getTranslations().send_feedback
+    ui.feedback_status.textContent = result.ok ? settings.getTranslations().feedback_sent : result.reason === 'not_configured' ? settings.getTranslations().feedback_not_configured : settings.getTranslations().feedback_error
+    if (result.ok) {
+      ui.feedback_form.reset()
+      window.setTimeout(close_feedback_dialog, 1200)
+    }
+  })
   const close_settings_dialog = () => {
     if (typeof ui.settings_modal.close === 'function') ui.settings_modal.close()
     else ui.settings_modal.removeAttribute('open')

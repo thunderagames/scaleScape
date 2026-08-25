@@ -50,6 +50,16 @@ The remaining release work is validation: manual P0 browser/device checks, usabi
 
 Module availability and the initial screen are configured in [`settings.json`](settings.json). The current configuration exposes Explore and starts there; Ear Gym and Guided Start remain implemented but disabled until they are enabled in that file.
 
+### Feedback and Analytics
+
+Copy [`.env.example`](.env.example) to `.env.local` for local development and set the following values:
+
+- `VITE_WEB3FORMS_ACCESS_KEY`: Access key created at [Web3Forms](https://web3forms.com/).
+- `VITE_UMAMI_SCRIPT_URL`: Umami tracking script URL, for example `https://analytics.example.com/script.js`.
+- `VITE_UMAMI_WEBSITE_ID`: Website ID from the Umami website settings.
+
+The GitHub Pages workflow reads the Web3Forms key from the `WEB3FORMS_ACCESS_KEY` repository secret and the two Umami values from repository variables named `UMAMI_SCRIPT_URL` and `UMAMI_WEBSITE_ID`. Configure those values in the repository before deploying. The feedback form remains visible but reports that it is not configured when the Web3Forms key is absent; Umami is not loaded until both Umami values are present.
+
 ## Product Boundary
 
 ScaleScape does not initially include microphone pitch detection, MIDI performance grading, user accounts, social features, generated backing tracks, or a full music notation editor. Those areas can be evaluated after the core learning loop is validated.

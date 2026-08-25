@@ -137,6 +137,17 @@ export interface TranslationDictionary {
   readonly note_naming_solfege: string
   readonly scale_history: string
   readonly scale_usage: string
+  readonly feedback: string
+  readonly feedback_title: string
+  readonly feedback_intro: string
+  readonly feedback_name: string
+  readonly feedback_email: string
+  readonly feedback_message: string
+  readonly send_feedback: string
+  readonly feedback_sending: string
+  readonly feedback_sent: string
+  readonly feedback_error: string
+  readonly feedback_not_configured: string
 }
 
 const ENGLISH: TranslationDictionary = {
@@ -272,9 +283,20 @@ const ENGLISH: TranslationDictionary = {
   ,note_naming_label: 'Note naming'
   ,note_naming_letter: 'Classical (C D E)'
    ,note_naming_solfege: 'Solfège (Do Re Mi)'
-   ,scale_history: 'Brief history'
-   ,scale_usage: 'Common uses'
-}
+    ,scale_history: 'Brief history'
+    ,scale_usage: 'Common uses'
+   ,feedback: 'Send feedback'
+   ,feedback_title: 'Send feedback'
+   ,feedback_intro: 'Tell us what works well or what could be improved.'
+   ,feedback_name: 'Name'
+   ,feedback_email: 'Email'
+   ,feedback_message: 'Comment'
+   ,send_feedback: 'Send comment'
+   ,feedback_sending: 'Sending...'
+   ,feedback_sent: 'Thank you. Your comment was sent.'
+   ,feedback_error: 'The comment could not be sent. Please try again.'
+   ,feedback_not_configured: 'Feedback is not configured yet.'
+ }
 
 const SPANISH: TranslationDictionary = {
   settings: 'Ajustes',
@@ -409,9 +431,20 @@ const SPANISH: TranslationDictionary = {
   ,note_naming_label: 'Nombre de notas'
   ,note_naming_letter: 'Clásico (Do Re Mi)'
    ,note_naming_solfege: 'Solfeo (Do Re Mi)'
-   ,scale_history: 'Historia breve'
-   ,scale_usage: 'Usos habituales'
-}
+    ,scale_history: 'Historia breve'
+    ,scale_usage: 'Usos habituales'
+   ,feedback: 'Enviar comentarios'
+   ,feedback_title: 'Enviar comentarios'
+   ,feedback_intro: 'Cuéntanos qué funciona bien o qué podríamos mejorar.'
+   ,feedback_name: 'Nombre'
+   ,feedback_email: 'Correo electrónico'
+   ,feedback_message: 'Comentario'
+   ,send_feedback: 'Enviar comentario'
+   ,feedback_sending: 'Enviando...'
+   ,feedback_sent: 'Gracias. Tu comentario fue enviado.'
+   ,feedback_error: 'No se pudo enviar el comentario. Inténtalo de nuevo.'
+   ,feedback_not_configured: 'Los comentarios todavía no están configurados.'
+ }
 
 export function getTranslations(language: Language): TranslationDictionary {
   return language === 'es' ? SPANISH : ENGLISH

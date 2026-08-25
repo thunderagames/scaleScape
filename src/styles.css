@@ -27,7 +27,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .control-choice { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: #8ee6c5; }
 .control-range { width: 100%; min-height: 2rem; accent-color: #8ee6c5; }
 .app-shell { min-height: 100vh; min-width: 0; overflow-x: clip; }
-.app-footer { width: min(1200px, 100%); margin: 0 auto; padding: 1.5rem clamp(1rem, 5vw, 2.5rem) 1.25rem; color: #718392; font-size: .72rem; letter-spacing: .04em; text-align: center; }
+.app-footer { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .8rem; width: min(1200px, 100%); margin: 0 auto; padding: 1.5rem clamp(1rem, 5vw, 2.5rem) 1.25rem; color: #718392; font-size: .72rem; letter-spacing: .04em; text-align: center; }
+.feedback-trigger { min-height: 36px; padding: .4rem .65rem; color: #a9b8c7; background: transparent; font-size: .72rem; }
 .app-shell-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(1200px, 100%); min-width: 0; margin: 0 auto; padding: 1rem clamp(1rem, 5vw, 2.5rem) 0; }
 .app-shell-header .eyebrow { margin-bottom: 0; }
 .app-navigation { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -153,6 +154,7 @@ select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: .65rem .75
 dialog { width: min(360px, calc(100% - 2rem)); padding: 0; border: 1px solid #526b79; border-radius: 1rem; color: #e9eef5; background: #19252d; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
 dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .settings-modal { width: min(460px, calc(100% - 2rem)); }
+.feedback-modal { width: min(460px, calc(100% - 2rem)); }
 .guitar-tuning-modal { width: min(420px, calc(100% - 2rem)); }
 .modal-form { display: grid; gap: 1.25rem; padding: 1.4rem; }
 .modal-heading { display: flex; align-items: center; gap: 1rem; }
@@ -168,6 +170,10 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .guitar-tuning-stepper { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
 .guitar-tuning-stepper .control-button { font-size: 1.3rem; }
 .modal-field { display: grid; gap: .45rem; color: #a9b8c7; font-size: .85rem; font-weight: 750; }
+.control-input { width: 100%; min-width: 0; padding: .65rem .75rem; border: 1px solid #526b79; border-radius: .6rem; color: #fff8e9; background: #294958; }
+.feedback-message { resize: vertical; }
+.feedback-status { min-height: 1.4rem; margin: 0; color: #8ee6c5; line-height: 1.4; }
+.feedback-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
 .settings-field select { width: 100%; }
 .settings-group { display: grid; gap: .55rem; margin: 0; padding: .85rem; border: 1px solid #34434e; border-radius: .7rem; }
 .settings-group legend { padding: 0 .3rem; color: #a9b8c7; font-size: .85rem; font-weight: 750; }
