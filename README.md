@@ -58,7 +58,7 @@ Copy [`.env.example`](.env.example) to `.env.local` for local development and se
 - `VITE_UMAMI_SCRIPT_URL`: Umami tracking script URL, for example `https://analytics.example.com/script.js`.
 - `VITE_UMAMI_WEBSITE_ID`: Website ID from the Umami website settings.
 
-The GitHub Pages workflow reads the Web3Forms key from the `WEB3FORMS_ACCESS_KEY` repository secret and the two Umami values from repository variables named `UMAMI_SCRIPT_URL` and `UMAMI_WEBSITE_ID`. Configure those values in the repository before deploying. The feedback form remains visible but reports that it is not configured when the Web3Forms key is absent; Umami is not loaded until both Umami values are present.
+The GitHub Pages workflow reads the Web3Forms key from the `WEB3FORMS_ACCESS_KEY` repository secret and the two Umami values from repository variables named `UMAMI_SCRIPT_URL` and `UMAMI_WEBSITE_ID`. Configure those values in the repository before deploying. The feedback form remains visible but reports that it is not configured when the Web3Forms key is absent; Umami is not loaded until both Umami values are present. Email is optional in the feedback form.
 
 ## Product Boundary
 

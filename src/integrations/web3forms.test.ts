@@ -25,4 +25,16 @@ describe('Web3Forms feedback integration', () => {
     expect(result).toEqual({ ok: false, reason: 'not_configured' })
     expect(fetch_impl).not.toHaveBeenCalled()
   })
+
+  it('given_optional_email_when_submitting_then_sends_the_comment_without_email', async () => {
+    const fetch_impl = vi.fn<typeof fetch>(async (_input, init) => {
+      const body = init?.body as FormData
+      expect(body.get('email')).toBe('')
+      return new Response(JSON.stringify({ success: true }), { status: 200 })
+    })
+
+    const result = await submitFeedback({ name: 'Alex', email: '', message: 'Anonymous feedback.' }, 'test-access-key', fetch_impl)
+
+    expect(result).toEqual({ ok: true })
+  })
 })
