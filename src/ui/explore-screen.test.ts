@@ -20,12 +20,15 @@ function createPlaybackFake() {
       return { ok: true }
     },
     previewNote: async (note, instruments) => { previewed_notes.push(note); previewed_instruments.push(instruments); return { ok: true } },
-    stopAll: async () => { listener?.on_stopped() },
+     stopAll: async () => { listener?.on_stopped() },
+     stopMelodicPlayback: async () => { listener?.on_stopped() },
     setContext: async () => ({ ok: true }),
     setTempo: () => undefined,
     setVolume: () => undefined,
     setMuted: () => undefined,
-    getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off' }),
+    startMetronome: async () => ({ ok: true }),
+    stopMetronome: async () => undefined,
+    getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off', is_metronome_playing: false }),
     subscribePlaybackState: () => () => undefined,
     subscribe: (next_listener) => { listener = next_listener; return () => { listener = null } }
   }
@@ -79,6 +82,29 @@ describe('explore screen', () => {
     expect(note_button?.textContent).toBe('E')
     expect(note_button?.parentElement?.querySelector('.scale-degree')?.textContent).toBe('1')
     expect(container.querySelector('#generated-scale-label')?.textContent).toBe('Select Scale')
+  })
+
+  it('given_instrument_cards_when_toggling_any_metronome_control_then_uses_global_metronome', async () => {
+    const container = createContainer()
+    const playback_fake = createPlaybackFake()
+    let is_metronome_playing = false
+    playback_fake.playback.startMetronome = async () => { is_metronome_playing = true; return { ok: true } }
+    playback_fake.playback.stopMetronome = async () => { is_metronome_playing = false }
+    playback_fake.playback.getPlaybackState = () => ({ is_muted: false, volume: 0.7, context: 'off', is_metronome_playing })
+    renderExploreScreen(container, createExploreApplication(), playback_fake.playback, createSettings())
+
+    const guitar_button = container.querySelector<HTMLButtonElement>('#guitar-metronome')
+    guitar_button?.click()
+    await Promise.resolve()
+
+    expect(container.querySelectorAll('.metronome-trigger.is-active')).toHaveLength(4)
+    expect(container.querySelectorAll('.metronome-trigger[aria-pressed="true"]')).toHaveLength(4)
+    expect(container.querySelector('#piano-metronome-hint')?.textContent).toBe('Configure BPM in Settings.')
+
+    container.querySelector<HTMLButtonElement>('#bass-metronome')?.click()
+    await Promise.resolve()
+
+    expect(container.querySelectorAll('.metronome-trigger.is-active')).toHaveLength(0)
   })
 
   it('given_named_scale_when_rendering_then_shows_history_and_common_uses', () => {

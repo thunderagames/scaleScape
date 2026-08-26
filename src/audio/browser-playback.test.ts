@@ -211,4 +211,57 @@ describe('browser playback', () => {
     expect(sine_oscillator_count).toBeGreaterThan(6)
     await playback.stopAll()
   })
+
+  it('given_available_audio_when_starting_metronome_then_schedules_clicks_and_publishes_state', async () => {
+    vi.useFakeTimers()
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+    const states: boolean[] = []
+    playback.subscribePlaybackState((state) => states.push(state.is_metronome_playing))
+
+    const result = await playback.startMetronome(120)
+
+    expect(result.ok).toBe(true)
+    expect(playback.getPlaybackState().is_metronome_playing).toBe(true)
+    expect(FakeAudioContext.last_instance?.oscillator_types).toContain('triangle')
+    expect(FakeAudioContext.last_instance?.buffer_source_count).toBeGreaterThan(0)
+    expect(states).toContain(true)
+
+    await playback.stopMetronome()
+
+    expect(playback.getPlaybackState().is_metronome_playing).toBe(false)
+    expect(states.at(-1)).toBe(false)
+  })
+
+  it('given_running_metronome_when_starting_again_then_keeps_one_scheduler', async () => {
+    vi.useFakeTimers()
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+
+    await playback.startMetronome(120)
+    const oscillator_count = FakeAudioContext.last_instance?.oscillator_types.length
+    const result = await playback.startMetronome(180)
+
+    expect(result.ok).toBe(true)
+    expect(FakeAudioContext.last_instance?.oscillator_types.length).toBe(oscillator_count)
+    await playback.stopMetronome()
+  })
+
+  it('given_running_metronome_when_playing_scale_then_keeps_metronome_active', async () => {
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: FakeAudioContext })
+    const playback = createBrowserPlayback(createDiagnosticsFake())
+
+    await playback.startMetronome(120)
+    await playback.playScale(createScaleInstance(4, 'dorian'), ['piano'])
+
+    expect(playback.getPlaybackState().is_metronome_playing).toBe(true)
+
+    await playback.stopMelodicPlayback()
+
+    expect(playback.getPlaybackState().is_metronome_playing).toBe(true)
+
+    await playback.stopAll()
+
+    expect(playback.getPlaybackState().is_metronome_playing).toBe(false)
+  })
 })

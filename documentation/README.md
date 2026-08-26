@@ -22,6 +22,7 @@ This folder contains the reviewed product planning and technical specification b
 | 14 | [Glossary](14-glossary.md) | Defines the shared vocabulary used across all documents. |
 | 15 | [Coding Standards](15-coding-standards.md) | Defines pragmatic SOLID usage, identifier conventions, test naming, and enforcement rules. |
 | 16 | [Observability and Logging](16-observability-and-logging.md) | Defines structured diagnostics, performance tracing, privacy, sinks, retention, and persistence-agnostic contracts. |
+| 17 | [Metronome Development Plan](17-metronome-plan.md) | Defines the global metronome scope, interaction model, audio boundary, persistence, and acceptance criteria. |
 
 ## Document Conventions
 
@@ -30,6 +31,7 @@ This folder contains the reviewed product planning and technical specification b
 - `SHOULD` describes a strong default that may be changed with an explicit decision.
 - `MAY` describes an optional capability.
 - Dates and version numbers will be added when a formal release process begins.
+- Runtime module visibility is configured in the root `settings.json`; keep `diagnostics` disabled in final-user builds.
 - Defaults marked `SHOULD` in the audio, UX, and persistence specifications are starting values to be tuned during the POCs.
 - Source-code identifiers and automated test titles follow the conventions in `15-coding-standards.md`.
 

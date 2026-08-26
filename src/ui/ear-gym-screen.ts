@@ -129,11 +129,11 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
   }
 
   COMPARISON_DEFINITIONS.forEach((definition) => { const option = document.createElement('option'); option.value = definition.id; ui.comparison_selector.append(option) })
-  ui.comparison_selector.addEventListener('change', () => { state = createEarGymState(createComparisonExercise(state.exercise.root_pitch_class, ui.comparison_selector.value as ComparisonId), state.streak); has_started_comparison = false; void playback.stopAll(); render() })
+  ui.comparison_selector.addEventListener('change', () => { state = createEarGymState(createComparisonExercise(state.exercise.root_pitch_class, ui.comparison_selector.value as ComparisonId), state.streak); has_started_comparison = false; void playback.stopMelodicPlayback(); render() })
 
   ui.play_example_a.addEventListener('click', () => { void play_example('a') })
   ui.play_example_b.addEventListener('click', () => { void play_example('b') })
-  ui.stop_audio.addEventListener('click', async () => { await playback.stopAll(); state = { ...state, playing_example: null }; render() })
+  ui.stop_audio.addEventListener('click', async () => { await playback.stopMelodicPlayback(); state = { ...state, playing_example: null }; render() })
   ui.start_answer.addEventListener('click', () => { state = beginAnswer(state); render(); ui.answer_options.querySelector<HTMLInputElement>('input')?.focus() })
   ui.restart_exercise.addEventListener('click', () => { state = restartExercise(state); render() })
   settings.subscribe(render)

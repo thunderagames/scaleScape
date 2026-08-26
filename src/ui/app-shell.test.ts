@@ -9,17 +9,21 @@ function createPlaybackFake(): PlaybackPort {
   let is_muted = false
   let volume = 0.7
   let context: 'off' | 'drone' | 'pedal' = 'off'
-  const state_listeners = new Set<(state: { readonly is_muted: boolean; readonly volume: number; readonly context: 'off' | 'drone' | 'pedal' }) => void>()
+  let is_metronome_playing = false
+  const state_listeners = new Set<(state: { readonly is_muted: boolean; readonly volume: number; readonly context: 'off' | 'drone' | 'pedal'; readonly is_metronome_playing: boolean }) => void>()
   return {
     playScale: async () => ({ ok: true }),
     playChord: async () => ({ ok: true }),
     previewNote: async () => ({ ok: true }),
      stopAll: async () => undefined,
+     stopMelodicPlayback: async () => undefined,
      setContext: async (_root_pitch_class, next_context) => { context = next_context; return { ok: true } },
-     setTempo: () => undefined,
-     setVolume: (next_volume) => { volume = next_volume; state_listeners.forEach((listener) => listener({ is_muted, volume, context })) },
-    setMuted: (next_is_muted) => { is_muted = next_is_muted; state_listeners.forEach((listener) => listener({ is_muted, volume, context })) },
-    getPlaybackState: () => ({ is_muted, volume, context }),
+      setTempo: () => undefined,
+     startMetronome: async () => { is_metronome_playing = true; return { ok: true } },
+     stopMetronome: async () => { is_metronome_playing = false },
+     setVolume: (next_volume) => { volume = next_volume; state_listeners.forEach((listener) => listener({ is_muted, volume, context, is_metronome_playing })) },
+     setMuted: (next_is_muted) => { is_muted = next_is_muted; state_listeners.forEach((listener) => listener({ is_muted, volume, context, is_metronome_playing })) },
+     getPlaybackState: () => ({ is_muted, volume, context, is_metronome_playing }),
     subscribePlaybackState: (listener) => { state_listeners.add(listener); return () => state_listeners.delete(listener) },
     subscribe: () => () => undefined
   }
@@ -62,7 +66,7 @@ describe('application shell', () => {
   it('given_first_visit_when_rendering_shell_then_shows_guided_start_and_keeps_explore_available', () => {
     const container = document.createElement('div')
     document.body.append(container)
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false } })
 
     expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
@@ -90,7 +94,7 @@ describe('application shell', () => {
   it('given_disabled_modules_when_rendering_shell_then_hides_optional_navigation_and_screens', () => {
     const container = document.createElement('div')
     document.body.append(container)
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false } })
 
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
     expect(container.querySelector<HTMLButtonElement>('#navigate-ear-gym')?.hidden).toBe(true)
@@ -175,7 +179,7 @@ describe('application shell', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createCompletedSettings()
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false } })
 
     container.querySelector<HTMLButtonElement>('#navigate-guided-start')?.click()
 
@@ -259,7 +263,7 @@ describe('application shell', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createSettings()
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false } })
 
     settings.setLanguage('es')
 
@@ -313,11 +317,11 @@ describe('application shell', () => {
     expect(close_button?.textContent).toBe('')
     expect(close_button?.getAttribute('aria-label')).toBe('Close')
     expect(close_button?.querySelector('.modal-close-icon')).not.toBeNull()
-    expect(container.querySelectorAll('#settings-modal .modal-field')).toHaveLength(4)
-    expect(container.querySelectorAll('#settings-modal .settings-group')).toHaveLength(5)
-    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(8)
+    expect(container.querySelectorAll('#settings-modal .modal-field')).toHaveLength(5)
+    expect(container.querySelectorAll('#settings-modal .settings-group')).toHaveLength(6)
+    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(10)
     expect(container.querySelectorAll('#settings-modal .control-select')).toHaveLength(3)
-    expect(container.querySelectorAll('#settings-modal .control-range')).toHaveLength(1)
+    expect(container.querySelectorAll('#settings-modal .control-range')).toHaveLength(2)
     expect(container.querySelectorAll('#settings-modal .control-choice')).toHaveLength(9)
     expect(container.querySelector('#show-scale-description-label')?.textContent).toBe('Show scale history and uses')
     expect(container.querySelector('#show-ukulele-label')?.textContent).toBe('Show ukulele')
@@ -342,6 +346,42 @@ describe('application shell', () => {
     container.querySelector<HTMLButtonElement>('#save-settings')?.click()
 
     expect(settings.getSettings().tempo_bpm).toBe(200)
+  })
+
+  it('given_settings_modal_when_adjusting_metronome_bpm_then_persists_pending_value', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const bpm_control = container.querySelector<HTMLInputElement>('#metronome-bpm-control')
+    if (bpm_control) {
+      bpm_control.value = '30'
+      bpm_control.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    container.querySelector<HTMLButtonElement>('#increase-metronome-bpm')?.click()
+    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+
+    expect(settings.getSettings().metronome_bpm).toBe(31)
+    expect(container.querySelector('#metronome-bpm-value')?.textContent).toBe('31 BPM')
+  })
+
+  it('given_settings_modal_when_canceling_metronome_bpm_change_then_preserves_saved_value', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const settings = createSettings()
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings)
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+    const bpm_control = container.querySelector<HTMLInputElement>('#metronome-bpm-control')
+    if (bpm_control) {
+      bpm_control.value = '200'
+      bpm_control.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    container.querySelector<HTMLButtonElement>('#cancel-settings')?.click()
+
+    expect(settings.getSettings().metronome_bpm).toBe(120)
   })
 
   it('given_settings_modal_when_hiding_scale_information_then_persists_visibility_choice', () => {
@@ -432,13 +472,24 @@ describe('application shell', () => {
     expect(container.querySelector('#scale-help')?.classList.contains('is-open')).toBe(false)
   })
 
-  it('given_settings_modal_when_toggling_diagnostics_then_keeps_diagnostic_controls_inside_modal', () => {
+  it('given_final_app_config_when_opening_settings_then_hides_diagnostic_controls', () => {
     const container = document.createElement('div')
     document.body.append(container)
     renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings())
 
     container.querySelector<HTMLButtonElement>('#open-settings')?.click()
 
+    expect(container.querySelector<HTMLElement>('.diagnostics-settings')?.hidden).toBe(true)
+  })
+
+  it('given_diagnostics_module_when_opening_settings_then_shows_diagnostic_controls', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: true } })
+
+    container.querySelector<HTMLButtonElement>('#open-settings')?.click()
+
+    expect(container.querySelector<HTMLElement>('.diagnostics-settings')?.hidden).toBe(false)
     expect(container.querySelector('#diagnostics-mode-control')?.closest('dialog')).not.toBeNull()
     expect(container.querySelector('#export-diagnostics')?.closest('dialog')).not.toBeNull()
   })

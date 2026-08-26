@@ -11,11 +11,14 @@ function createPlaybackFake() {
     playChord: async () => ({ ok: true }),
     previewNote: async () => ({ ok: true }),
     stopAll: async () => undefined,
+    stopMelodicPlayback: async () => undefined,
     setContext: async () => ({ ok: true }),
     setTempo: () => undefined,
     setVolume: () => undefined,
     setMuted: () => undefined,
-    getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off' }),
+    startMetronome: async () => ({ ok: true }),
+    stopMetronome: async () => undefined,
+    getPlaybackState: () => ({ is_muted: false, volume: 0.7, context: 'off', is_metronome_playing: false }),
     subscribePlaybackState: () => () => undefined,
     subscribe: () => () => undefined
   }

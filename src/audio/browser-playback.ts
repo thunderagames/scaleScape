@@ -3,9 +3,15 @@ import type { ScaleInstance } from '../theory/scale-instance'
 import type { EventLoggerPort } from '../observability/event-logger'
 import type { PlaybackInstrument, PlaybackListener, PlaybackPort, PlaybackState, PlayableNote } from './playback-port'
 import type { TempoBpm } from '../shared/tempo'
+import { normalizeMetronomeBpm, type MetronomeBpm } from '../metronome/metronome-bpm'
 
 interface BrowserAudioWindow extends Window {
   webkitAudioContext?: typeof AudioContext
+}
+
+interface ScheduledMetronomeNode {
+  readonly node: AudioScheduledSourceNode
+  readonly end_time: number
 }
 
 const PIANO_PARTIALS = [
@@ -40,6 +46,11 @@ const UKULELE_PARTIALS = [
 
 const MAX_SCALE_NOTE_DURATION = 1.1
 const PREVIEW_NOTE_DURATION = 1.35
+const METRONOME_LOOKAHEAD_SECONDS = 0.1
+const METRONOME_SCHEDULER_INTERVAL_MS = 25
+const METRONOME_CLICK_DURATION = 0.065
+const METRONOME_CLICK_FREQUENCY = 1650
+const METRONOME_NOISE_DURATION = 0.028
 
 function create_guitar_distortion_curve(amount: number): Float32Array<ArrayBuffer> {
   const curve = new Float32Array(new ArrayBuffer(1024 * Float32Array.BYTES_PER_ELEMENT))
@@ -70,6 +81,14 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
   let master_gain: GainNode | null = null
   let piano_hammer_buffer: AudioBuffer | null = null
   let piano_hammer_buffer_context: AudioContext | null = null
+  let metronome_noise_buffer: AudioBuffer | null = null
+  let metronome_noise_buffer_context: AudioContext | null = null
+  let metronome_nodes: ScheduledMetronomeNode[] = []
+  let metronome_timer: number | null = null
+  let metronome_generation = 0
+  let metronome_next_time = 0
+  let metronome_bpm: MetronomeBpm = 120
+  let is_metronome_playing = false
 
   function log(event_name: string, attributes: Readonly<Record<string, string | number | boolean>>): void {
     try { diagnostics.log(event_name, attributes) } catch { /* Diagnostics must not block audio. */ }
@@ -127,12 +146,29 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
     context_nodes = []
   }
 
+  function publish_playback_state(): void {
+    state_listeners.forEach((listener) => listener({ is_muted, volume, context: context_mode, is_metronome_playing }))
+  }
+
+  function stopScheduledMetronome(): void {
+    metronome_generation += 1
+    if (metronome_timer !== null) window.clearTimeout(metronome_timer)
+    metronome_timer = null
+    metronome_nodes.forEach(({ node }) => {
+      try { node.stop(); node.disconnect() } catch { /* already ended */ }
+    })
+    metronome_nodes = []
+    is_metronome_playing = false
+  }
+
   function handle_visibility_change(): void {
     if (document.visibilityState !== 'hidden') return
-    if (active_nodes.length === 0 && context_nodes.length === 0) return
+    if (active_nodes.length === 0 && context_nodes.length === 0 && metronome_nodes.length === 0) return
     stopScheduledAudio()
+    stopScheduledMetronome()
     log('audio.context_stopped', { generation_id: playback_generation, reason_code: 'PAGE_HIDDEN' })
     listeners.forEach((listener) => listener.on_stopped())
+    publish_playback_state()
   }
 
   document.addEventListener('visibilitychange', handle_visibility_change)
@@ -181,6 +217,66 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
     schedule_context_note(context, frequency, start_time, duration, 0.12)
     schedule_context_note(context, frequency * 2, start_time, duration, 0.035)
     schedule_context_note(context, frequency * 3, start_time, duration, 0.012)
+  }
+
+  function schedule_metronome_click(context: AudioContext, start_time: number): void {
+    const tonal_voice = context.createOscillator()
+    const tonal_gain = context.createGain()
+    const filter = context.createBiquadFilter()
+    tonal_voice.type = 'triangle'
+    tonal_voice.frequency.setValueAtTime(METRONOME_CLICK_FREQUENCY, start_time)
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(METRONOME_CLICK_FREQUENCY, start_time)
+    filter.Q.value = 7
+    tonal_gain.gain.setValueAtTime(0.0001, start_time)
+    tonal_gain.gain.exponentialRampToValueAtTime(0.16, start_time + 0.001)
+    tonal_gain.gain.exponentialRampToValueAtTime(0.0001, start_time + METRONOME_CLICK_DURATION)
+    tonal_voice.connect(tonal_gain)
+    tonal_gain.connect(filter)
+    filter.connect(get_master_gain(context))
+    tonal_voice.start(start_time)
+    tonal_voice.stop(start_time + METRONOME_CLICK_DURATION)
+    metronome_nodes.push({ node: tonal_voice, end_time: start_time + METRONOME_CLICK_DURATION })
+
+    try {
+      if (!metronome_noise_buffer || metronome_noise_buffer_context !== context) {
+        const sample_count = Math.max(1, Math.floor(context.sampleRate * METRONOME_NOISE_DURATION))
+        metronome_noise_buffer = context.createBuffer(1, sample_count, context.sampleRate)
+        metronome_noise_buffer_context = context
+        const samples = metronome_noise_buffer.getChannelData(0)
+        for (let index = 0; index < samples.length; index += 1) samples[index] = (Math.random() * 2 - 1) * Math.exp(-index / samples.length * 9)
+      }
+      const noise_voice = context.createBufferSource()
+      const noise_filter = context.createBiquadFilter()
+      const noise_gain = context.createGain()
+      noise_voice.buffer = metronome_noise_buffer
+      noise_filter.type = 'highpass'
+      noise_filter.frequency.setValueAtTime(1800, start_time)
+      noise_filter.Q.value = 0.8
+      noise_gain.gain.setValueAtTime(0.0001, start_time)
+      noise_gain.gain.exponentialRampToValueAtTime(0.3, start_time + 0.001)
+      noise_gain.gain.exponentialRampToValueAtTime(0.0001, start_time + METRONOME_NOISE_DURATION)
+      noise_voice.connect(noise_filter)
+      noise_filter.connect(noise_gain)
+      noise_gain.connect(get_master_gain(context))
+      noise_voice.start(start_time)
+      noise_voice.stop(start_time + METRONOME_NOISE_DURATION)
+      metronome_nodes.push({ node: noise_voice, end_time: start_time + METRONOME_NOISE_DURATION })
+    } catch {
+      // The tonal click remains usable if a browser rejects the transient buffer.
+    }
+  }
+
+  function schedule_metronome_window(context: AudioContext, scheduled_generation: number): void {
+    if (!is_metronome_playing || scheduled_generation !== metronome_generation) return
+    metronome_nodes = metronome_nodes.filter(({ end_time }) => end_time > context.currentTime)
+    const interval = 60 / metronome_bpm
+    const schedule_until = context.currentTime + METRONOME_LOOKAHEAD_SECONDS
+    while (metronome_next_time < schedule_until) {
+      schedule_metronome_click(context, metronome_next_time)
+      metronome_next_time += interval
+    }
+    metronome_timer = window.setTimeout(() => schedule_metronome_window(context, scheduled_generation), METRONOME_SCHEDULER_INTERVAL_MS)
   }
 
   function get_piano_partial_frequency(frequency: number, partial: number): number {
@@ -424,33 +520,60 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
         return { ok: false }
       }
     },
-    async stopAll() {
+    async stopMelodicPlayback() {
       stopAllNodes()
+    },
+    async stopAll() {
+      stopScheduledMetronome()
+      stopAllNodes()
+      publish_playback_state()
     },
     async setContext(root_pitch_class, next_context) {
       stopScheduledAudio()
       context_root_pitch_class = root_pitch_class
       context_mode = next_context
-      state_listeners.forEach((listener) => listener({ is_muted, volume, context: context_mode }))
+      publish_playback_state()
       return { ok: true }
     },
     setTempo(next_tempo_bpm) {
       tempo_bpm = next_tempo_bpm
     },
+    async startMetronome(next_metronome_bpm: MetronomeBpm) {
+      if (is_metronome_playing) return { ok: true }
+      const context = await unlock()
+      if (!context) return { ok: false }
+      try {
+        stopScheduledMetronome()
+        metronome_bpm = normalizeMetronomeBpm(next_metronome_bpm)
+        metronome_next_time = context.currentTime + 0.05
+        is_metronome_playing = true
+        const scheduled_generation = metronome_generation
+        schedule_metronome_window(context, scheduled_generation)
+        publish_playback_state()
+        return { ok: true }
+      } catch {
+        stopScheduledMetronome()
+        log('audio.lifecycle_changed', { previous_lifecycle: 'READY', new_lifecycle: 'ERROR', reason_code: 'METRONOME_ENGINE_ERROR' })
+        publish_playback_state()
+        return { ok: false }
+      }
+    },
+    async stopMetronome() {
+      stopScheduledMetronome()
+      publish_playback_state()
+    },
     setVolume(next_volume) {
       volume = Math.min(1, Math.max(0, next_volume))
       if (master_gain) master_gain.gain.value = is_muted ? 0 : volume
-      const state = { is_muted, volume, context: context_mode }
-      state_listeners.forEach((listener) => listener(state))
+      publish_playback_state()
     },
     setMuted(next_is_muted) {
       is_muted = next_is_muted
       if (master_gain) master_gain.gain.value = is_muted ? 0 : volume
-      const state = { is_muted, volume, context: context_mode }
-      state_listeners.forEach((listener) => listener(state))
+      publish_playback_state()
     },
     getPlaybackState() {
-      return { is_muted, volume, context: context_mode }
+      return { is_muted, volume, context: context_mode, is_metronome_playing }
     },
     subscribePlaybackState(listener) {
       state_listeners.add(listener)

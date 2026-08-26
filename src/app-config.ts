@@ -6,6 +6,7 @@ export interface AppModuleFlags {
   readonly explore: boolean
   readonly ear_gym: boolean
   readonly guided_start: boolean
+  readonly diagnostics: boolean
 }
 
 export interface AppConfig {
@@ -15,7 +16,7 @@ export interface AppConfig {
 
 const FALLBACK_CONFIG: AppConfig = {
   default_screen: 'explore',
-  modules: { explore: true, ear_gym: false, guided_start: false }
+  modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false }
 }
 
 function is_screen(value: unknown): value is AppScreen {
@@ -33,7 +34,7 @@ function normalize_config(value: unknown): AppConfig {
   const modules = candidate.modules as Partial<AppModuleFlags>
   if (!is_boolean(modules.explore) || !is_boolean(modules.ear_gym) || !is_boolean(modules.guided_start)) return FALLBACK_CONFIG
   const default_screen = is_screen(candidate.default_screen) ? candidate.default_screen : FALLBACK_CONFIG.default_screen
-  return { default_screen, modules: { explore: modules.explore, ear_gym: modules.ear_gym, guided_start: modules.guided_start } }
+  return { default_screen, modules: { explore: modules.explore, ear_gym: modules.ear_gym, guided_start: modules.guided_start, diagnostics: modules.diagnostics === true } }
 }
 
 export const APP_CONFIG = normalize_config(raw_settings)

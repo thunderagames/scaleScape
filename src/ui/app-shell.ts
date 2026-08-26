@@ -12,8 +12,9 @@ import { getBassTuningNote } from '../instruments/bass-view-model'
 import { getUkuleleTuningNote } from '../instruments/ukulele-view-model'
 import { displayNoteName } from '../settings/note-naming'
 import { submitFeedback } from '../integrations/web3forms'
+import { MAX_METRONOME_BPM, MIN_METRONOME_BPM, normalizeMetronomeBpm, stepMetronomeBpm, type MetronomeBpm } from '../metronome/metronome-bpm'
 
-export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false } }): void {
+export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false } }): void {
   container.innerHTML = `
     <div class="app-shell">
       <header class="app-shell-header">
@@ -48,6 +49,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
       <dialog id="settings-modal" class="settings-modal" aria-labelledby="settings-title"><form method="dialog" class="modal-form settings-form"><div class="modal-heading settings-heading"><h2 id="settings-title"></h2><button id="close-settings" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="settings-fields"><label class="modal-field settings-field" for="language-select"><span id="language-label"></span><select id="language-select" class="control-select"></select></label><fieldset class="settings-group instrument-settings"><legend id="instrument-visibility-label"></legend><label class="settings-choice"><input id="show-piano" class="control-choice" type="checkbox"> <span id="show-piano-label"></span></label><label class="settings-choice"><input id="show-guitar" class="control-choice" type="checkbox"> <span id="show-guitar-label"></span></label></fieldset><fieldset class="settings-group context-settings"><legend id="context-label"></legend><label class="settings-choice"><input id="context-off" class="control-choice" type="radio" name="harmonic-context" value="off"><span id="context-off-label"></span></label><label class="settings-choice"><input id="context-drone" class="control-choice" type="radio" name="harmonic-context" value="drone"><span id="context-drone-label"></span></label><label class="settings-choice"><input id="context-pedal" class="control-choice" type="radio" name="harmonic-context" value="pedal"><span id="context-pedal-label"></span></label></fieldset><fieldset class="settings-group audio-settings"><legend id="audio-settings-label"></legend><label class="modal-field settings-field settings-volume-field" for="volume-control"><span id="volume-label"></span><input id="volume-control" class="control-range" type="range" min="0" max="1" step="0.05" /></label><button id="mute-audio" class="control-button" type="button"></button><span id="mute-status" role="status" aria-live="polite"></span></fieldset><fieldset class="settings-group diagnostics-settings"><legend id="diagnostics-settings-label"></legend><label id="diagnostics-mode-label" class="settings-choice" for="diagnostics-mode-control"><input id="diagnostics-mode-control" class="control-choice" type="checkbox" /><span id="diagnostics-mode-text"></span></label><button id="export-diagnostics" class="control-button" type="button"></button><span id="diagnostics-status" role="status" aria-live="polite"></span></fieldset></div><div class="modal-actions settings-actions"><button id="cancel-settings" class="control-button" type="button"></button><button id="save-settings" class="control-button control-button--primary" type="button"></button></div></form></dialog>
     </div>
   `
+
+  container.querySelector<HTMLElement>('.audio-settings')?.insertAdjacentHTML('afterend', '<fieldset class="settings-group metronome-settings"><legend id="metronome-settings-label"></legend><output id="metronome-bpm-value" class="metronome-bpm-value" for="metronome-bpm-control" aria-live="polite"></output><label class="modal-field settings-field" for="metronome-bpm-control"><span id="metronome-bpm-label"></span><input id="metronome-bpm-control" class="control-range" type="range" min="30" max="250" step="1" /></label><div class="metronome-stepper"><button id="decrease-metronome-bpm" class="control-button" type="button"></button><button id="increase-metronome-bpm" class="control-button" type="button"></button></div></fieldset>')
 
   const explore_screen = container.querySelector<HTMLElement>('#explore-screen')
   const ear_gym_screen = container.querySelector<HTMLElement>('#ear-gym-screen')
@@ -86,7 +89,13 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const audio_settings = container.querySelector<HTMLElement>('.audio-settings')
   const diagnostics_settings = container.querySelector<HTMLElement>('.diagnostics-settings')
   const volume_label = container.querySelector<HTMLElement>('#volume-label')
-  const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
+   const volume_control = container.querySelector<HTMLInputElement>('#volume-control')
+   const metronome_settings_label = container.querySelector<HTMLElement>('#metronome-settings-label')
+   const metronome_bpm_label = container.querySelector<HTMLElement>('#metronome-bpm-label')
+   const metronome_bpm_value = container.querySelector<HTMLOutputElement>('#metronome-bpm-value')
+   const metronome_bpm_control = container.querySelector<HTMLInputElement>('#metronome-bpm-control')
+   const decrease_metronome_bpm = container.querySelector<HTMLButtonElement>('#decrease-metronome-bpm')
+   const increase_metronome_bpm = container.querySelector<HTMLButtonElement>('#increase-metronome-bpm')
   const mute_audio = container.querySelector<HTMLButtonElement>('#mute-audio')
   const diagnostics_mode_label = container.querySelector<HTMLLabelElement>('#diagnostics-mode-label')
   const diagnostics_mode_control = container.querySelector<HTMLInputElement>('#diagnostics-mode-control')
@@ -154,8 +163,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const context_off_label = container.querySelector<HTMLElement>('#context-off-label')
   const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
   const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
-       if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !footer_credit || !open_feedback || !feedback_modal || !feedback_form || !close_feedback || !cancel_feedback || !feedback_name || !feedback_email || !feedback_message || !send_feedback || !feedback_status || !feedback_title || !feedback_intro || !feedback_name_label || !feedback_email_label || !feedback_message_label || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !open_ukulele_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !note_naming_label || !note_naming_select || !show_piano || !show_guitar || !show_bass || !show_ukulele || !show_scale_description || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
-       const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, footer_credit, open_feedback, feedback_modal, feedback_form, close_feedback, cancel_feedback, feedback_name, feedback_email, feedback_message, send_feedback, feedback_status, feedback_title, feedback_intro, feedback_name_label, feedback_email_label, feedback_message_label, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, open_ukulele_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, tempo_label, tempo_select, note_naming_label, note_naming_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, show_ukulele, show_scale_description, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+        if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !footer_credit || !open_feedback || !feedback_modal || !feedback_form || !close_feedback || !cancel_feedback || !feedback_name || !feedback_email || !feedback_message || !send_feedback || !feedback_status || !feedback_title || !feedback_intro || !feedback_name_label || !feedback_email_label || !feedback_message_label || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !open_ukulele_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !metronome_settings_label || !metronome_bpm_label || !metronome_bpm_value || !metronome_bpm_control || !decrease_metronome_bpm || !increase_metronome_bpm || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !note_naming_label || !note_naming_select || !show_piano || !show_guitar || !show_bass || !show_ukulele || !show_scale_description || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+        const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, footer_credit, open_feedback, feedback_modal, feedback_form, close_feedback, cancel_feedback, feedback_name, feedback_email, feedback_message, send_feedback, feedback_status, feedback_title, feedback_intro, feedback_name_label, feedback_email_label, feedback_message_label, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, open_ukulele_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, metronome_settings_label, metronome_bpm_label, metronome_bpm_value, metronome_bpm_control, decrease_metronome_bpm, increase_metronome_bpm, tempo_label, tempo_select, note_naming_label, note_naming_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, show_ukulele, show_scale_description, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   const modules: AppModuleFlags = config.modules
   const default_screen: AppScreen = modules[config.default_screen] ? config.default_screen : modules.explore ? 'explore' : modules.ear_gym ? 'ear_gym' : 'guided_start'
@@ -164,14 +173,16 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.navigate_guided_start.hidden = !modules.guided_start
   ui.guided_start_screen.hidden = !modules.guided_start
   ui.ear_gym_screen.hidden = !modules.ear_gym
+  ui.diagnostics_settings.hidden = !modules.diagnostics
 
   let current_screen: AppScreen = 'guided_start'
   let is_guided_progress_active = false
   let guided_progress: HTMLElement | null = null
   let guided_progress_text: HTMLElement | null = null
   let guided_progress_action: HTMLButtonElement | null = null
-   let pending_tuning_instrument: 'guitar' | 'bass' | 'ukulele' = 'guitar'
+  let pending_tuning_instrument: 'guitar' | 'bass' | 'ukulele' = 'guitar'
   let pending_tuning_semitones = settings.getSettings().guitar_tuning_semitones
+  let pending_metronome_bpm: MetronomeBpm = settings.getSettings().metronome_bpm
 
   function apply_translations(): void {
     const translation = settings.getTranslations()
@@ -229,7 +240,18 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.volume_control.setAttribute('aria-label', translation.volume)
     ui.tempo_label.textContent = translation.tempo
     ui.tempo_select.innerHTML = `<option value="120">${translation.tempo_120}</option><option value="150">${translation.tempo_150}</option><option value="200">${translation.tempo_200}</option>`
-    ui.tempo_select.value = String(settings.getSettings().tempo_bpm)
+     ui.tempo_select.value = String(settings.getSettings().tempo_bpm)
+     ui.metronome_settings_label.textContent = translation.metronome
+     ui.metronome_bpm_label.textContent = translation.metronome_bpm
+     ui.metronome_bpm_value.textContent = `${pending_metronome_bpm} BPM`
+     ui.metronome_bpm_control.value = String(pending_metronome_bpm)
+     ui.metronome_bpm_control.setAttribute('aria-valuetext', `${pending_metronome_bpm} BPM`)
+     ui.decrease_metronome_bpm.textContent = '−'
+     ui.decrease_metronome_bpm.setAttribute('aria-label', translation.decrease_bpm)
+     ui.increase_metronome_bpm.textContent = '+'
+     ui.increase_metronome_bpm.setAttribute('aria-label', translation.increase_bpm)
+     ui.decrease_metronome_bpm.disabled = pending_metronome_bpm <= MIN_METRONOME_BPM
+     ui.increase_metronome_bpm.disabled = pending_metronome_bpm >= MAX_METRONOME_BPM
     ui.mute_audio.textContent = playback.getPlaybackState().is_muted ? translation.unmute : translation.mute
     ui.mute_audio.setAttribute('aria-label', ui.mute_audio.textContent)
     ui.mute_status.textContent = playback.getPlaybackState().is_muted ? translation.muted : ''
@@ -306,9 +328,10 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.navigate_ear_gym.addEventListener('click', () => show_screen('ear_gym'))
   ui.navigate_guided_start.addEventListener('click', () => show_screen('guided_start'))
   ui.toggle_navigation.addEventListener('click', () => set_navigation_open(ui.toggle_navigation.getAttribute('aria-expanded') !== 'true'))
-  const open_settings_dialog = () => {
-    document.dispatchEvent(new Event(EXPLORE_HELP_CLOSE_EVENT))
-    apply_translations()
+   const open_settings_dialog = () => {
+     document.dispatchEvent(new Event(EXPLORE_HELP_CLOSE_EVENT))
+     pending_metronome_bpm = settings.getSettings().metronome_bpm
+     apply_translations()
     if (typeof ui.settings_modal.showModal === 'function') ui.settings_modal.showModal()
     else ui.settings_modal.setAttribute('open', '')
   }
@@ -326,7 +349,11 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
    ui.close_guitar_tuning.addEventListener('click', close_tuning_dialog)
    ui.cancel_guitar_tuning.addEventListener('click', close_tuning_dialog)
    ui.save_guitar_tuning.addEventListener('click', () => { const next_settings = pending_tuning_instrument === 'guitar' ? { ...settings.getSettings(), guitar_tuning_semitones: pending_tuning_semitones } : pending_tuning_instrument === 'bass' ? { ...settings.getSettings(), bass_tuning_semitones: pending_tuning_semitones } : { ...settings.getSettings(), ukulele_tuning_semitones: pending_tuning_semitones }; settings.setSettings(next_settings); close_tuning_dialog() })
-  ui.open_settings.addEventListener('click', open_settings_dialog)
+   ui.open_settings.addEventListener('click', open_settings_dialog)
+   const update_pending_metronome_bpm = (next_bpm: MetronomeBpm) => { pending_metronome_bpm = normalizeMetronomeBpm(next_bpm); apply_translations() }
+   ui.metronome_bpm_control.addEventListener('input', () => update_pending_metronome_bpm(Number(ui.metronome_bpm_control.value)))
+   ui.decrease_metronome_bpm.addEventListener('click', () => update_pending_metronome_bpm(stepMetronomeBpm(pending_metronome_bpm, -1)))
+   ui.increase_metronome_bpm.addEventListener('click', () => update_pending_metronome_bpm(stepMetronomeBpm(pending_metronome_bpm, 1)))
   const close_feedback_dialog = () => {
     if (typeof ui.feedback_modal.close === 'function') ui.feedback_modal.close()
     else ui.feedback_modal.removeAttribute('open')
@@ -363,8 +390,10 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   ui.save_settings.addEventListener('click', () => {
     const context = ui.context_drone.checked ? 'drone' : ui.context_pedal.checked ? 'pedal' : 'off'
     const tempo_bpm = Number(ui.tempo_select.value) as TempoBpm
-    settings.setSettings({ ...settings.getSettings(), language: ui.language_select.value as 'en' | 'es', note_naming: ui.note_naming_select.value as 'letter' | 'solfege', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked, show_bass: ui.show_bass.checked, show_ukulele: ui.show_ukulele.checked, show_scale_description: ui.show_scale_description.checked, tempo_bpm })
-    playback.setTempo(tempo_bpm)
+     const previous_metronome_bpm = settings.getSettings().metronome_bpm
+     settings.setSettings({ ...settings.getSettings(), language: ui.language_select.value as 'en' | 'es', note_naming: ui.note_naming_select.value as 'letter' | 'solfege', show_piano: ui.show_piano.checked, show_guitar: ui.show_guitar.checked, show_bass: ui.show_bass.checked, show_ukulele: ui.show_ukulele.checked, show_scale_description: ui.show_scale_description.checked, tempo_bpm, metronome_bpm: pending_metronome_bpm })
+     playback.setTempo(tempo_bpm)
+     if (previous_metronome_bpm !== pending_metronome_bpm && playback.getPlaybackState().is_metronome_playing) { void playback.stopMetronome().then(() => playback.startMetronome(pending_metronome_bpm)) }
     void playback.setContext(application.getState().root_pitch_class, context)
     close_settings_dialog()
   })

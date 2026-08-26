@@ -92,8 +92,18 @@ select { min-height: 44px; min-width: 9rem; max-width: 100%; padding: .65rem .75
 .instrument-card { min-width: 0; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
 .section-heading h2 { margin: 0; min-width: 0; }
+.instrument-heading-actions { display: contents; }
+.metronome-trigger { color: #a9b8c7; background: #182a33; }
+.metronome-trigger.is-active { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
+.metronome-icon { width: 1.45rem; height: 1.45rem; overflow: visible; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.metronome-body { fill: currentColor; fill-opacity: .12; }
+.metronome-base { stroke-width: 2; }
+.metronome-scale { opacity: .72; stroke-width: 1.2; }
+.metronome-weight { fill: currentColor; stroke: none; }
+.metronome-hint { margin: .15rem 0 0; color: #718392; font-size: .65rem; line-height: 1.15; text-align: right; }
 .scale-heading, .instrument-card .section-heading { align-items: center; min-height: 44px; }
-.scale-heading h2, .instrument-card .section-heading h2 { flex: 1; }
+.scale-heading h2 { flex: 1; }
+.instrument-card .section-heading h2 { flex: 0 1 auto; }
 .scale-heading { margin-bottom: .65rem; }
 .help-cluster { position: relative; z-index: 4; display: inline-flex; flex: 0 0 44px; align-items: center; justify-content: center; margin-left: auto; }
 .help-button { position: relative; display: inline-grid; place-items: center; width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 50%; color: #8ee6c5; background: transparent; cursor: help; font-size: .82rem; font-weight: 800; line-height: 1; }
@@ -184,6 +194,9 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .settings-volume-field { gap: .6rem; }
 .settings-volume-field .control-range { margin-top: .1rem; }
 .settings-group [role="status"] { min-height: 1.2rem; color: #f6bf62; line-height: 1.35; }
+.metronome-bpm-value { display: block; margin: .1rem 0 .15rem; color: #f6bf62; font-size: 1.35rem; font-weight: 800; text-align: center; }
+.metronome-stepper { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.metronome-stepper .control-button { font-size: 1.3rem; }
 .modal-actions { display: flex; gap: .7rem; }
 .modal-actions .control-button { flex: 1; }
 .scale-selector-fields { display: grid; gap: 1rem; }
@@ -215,5 +228,7 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
   .scale-note { min-width: 44px; padding: .55rem .45rem; font-size: .9rem; }
   .scale-interval { min-height: 44px; padding: 0; font-size: .68rem; }
   .scale-formula-info { grid-template-columns: 1fr; gap: .15rem; }
-  .scale-formula-info strong:not(:first-child) { margin-top: .35rem; }
+   .scale-formula-info strong:not(:first-child) { margin-top: .35rem; }
+   .instrument-heading-actions { gap: .2rem; }
+   .metronome-hint { font-size: .58rem; }
 }

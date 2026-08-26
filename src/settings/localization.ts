@@ -104,6 +104,13 @@ export interface TranslationDictionary {
   readonly string_label: string
   readonly fret_label: string
   readonly audio_controls: string
+  readonly metronome: string
+  readonly metronome_bpm: string
+  readonly start_metronome: string
+  readonly stop_metronome: string
+  readonly decrease_bpm: string
+  readonly increase_bpm: string
+  readonly metronome_settings_hint: string
   readonly volume: string
   readonly tempo: string
   readonly tempo_120: string
@@ -251,7 +258,14 @@ const ENGLISH: TranslationDictionary = {
    ,raise_tuning: 'Raise tuning'
   ,string_label: 'String'
   ,fret_label: 'Fret'
-  ,audio_controls: 'Audio controls'
+   ,audio_controls: 'Audio controls'
+   ,metronome: 'Metronome'
+   ,metronome_bpm: 'Tempo (BPM)'
+   ,start_metronome: 'Start metronome'
+   ,stop_metronome: 'Stop metronome'
+   ,decrease_bpm: 'Decrease BPM'
+   ,increase_bpm: 'Increase BPM'
+   ,metronome_settings_hint: 'Configure BPM in Settings.'
   ,volume: 'Volume'
   ,tempo: 'Scale tempo'
   ,tempo_120: '120 BPM'
@@ -399,7 +413,14 @@ const SPANISH: TranslationDictionary = {
    ,raise_tuning: 'Subir afinación'
   ,string_label: 'Cuerda'
   ,fret_label: 'Traste'
-  ,audio_controls: 'Controles de audio'
+   ,audio_controls: 'Controles de audio'
+   ,metronome: 'Metrónomo'
+   ,metronome_bpm: 'Tempo (BPM)'
+   ,start_metronome: 'Iniciar metrónomo'
+   ,stop_metronome: 'Detener metrónomo'
+   ,decrease_bpm: 'Disminuir BPM'
+   ,increase_bpm: 'Aumentar BPM'
+   ,metronome_settings_hint: 'Configura los BPM en Ajustes.'
   ,volume: 'Volumen'
   ,tempo: 'Velocidad de la escala'
   ,tempo_120: '120 BPM'
