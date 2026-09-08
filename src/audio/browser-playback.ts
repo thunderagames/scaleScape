@@ -48,9 +48,8 @@ const MAX_SCALE_NOTE_DURATION = 1.1
 const PREVIEW_NOTE_DURATION = 1.35
 const METRONOME_LOOKAHEAD_SECONDS = 0.1
 const METRONOME_SCHEDULER_INTERVAL_MS = 25
-const METRONOME_CLICK_DURATION = 0.065
+const METRONOME_CLICK_DURATION = 0.045
 const METRONOME_CLICK_FREQUENCY = 1650
-const METRONOME_NOISE_DURATION = 0.028
 
 function create_guitar_distortion_curve(amount: number): Float32Array<ArrayBuffer> {
   const curve = new Float32Array(new ArrayBuffer(1024 * Float32Array.BYTES_PER_ELEMENT))
@@ -81,8 +80,6 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
   let master_gain: GainNode | null = null
   let piano_hammer_buffer: AudioBuffer | null = null
   let piano_hammer_buffer_context: AudioContext | null = null
-  let metronome_noise_buffer: AudioBuffer | null = null
-  let metronome_noise_buffer_context: AudioContext | null = null
   let metronome_nodes: ScheduledMetronomeNode[] = []
   let metronome_timer: number | null = null
   let metronome_generation = 0
@@ -227,9 +224,9 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
     tonal_voice.frequency.setValueAtTime(METRONOME_CLICK_FREQUENCY, start_time)
     filter.type = 'bandpass'
     filter.frequency.setValueAtTime(METRONOME_CLICK_FREQUENCY, start_time)
-    filter.Q.value = 7
+    filter.Q.value = 2.2
     tonal_gain.gain.setValueAtTime(0.0001, start_time)
-    tonal_gain.gain.exponentialRampToValueAtTime(0.16, start_time + 0.001)
+    tonal_gain.gain.exponentialRampToValueAtTime(0.12, start_time + 0.001)
     tonal_gain.gain.exponentialRampToValueAtTime(0.0001, start_time + METRONOME_CLICK_DURATION)
     tonal_voice.connect(tonal_gain)
     tonal_gain.connect(filter)
@@ -238,33 +235,6 @@ export function createBrowserPlayback(diagnostics: EventLoggerPort = { log: () =
     tonal_voice.stop(start_time + METRONOME_CLICK_DURATION)
     metronome_nodes.push({ node: tonal_voice, end_time: start_time + METRONOME_CLICK_DURATION })
 
-    try {
-      if (!metronome_noise_buffer || metronome_noise_buffer_context !== context) {
-        const sample_count = Math.max(1, Math.floor(context.sampleRate * METRONOME_NOISE_DURATION))
-        metronome_noise_buffer = context.createBuffer(1, sample_count, context.sampleRate)
-        metronome_noise_buffer_context = context
-        const samples = metronome_noise_buffer.getChannelData(0)
-        for (let index = 0; index < samples.length; index += 1) samples[index] = (Math.random() * 2 - 1) * Math.exp(-index / samples.length * 9)
-      }
-      const noise_voice = context.createBufferSource()
-      const noise_filter = context.createBiquadFilter()
-      const noise_gain = context.createGain()
-      noise_voice.buffer = metronome_noise_buffer
-      noise_filter.type = 'highpass'
-      noise_filter.frequency.setValueAtTime(1800, start_time)
-      noise_filter.Q.value = 0.8
-      noise_gain.gain.setValueAtTime(0.0001, start_time)
-      noise_gain.gain.exponentialRampToValueAtTime(0.3, start_time + 0.001)
-      noise_gain.gain.exponentialRampToValueAtTime(0.0001, start_time + METRONOME_NOISE_DURATION)
-      noise_voice.connect(noise_filter)
-      noise_filter.connect(noise_gain)
-      noise_gain.connect(get_master_gain(context))
-      noise_voice.start(start_time)
-      noise_voice.stop(start_time + METRONOME_NOISE_DURATION)
-      metronome_nodes.push({ node: noise_voice, end_time: start_time + METRONOME_NOISE_DURATION })
-    } catch {
-      // The tonal click remains usable if a browser rejects the transient buffer.
-    }
   }
 
   function schedule_metronome_window(context: AudioContext, scheduled_generation: number): void {

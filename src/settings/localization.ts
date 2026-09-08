@@ -18,6 +18,7 @@ export interface TranslationDictionary {
   readonly footer_credit: string
   readonly nav_explore: string
   readonly nav_ear_gym: string
+  readonly nav_harmony: string
   readonly nav_guided_start: string
   readonly toggle_navigation: string
   readonly ear_gym_title: string
@@ -155,6 +156,22 @@ export interface TranslationDictionary {
   readonly feedback_sent: string
   readonly feedback_error: string
   readonly feedback_not_configured: string
+  readonly harmony_title: string
+  readonly harmony_intro: string
+  readonly harmony_progression: string
+  readonly harmony_chord: string
+  readonly harmony_selection_mode: string
+  readonly harmony_no_progressions: string
+  readonly harmony_degree: string
+  readonly harmony_chord_map: string
+  readonly harmony_scale_map: string
+  readonly harmony_fret_window: string
+  readonly harmony_full_fretboard: string
+  readonly harmony_piano_map: string
+  readonly harmony_color_legend: string
+  readonly harmony_roles: Readonly<Record<'chord_tonic' | 'chord_tone' | 'nonchord', string>>
+  readonly progression_genres: Readonly<Record<string, string>>
+  readonly progression_names: Readonly<Record<string, string>>
 }
 
 const ENGLISH: TranslationDictionary = {
@@ -173,6 +190,7 @@ const ENGLISH: TranslationDictionary = {
   footer_credit: 'Developed by ThunderaGames · 2026',
   nav_explore: 'Explore',
   nav_ear_gym: 'Ear Gym',
+  nav_harmony: 'Harmony',
   nav_guided_start: 'Guided Start',
   toggle_navigation: 'Toggle navigation',
   ear_gym_title: 'Ear Gym',
@@ -309,8 +327,24 @@ const ENGLISH: TranslationDictionary = {
    ,feedback_sending: 'Sending...'
    ,feedback_sent: 'Thank you. Your comment was sent.'
    ,feedback_error: 'The comment could not be sent. Please try again.'
-   ,feedback_not_configured: 'Feedback is not configured yet.'
- }
+    ,feedback_not_configured: 'Feedback is not configured yet.'
+    ,harmony_title: 'Progression harmony'
+    ,harmony_intro: 'Inspect each chord in a curated progression against the scale selected in Explore. The left map marks the triad; the right map shows every note of the selected scale.'
+     ,harmony_progression: 'Progression'
+     ,harmony_chord: 'Chord'
+     ,harmony_selection_mode: 'View'
+    ,harmony_no_progressions: 'No first-slice progressions are compatible with this scale.'
+    ,harmony_degree: 'degree'
+    ,harmony_chord_map: 'Chord tones'
+    ,harmony_scale_map: 'Selected scale'
+    ,harmony_fret_window: '4-fret chord window'
+    ,harmony_full_fretboard: '12-fret scale map'
+     ,harmony_piano_map: 'Piano map, C3 to C5'
+     ,harmony_color_legend: 'Color guide'
+    ,harmony_roles: { chord_tonic: 'chord tonic', chord_tone: 'chord tone', nonchord: 'nonchord tone' }
+    ,progression_genres: { Pop: 'Pop', Rock: 'Rock', Blues: 'Blues', Jazz: 'Jazz', Metal: 'Metal' }
+    ,progression_names: { pop_axis: 'Axis', pop_axis_rotation: 'Axis rotation', pop_1950s: '1950s', pop_circle_turnaround: 'Circle turnaround', rock_three_chord: 'Three-chord', rock_user_example: 'User example', rock_plagal_loop: 'Plagal loop', rock_pachelbel: 'Pachelbel', blues_12_bar: '12-bar skeleton', blues_minor_12_bar: 'Minor 12-bar skeleton', jazz_ii_v_i: 'ii–V–I', jazz_rhythm_turnaround: 'Rhythm turnaround', jazz_circle: 'Circle', metal_aeolian_lift: 'Aeolian lift', metal_aeolian_shuttle: 'Aeolian shuttle', metal_minor_three_chord: 'Minor three-chord', metal_aeolian_walk: 'Aeolian walk' }
+  }
 
 const SPANISH: TranslationDictionary = {
   settings: 'Ajustes',
@@ -328,6 +362,7 @@ const SPANISH: TranslationDictionary = {
   footer_credit: 'Desarrollado por ThunderaGames en 2026',
   nav_explore: 'Explorar',
   nav_ear_gym: 'Gimnasio auditivo',
+  nav_harmony: 'Armonía',
   nav_guided_start: 'Inicio guiado',
   toggle_navigation: 'Alternar navegación',
   ear_gym_title: 'Gimnasio auditivo',
@@ -464,8 +499,24 @@ const SPANISH: TranslationDictionary = {
    ,feedback_sending: 'Enviando...'
    ,feedback_sent: 'Gracias. Tu comentario fue enviado.'
    ,feedback_error: 'No se pudo enviar el comentario. Inténtalo de nuevo.'
-   ,feedback_not_configured: 'Los comentarios todavía no están configurados.'
- }
+    ,feedback_not_configured: 'Los comentarios todavía no están configurados.'
+    ,harmony_title: 'Armonía de progresiones'
+    ,harmony_intro: 'Inspecciona cada acorde de una progresión seleccionada contra la escala elegida en Explorar. El mapa izquierdo marca la tríada; el derecho muestra todas las notas de la escala.'
+     ,harmony_progression: 'Progresión'
+     ,harmony_chord: 'Acorde'
+     ,harmony_selection_mode: 'Vista'
+    ,harmony_no_progressions: 'No hay progresiones de la primera etapa compatibles con esta escala.'
+    ,harmony_degree: 'grado'
+    ,harmony_chord_map: 'Notas del acorde'
+    ,harmony_scale_map: 'Escala seleccionada'
+    ,harmony_fret_window: 'Ventana de acorde de 4 trastes'
+    ,harmony_full_fretboard: 'Mapa de escala de 12 trastes'
+     ,harmony_piano_map: 'Mapa de piano, Do3 a Do5'
+     ,harmony_color_legend: 'Clave de colores'
+    ,harmony_roles: { chord_tonic: 'tónica del acorde', chord_tone: 'nota del acorde', nonchord: 'nota no perteneciente al acorde' }
+    ,progression_genres: { Pop: 'Pop', Rock: 'Rock', Blues: 'Blues', Jazz: 'Jazz', Metal: 'Metal' }
+    ,progression_names: { pop_axis: 'Eje', pop_axis_rotation: 'Rotación del eje', pop_1950s: 'Años 50', pop_circle_turnaround: 'Giro circular', rock_three_chord: 'Tres acordes', rock_user_example: 'Ejemplo del usuario', rock_plagal_loop: 'Bucle plagal', rock_pachelbel: 'Pachelbel', blues_12_bar: 'Estructura de 12 compases', blues_minor_12_bar: 'Estructura menor de 12 compases', jazz_ii_v_i: 'ii–V–I', jazz_rhythm_turnaround: 'Giro rítmico', jazz_circle: 'Círculo', metal_aeolian_lift: 'Ascenso eólico', metal_aeolian_shuttle: 'Vaivén eólico', metal_minor_three_chord: 'Tres acordes menores', metal_aeolian_walk: 'Caminata eólica' }
+  }
 
 export function getTranslations(language: Language): TranslationDictionary {
   return language === 'es' ? SPANISH : ENGLISH

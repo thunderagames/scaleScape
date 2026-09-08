@@ -6,6 +6,7 @@
   --role-characteristic: #548687;
   --role-color-tone: #757578;
   --role-chord-tone: #C1C1C1;
+  --progression-nonchord: #5d7ea3;
 }
 
 * { box-sizing: border-box; }
@@ -203,9 +204,59 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
 .scale-selector-field select { width: 100%; min-width: 0; }
 .settings-actions { margin-top: 0; }
 .screen-placeholder { width: min(1200px, 100%); min-height: calc(100vh - 6rem); margin: 0 auto; padding: clamp(2rem, 8vw, 6rem) clamp(1rem, 5vw, 2.5rem); }
+#harmony-screen.screen-placeholder { width: min(1760px, 100%); min-height: calc(100vh - 5rem); padding: 0; }
 .ear-gym-content h1 { max-width: 12ch; }
 .ear-gym-intro { max-width: 42rem; color: #a9b8c7; line-height: 1.6; }
 .comparison-card { max-width: 700px; margin-top: 2rem; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, 0.9); }
+.harmony-content { width: min(1420px, 100%); margin: 0 auto; padding: 1.25rem clamp(1rem, 3vw, 2.5rem) 2rem; }
+.harmony-content h1 { max-width: 15ch; margin-inline: 0; }
+.harmony-intro { max-width: 52rem; color: #a9b8c7; line-height: 1.6; }
+.harmony-controls { max-width: 32rem; margin: 1.5rem 0; padding: 1rem; border: 1px solid #34434e; border-radius: 1rem; background: rgba(20, 28, 35, .9); }
+.harmony-controls label { display: grid; gap: .4rem; color: #a9b8c7; font-size: .8rem; font-weight: 750; }
+.harmony-mode-toggle { display: flex; gap: .45rem; margin: 0 0 .75rem; padding: 0; border: 0; }
+.harmony-mode-toggle legend { margin-bottom: .35rem; color: #a9b8c7; font-size: .72rem; font-weight: 750; }
+.harmony-mode-toggle label { display: flex; position: relative; gap: 0; }
+.harmony-mode-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.harmony-mode-toggle span { display: inline-flex; align-items: center; min-height: 36px; padding: .4rem .7rem; border: 1px solid #526b79; border-radius: .5rem; color: #a9b8c7; background: #182a33; cursor: pointer; font-size: .78rem; font-weight: 750; }
+.harmony-mode-toggle input:checked + span { border-color: #8ee6c5; color: #10151b; background: #8ee6c5; }
+.harmony-mode-toggle input:focus-visible + span { outline: 3px solid #8ee6c5; outline-offset: 3px; }
+.harmony-color-legend { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem .8rem; margin: .65rem 0 .8rem; color: #c4d0d9; font-size: .72rem; }
+.harmony-color-legend h2 { margin: 0 .35rem 0 0; color: #f6bf62; font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; }
+.harmony-color-legend-items { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem .8rem; }
+.harmony-color-legend-item { display: inline-flex; align-items: center; gap: .3rem; }
+.harmony-color-swatch { display: inline-block; width: .8rem; height: .8rem; border: 1px solid rgba(255, 255, 255, .45); border-radius: .18rem; }
+.harmony-color-swatch--chord_tonic { background: #FCAA67; }
+.harmony-color-swatch--chord_tone { background: #C1C1C1; }
+.harmony-color-swatch--nonchord { background: var(--progression-nonchord); }
+.harmony-rows { display: grid; gap: .5rem; }
+.harmony-degree-row { padding: .55rem .7rem; border: 1px solid #34434e; border-radius: .75rem; background: rgba(20, 28, 35, .9); }
+.harmony-degree-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.harmony-degree-heading h2 { margin: 0; color: #fff8e9; font-size: 1rem; letter-spacing: -.02em; }
+.harmony-degree-heading p { margin: 0; color: #a9b8c7; font-size: .85rem; }
+.harmony-instrument-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 620px), 1fr)); gap: .45rem .75rem; margin-top: .55rem; }
+.harmony-instrument { min-width: 0; padding: .45rem; border: 1px solid #34434e; border-radius: .6rem; background: #18232c; }
+.harmony-map-grid { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr); gap: .6rem; }
+.harmony-map { min-width: 0; }
+.harmony-rendered-map { width: 100%; min-width: 0; }
+.harmony-map .guitar-scroll { width: 100%; overflow-x: hidden; }
+.harmony-map .guitar-table { width: 100%; min-width: 0; table-layout: fixed; }
+.harmony-map .guitar-table th:first-child { width: 2.4rem; min-width: 2.4rem; }
+.harmony-map .guitar-table th:not(:first-child) { min-width: 0; }
+.harmony-map--long .guitar-table { width: 100%; min-width: 0; table-layout: fixed; }
+.harmony-map--long .guitar-table th { min-width: 0; }
+.harmony-map--long .guitar-position { min-width: 0; }
+.harmony-map--short .guitar-table { min-width: 0; }
+.harmony-map--short .guitar-table th { min-width: 1.65rem; }
+.harmony-map--short .guitar-table td, .harmony-map--long .guitar-table td { height: 1.35rem; }
+.harmony-map--short .guitar-position { min-width: 24px; min-height: 20px; font-size: .58rem; }
+.harmony-map--long .guitar-table th { font-size: .56rem; }
+.harmony-map--long .guitar-position { min-height: 20px; font-size: .58rem; }
+.harmony-piano-keyboard { --harmony-natural-key-width: 44px; --harmony-piano-y-scale: .42; --harmony-altered-width: calc(var(--harmony-natural-key-width) * .6818); --harmony-altered-offset: calc(var(--harmony-natural-key-width) * .3409); width: 100%; min-width: 0; height: calc(190px * var(--harmony-piano-y-scale)); margin: 0; }
+.harmony-piano-keyboard .piano-key.natural-key { left: calc(var(--key-index) * var(--harmony-natural-key-width)); width: var(--harmony-natural-key-width); height: calc(184px * var(--harmony-piano-y-scale)); font-size: .58rem; }
+.harmony-piano-keyboard .piano-key.altered-key { left: calc(var(--key-index) * var(--harmony-natural-key-width) - var(--harmony-altered-offset)); width: var(--harmony-altered-width); height: calc(116px * var(--harmony-piano-y-scale)); font-size: .52rem; }
+.piano-key.progression-chord_tonic, .guitar-position.progression-chord_tonic { border-color: #FCAA67; color: #10151b; background: #FCAA67; }
+.piano-key.progression-chord_tone, .guitar-position.progression-chord_tone { border-color: #C1C1C1; color: #10151b; background: #C1C1C1; }
+.piano-key.progression-nonchord, .guitar-position.progression-nonchord { border-color: var(--progression-nonchord); color: #fff8e9; background: var(--progression-nonchord); }
 .comparison-card h2 { margin-bottom: 0.5rem; }
 .comparison-card select { width: min(100%, 22rem); margin-bottom: 0.8rem; }
 .comparison-prompt { color: #a9b8c7; line-height: 1.5; }
@@ -231,4 +282,7 @@ dialog::backdrop { background: rgba(9, 13, 17, .68); }
    .scale-formula-info strong:not(:first-child) { margin-top: .35rem; }
    .instrument-heading-actions { gap: .2rem; }
    .metronome-hint { font-size: .58rem; }
-}
+   .harmony-instrument-grid { grid-template-columns: 1fr; }
+   .harmony-map-grid { grid-template-columns: 1fr; }
+   .harmony-piano-keyboard { transform: none; margin-bottom: 0; }
+ }

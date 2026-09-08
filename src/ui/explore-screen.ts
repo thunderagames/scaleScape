@@ -295,7 +295,7 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
       note_naming: settings.getSettings().note_naming,
       on_position_selected: (pitch_class, target) => select_note(pitch_class, target),
       on_preview: preview_instrument_midi,
-      note_accessible_label: (position) => note_accessible_label({ label: displayNoteName(position.label, settings.getSettings().note_naming), degree: position.degree, primary_role: position.primary_role }, settings.getTranslations())
+       note_accessible_label: (position) => note_accessible_label({ label: displayNoteName(position.label, settings.getSettings().note_naming), degree: position.degree, primary_role: position.primary_role }, settings.getTranslations())
     })
     ui.guitar_card.hidden = !settings.getSettings().show_guitar
   }

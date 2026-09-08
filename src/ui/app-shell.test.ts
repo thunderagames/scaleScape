@@ -66,7 +66,7 @@ describe('application shell', () => {
   it('given_first_visit_when_rendering_shell_then_shows_guided_start_and_keeps_explore_available', () => {
     const container = document.createElement('div')
     document.body.append(container)
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false, harmony: false } })
 
     expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
@@ -94,13 +94,27 @@ describe('application shell', () => {
   it('given_disabled_modules_when_rendering_shell_then_hides_optional_navigation_and_screens', () => {
     const container = document.createElement('div')
     document.body.append(container)
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false, harmony: false } })
 
     expect(container.querySelector<HTMLElement>('#explore-screen')?.hidden).toBe(false)
     expect(container.querySelector<HTMLButtonElement>('#navigate-ear-gym')?.hidden).toBe(true)
     expect(container.querySelector<HTMLButtonElement>('#navigate-guided-start')?.hidden).toBe(true)
     expect(container.querySelector<HTMLElement>('#ear-gym-screen')?.hidden).toBe(true)
     expect(container.querySelector<HTMLElement>('#guided-start-screen')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLButtonElement>('#navigate-harmony')?.hidden).toBe(true)
+    expect(container.querySelector<HTMLElement>('#harmony-screen')?.hidden).toBe(true)
+  })
+
+  it('given_harmony_module_when_enabled_then_shows_harmony_navigation_and_screen', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false, harmony: true } })
+
+    expect(container.querySelector<HTMLButtonElement>('#navigate-harmony')?.hidden).toBe(false)
+    expect(container.querySelector<HTMLElement>('#harmony-screen')?.hidden).toBe(true)
+    container.querySelector<HTMLButtonElement>('#navigate-harmony')?.click()
+    expect(container.querySelector<HTMLElement>('#harmony-screen')?.hidden).toBe(false)
+    expect(container.querySelector('#harmony-title')?.textContent).toBe('Progression harmony')
   })
 
   it('given_narrow_viewport_when_rendering_shell_then_keeps_guided_content_within_container', () => {
@@ -179,7 +193,7 @@ describe('application shell', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createCompletedSettings()
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false, harmony: false } })
 
     container.querySelector<HTMLButtonElement>('#navigate-guided-start')?.click()
 
@@ -263,7 +277,7 @@ describe('application shell', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createSettings()
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: true, guided_start: true, diagnostics: false, harmony: false } })
 
     settings.setLanguage('es')
 
@@ -485,7 +499,7 @@ describe('application shell', () => {
   it('given_diagnostics_module_when_opening_settings_then_shows_diagnostic_controls', () => {
     const container = document.createElement('div')
     document.body.append(container)
-    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: true } })
+    renderAppShell(container, createExploreApplication(), createPlaybackFake(), createSettings(), undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: true, harmony: false } })
 
     container.querySelector<HTMLButtonElement>('#open-settings')?.click()
 

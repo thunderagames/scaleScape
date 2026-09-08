@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createBassViewModel } from '../instruments/bass-view-model'
+import { createGuitarViewModel, findChordPositions, STANDARD_TUNING } from '../instruments/guitar-view-model'
 import { createUkuleleViewModel } from '../instruments/ukulele-view-model'
 import { createScaleInstance } from '../theory/scale-instance'
 import { getTranslations } from '../settings/localization'
@@ -88,5 +89,39 @@ describe('stringed instrument view', () => {
     expect(container.querySelectorAll('tbody tr')).toHaveLength(4)
     expect(on_position_selected).toHaveBeenCalledWith(4, 'ukulele')
     expect(on_preview).toHaveBeenCalledWith(76, 'ukulele')
+  })
+
+  it('given_a_short_board_starting_after_fret_zero_when_rendering_then_keeps_the_absolute_fret_headers_and_vertical_navigation', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    renderStringedInstrument({
+      container,
+      model: createGuitarViewModel(createScaleInstance(4, 'dorian'), 1, 4, STANDARD_TUNING, { start_fret: 5 }),
+      translation: getTranslations('en'),
+      instrument: 'guitar',
+      selected_pitch_classes: new Set(),
+      aria_label: 'Short guitar fretboard',
+      note_naming: 'letter',
+      on_position_selected: vi.fn(),
+      on_preview: vi.fn(),
+      note_accessible_label: (position) => position.label
+    })
+
+    expect(Array.from(container.querySelectorAll('thead th')).slice(1).map((header) => header.textContent)).toEqual(['5', '6', '7', '8', '9'])
+    const first_scale_note = container.querySelector<HTMLButtonElement>('tbody tr:first-child .guitar-position:not(.outside-scale)')
+    const next_string_same_column = container.querySelector<HTMLButtonElement>('tbody tr:nth-child(2) .guitar-position:not(.outside-scale)')
+    first_scale_note?.focus()
+    first_scale_note?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+
+    expect(document.activeElement).toBe(next_string_same_column)
+  })
+
+  it('given_a_triads_chord_map_when_selecting_string_positions_then_marks_at_most_one_note_per_string_and_covers_the_triad', () => {
+    const triad_pitch_classes = new Set([4, 7, 11])
+    const chord_positions = findChordPositions(STANDARD_TUNING, triad_pitch_classes, 0, 4, 4)
+    const model = createGuitarViewModel(createScaleInstance(4, 'dorian'), 1, 4, STANDARD_TUNING, { visible_pitch_classes: triad_pitch_classes, chord_positions })
+
+    expect(model.strings.every((string_model) => string_model.positions.filter((position) => position.is_scale_note).length <= 1)).toBe(true)
+    expect(new Set(model.strings.flatMap((string_model) => string_model.positions).filter((position) => position.is_scale_note).map((position) => position.pitch_class))).toEqual(triad_pitch_classes)
   })
 })

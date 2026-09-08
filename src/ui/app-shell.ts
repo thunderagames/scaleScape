@@ -4,6 +4,7 @@ import type { SettingsStore } from '../settings/settings-store'
 import { createDiagnosticsLogger, type DiagnosticsPort } from '../observability/event-logger'
 import { EXPLORE_HELP_CLOSE_EVENT, renderExploreScreen, type ExploreGuidedStartPort } from './explore-screen'
 import { renderEarGymScreen } from './ear-gym-screen'
+import { renderHarmonyScreen } from './progression-harmony-screen'
 import { getVisiblePlaybackInstruments } from './visible-instruments'
 import type { AppConfig, AppModuleFlags, AppScreen } from '../app-config'
 import type { TempoBpm } from '../shared/tempo'
@@ -14,16 +15,17 @@ import { displayNoteName } from '../settings/note-naming'
 import { submitFeedback } from '../integrations/web3forms'
 import { MAX_METRONOME_BPM, MIN_METRONOME_BPM, normalizeMetronomeBpm, stepMetronomeBpm, type MetronomeBpm } from '../metronome/metronome-bpm'
 
-export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false } }): void {
+export function renderAppShell(container: HTMLElement, application: ExploreApplication, playback: PlaybackPort, settings: SettingsStore, diagnostics: DiagnosticsPort = createDiagnosticsLogger(), config: AppConfig = { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false, harmony: false } }): void {
   container.innerHTML = `
     <div class="app-shell">
       <header class="app-shell-header">
         <p id="shell-label" class="eyebrow"></p>
         <button id="toggle-navigation" class="control-button control-button--icon navigation-toggle" type="button" aria-controls="app-navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
         <nav id="app-navigation" class="app-navigation" aria-label="Application navigation" data-open="false">
-          <button id="navigate-explore" class="control-button control-button--navigation" type="button" aria-controls="explore-screen" aria-current="page"></button>
-          <button id="navigate-ear-gym" class="control-button control-button--navigation" type="button" aria-controls="ear-gym-screen"></button>
-          <button id="navigate-guided-start" class="control-button control-button--navigation" type="button" aria-controls="guided-start-screen"></button>
+           <button id="navigate-explore" class="control-button control-button--navigation" type="button" aria-controls="explore-screen" aria-current="page"></button>
+           <button id="navigate-ear-gym" class="control-button control-button--navigation" type="button" aria-controls="ear-gym-screen"></button>
+           <button id="navigate-harmony" class="control-button control-button--navigation" type="button" aria-controls="harmony-screen"></button>
+           <button id="navigate-guided-start" class="control-button control-button--navigation" type="button" aria-controls="guided-start-screen"></button>
         </nav>
       </header>
       <button id="open-settings" class="control-button control-button--icon settings-trigger settings-floating" type="button" aria-haspopup="dialog"><svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9.6 2.8h4.8l.7 2.1a7.7 7.7 0 0 1 1.7 1l2.1-.7 2.4 4.1-1.5 1.6c.1.4.1.8.1 1.1s0 .8-.1 1.2l1.5 1.6-2.4 4.1-2.1-.7a7.7 7.7 0 0 1-1.7 1l-.7 2.1H9.6l-.7-2.1a7.7 7.7 0 0 1-1.7-1l-2.1.7-2.4-4.1 1.5-1.6A7.8 7.8 0 0 1 4.1 12c0-.4 0-.8.1-1.2L2.7 9.2l2.4-4.1 2.1.7a7.7 7.7 0 0 1 1.7-1l.7-2.1Z"/><circle cx="12" cy="12" r="3.1"/></svg></button>
@@ -41,8 +43,9 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
           <button id="explore-directly" class="control-button" type="button"></button>
         </div>
       </section>
-      <div id="explore-screen"></div>
-      <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
+       <div id="explore-screen"></div>
+       <section id="ear-gym-screen" class="screen-placeholder" hidden></section>
+       <section id="harmony-screen" class="screen-placeholder" hidden></section>
       <footer id="app-footer" class="app-footer"><span id="footer-credit"></span><button id="open-feedback" class="control-button feedback-trigger" type="button" aria-haspopup="dialog"></button></footer>
       <dialog id="feedback-modal" class="feedback-modal" aria-labelledby="feedback-title"><form id="feedback-form" class="modal-form feedback-form"><div class="modal-heading"><h2 id="feedback-title"></h2><button id="close-feedback" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><p id="feedback-intro" class="feedback-intro"></p><label class="modal-field" for="feedback-name"><span id="feedback-name-label"></span><input id="feedback-name" class="control-input" name="name" type="text" autocomplete="name" required /></label><label class="modal-field" for="feedback-email"><span id="feedback-email-label"></span><input id="feedback-email" class="control-input" name="email" type="email" autocomplete="email" /></label><label class="modal-field" for="feedback-message"><span id="feedback-message-label"></span><textarea id="feedback-message" class="control-input feedback-message" name="message" rows="5" required></textarea></label><input name="botcheck" type="checkbox" tabindex="-1" aria-hidden="true" class="feedback-honeypot" /><p id="feedback-status" class="feedback-status" role="status" aria-live="polite"></p><div class="modal-actions"><button id="cancel-feedback" class="control-button" type="button"></button><button id="send-feedback" class="control-button control-button--primary" type="submit"></button></div></form></dialog>
       <dialog id="guitar-tuning-modal" class="guitar-tuning-modal" aria-labelledby="guitar-tuning-title"><form method="dialog" class="modal-form guitar-tuning-form"><div class="modal-heading"><h2 id="guitar-tuning-title"></h2><button id="close-guitar-tuning" class="control-button control-button--icon modal-close" type="button" aria-label=""><svg class="modal-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><label id="guitar-tuning-value" class="guitar-tuning-value" for="raise-guitar-tuning"></label><div class="guitar-tuning-stepper"><button id="lower-guitar-tuning" class="control-button" type="button"></button><button id="raise-guitar-tuning" class="control-button" type="button"></button></div><div class="modal-actions"><button id="cancel-guitar-tuning" class="control-button" type="button"></button><button id="save-guitar-tuning" class="control-button control-button--primary" type="button"></button></div></form></dialog>
@@ -54,9 +57,11 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
 
   const explore_screen = container.querySelector<HTMLElement>('#explore-screen')
   const ear_gym_screen = container.querySelector<HTMLElement>('#ear-gym-screen')
+  const harmony_screen = container.querySelector<HTMLElement>('#harmony-screen')
   const guided_start_screen = container.querySelector<HTMLElement>('#guided-start-screen')
   const navigate_explore = container.querySelector<HTMLButtonElement>('#navigate-explore')
   const navigate_ear_gym = container.querySelector<HTMLButtonElement>('#navigate-ear-gym')
+  const navigate_harmony = container.querySelector<HTMLButtonElement>('#navigate-harmony')
   const navigate_guided_start = container.querySelector<HTMLButtonElement>('#navigate-guided-start')
   const toggle_navigation = container.querySelector<HTMLButtonElement>('#toggle-navigation')
   const open_settings = container.querySelector<HTMLButtonElement>('#open-settings')
@@ -163,16 +168,18 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   const context_off_label = container.querySelector<HTMLElement>('#context-off-label')
   const context_drone_label = container.querySelector<HTMLElement>('#context-drone-label')
   const context_pedal_label = container.querySelector<HTMLElement>('#context-pedal-label')
-        if (!explore_screen || !ear_gym_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !footer_credit || !open_feedback || !feedback_modal || !feedback_form || !close_feedback || !cancel_feedback || !feedback_name || !feedback_email || !feedback_message || !send_feedback || !feedback_status || !feedback_title || !feedback_intro || !feedback_name_label || !feedback_email_label || !feedback_message_label || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !open_ukulele_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !metronome_settings_label || !metronome_bpm_label || !metronome_bpm_value || !metronome_bpm_control || !decrease_metronome_bpm || !increase_metronome_bpm || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !note_naming_label || !note_naming_select || !show_piano || !show_guitar || !show_bass || !show_ukulele || !show_scale_description || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
-        const ui = { explore_screen, ear_gym_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, footer_credit, open_feedback, feedback_modal, feedback_form, close_feedback, cancel_feedback, feedback_name, feedback_email, feedback_message, send_feedback, feedback_status, feedback_title, feedback_intro, feedback_name_label, feedback_email_label, feedback_message_label, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, open_ukulele_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, metronome_settings_label, metronome_bpm_label, metronome_bpm_value, metronome_bpm_control, decrease_metronome_bpm, increase_metronome_bpm, tempo_label, tempo_select, note_naming_label, note_naming_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, show_ukulele, show_scale_description, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
+         if (!explore_screen || !ear_gym_screen || !harmony_screen || !guided_start_screen || !navigate_explore || !navigate_ear_gym || !navigate_harmony || !navigate_guided_start || !toggle_navigation || !open_settings || !shell_label || !app_footer || !footer_credit || !open_feedback || !feedback_modal || !feedback_form || !close_feedback || !cancel_feedback || !feedback_name || !feedback_email || !feedback_message || !send_feedback || !feedback_status || !feedback_title || !feedback_intro || !feedback_name_label || !feedback_email_label || !feedback_message_label || !guitar_tuning_modal || !guitar_tuning_title || !guitar_tuning_value || !open_guitar_tuning || !open_bass_tuning || !open_ukulele_tuning || !close_guitar_tuning || !cancel_guitar_tuning || !save_guitar_tuning || !lower_guitar_tuning || !raise_guitar_tuning || !audio_settings || !diagnostics_settings || !volume_label || !volume_control || !metronome_settings_label || !metronome_bpm_label || !metronome_bpm_value || !metronome_bpm_control || !decrease_metronome_bpm || !increase_metronome_bpm || !tempo_label || !tempo_select || !mute_audio || !diagnostics_mode_label || !diagnostics_mode_control || !diagnostics_mode_text || !export_diagnostics || !mute_status || !diagnostics_status || !guided_start_label || !guided_start_title || !guided_start_intro || !guided_start_step_one || !guided_start_step_two || !guided_start_step_three || !start_guided || !explore_directly || !settings_modal || !close_settings || !cancel_settings || !save_settings || !language_select || !note_naming_label || !note_naming_select || !show_piano || !show_guitar || !show_bass || !show_ukulele || !show_scale_description || !context_label || !context_off || !context_drone || !context_pedal || !context_off_label || !context_drone_label || !context_pedal_label) throw new Error('Application shell elements were not found')
+         const ui = { explore_screen, ear_gym_screen, harmony_screen, guided_start_screen, navigate_explore, navigate_ear_gym, navigate_harmony, navigate_guided_start, toggle_navigation, open_settings, shell_label, app_footer, footer_credit, open_feedback, feedback_modal, feedback_form, close_feedback, cancel_feedback, feedback_name, feedback_email, feedback_message, send_feedback, feedback_status, feedback_title, feedback_intro, feedback_name_label, feedback_email_label, feedback_message_label, guitar_tuning_modal, guitar_tuning_title, guitar_tuning_value, open_guitar_tuning, open_bass_tuning, open_ukulele_tuning, close_guitar_tuning, cancel_guitar_tuning, save_guitar_tuning, lower_guitar_tuning, raise_guitar_tuning, audio_settings, diagnostics_settings, volume_label, volume_control, metronome_settings_label, metronome_bpm_label, metronome_bpm_value, metronome_bpm_control, decrease_metronome_bpm, increase_metronome_bpm, tempo_label, tempo_select, note_naming_label, note_naming_select, mute_audio, diagnostics_mode_label, diagnostics_mode_control, diagnostics_mode_text, export_diagnostics, mute_status, diagnostics_status, guided_start_label, guided_start_title, guided_start_intro, guided_start_step_one, guided_start_step_two, guided_start_step_three, start_guided, explore_directly, settings_modal, close_settings, cancel_settings, save_settings, language_select, show_piano, show_guitar, show_bass, show_ukulele, show_scale_description, context_label, context_off, context_drone, context_pedal, context_off_label, context_drone_label, context_pedal_label }
 
   const modules: AppModuleFlags = config.modules
-  const default_screen: AppScreen = modules[config.default_screen] ? config.default_screen : modules.explore ? 'explore' : modules.ear_gym ? 'ear_gym' : 'guided_start'
-  ui.navigate_explore.hidden = !modules.explore
-  ui.navigate_ear_gym.hidden = !modules.ear_gym
-  ui.navigate_guided_start.hidden = !modules.guided_start
+  const default_screen: AppScreen = modules[config.default_screen] ? config.default_screen : modules.explore ? 'explore' : modules.ear_gym ? 'ear_gym' : modules.harmony ? 'harmony' : 'guided_start'
+   ui.navigate_explore.hidden = !modules.explore
+   ui.navigate_ear_gym.hidden = !modules.ear_gym
+   ui.navigate_harmony.hidden = !modules.harmony
+   ui.navigate_guided_start.hidden = !modules.guided_start
   ui.guided_start_screen.hidden = !modules.guided_start
-  ui.ear_gym_screen.hidden = !modules.ear_gym
+   ui.ear_gym_screen.hidden = !modules.ear_gym
+   ui.harmony_screen.hidden = !modules.harmony
   ui.diagnostics_settings.hidden = !modules.diagnostics
 
   let current_screen: AppScreen = 'guided_start'
@@ -225,11 +232,13 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.close_guitar_tuning.setAttribute('aria-label', translation.close)
     ui.cancel_guitar_tuning.textContent = translation.close
     ui.save_guitar_tuning.textContent = translation.save
-    ui.navigate_explore.textContent = translation.nav_explore
-    ui.navigate_ear_gym.textContent = translation.nav_ear_gym
-    ui.navigate_guided_start.textContent = translation.nav_guided_start
+     ui.navigate_explore.textContent = translation.nav_explore
+     ui.navigate_ear_gym.textContent = translation.nav_ear_gym
+     ui.navigate_harmony.textContent = translation.nav_harmony
+     ui.navigate_guided_start.textContent = translation.nav_guided_start
     ui.navigate_explore.setAttribute('aria-label', translation.nav_explore)
-    ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
+     ui.navigate_ear_gym.setAttribute('aria-label', translation.nav_ear_gym)
+     ui.navigate_harmony.setAttribute('aria-label', translation.nav_harmony)
     ui.navigate_guided_start.setAttribute('aria-label', translation.nav_guided_start)
     ui.toggle_navigation.setAttribute('aria-label', translation.toggle_navigation)
     ui.toggle_navigation.title = translation.toggle_navigation
@@ -308,14 +317,17 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
     ui.guided_start_screen.hidden = current_screen !== 'guided_start'
     const is_explore = current_screen === 'explore'
     const is_guided_start = current_screen === 'guided_start'
-    const is_ear_gym = current_screen === 'ear_gym'
-    ui.explore_screen.hidden = !is_explore
-    ui.ear_gym_screen.hidden = !is_ear_gym
+     const is_ear_gym = current_screen === 'ear_gym'
+     const is_harmony = current_screen === 'harmony'
+     ui.explore_screen.hidden = !is_explore
+     ui.ear_gym_screen.hidden = !is_ear_gym
+     ui.harmony_screen.hidden = !is_harmony
     ui.guided_start_screen.hidden = !is_guided_start
     ui.navigate_explore.setAttribute('aria-current', is_explore ? 'page' : 'false')
-    ui.navigate_ear_gym.setAttribute('aria-current', is_ear_gym ? 'page' : 'false')
-    ui.navigate_guided_start.setAttribute('aria-current', is_guided_start ? 'page' : 'false')
-    const active_control = is_guided_start ? ui.start_guided : is_explore ? ui.navigate_explore : ui.navigate_ear_gym
+     ui.navigate_ear_gym.setAttribute('aria-current', is_ear_gym ? 'page' : 'false')
+     ui.navigate_harmony.setAttribute('aria-current', is_harmony ? 'page' : 'false')
+     ui.navigate_guided_start.setAttribute('aria-current', is_guided_start ? 'page' : 'false')
+     const active_control = is_guided_start ? ui.start_guided : is_explore ? ui.navigate_explore : is_ear_gym ? ui.navigate_ear_gym : ui.navigate_harmony
     active_control.focus()
   }
 
@@ -325,7 +337,8 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   }
 
   ui.navigate_explore.addEventListener('click', () => show_screen('explore'))
-  ui.navigate_ear_gym.addEventListener('click', () => show_screen('ear_gym'))
+   ui.navigate_ear_gym.addEventListener('click', () => show_screen('ear_gym'))
+   ui.navigate_harmony.addEventListener('click', () => show_screen('harmony'))
   ui.navigate_guided_start.addEventListener('click', () => show_screen('guided_start'))
   ui.toggle_navigation.addEventListener('click', () => set_navigation_open(ui.toggle_navigation.getAttribute('aria-expanded') !== 'true'))
    const open_settings_dialog = () => {
@@ -454,5 +467,6 @@ export function renderAppShell(container: HTMLElement, application: ExploreAppli
   guided_progress_action = ui.explore_screen.querySelector<HTMLButtonElement>('#guided-progress-action')
   guided_progress = ui.explore_screen.querySelector<HTMLElement>('#guided-progress')
   guided_progress_action?.addEventListener('click', () => show_screen('ear_gym'))
-  if (modules.ear_gym) renderEarGymScreen(ui.ear_gym_screen, playback, settings, diagnostics)
+   if (modules.ear_gym) renderEarGymScreen(ui.ear_gym_screen, playback, settings, diagnostics)
+   if (modules.harmony) renderHarmonyScreen(ui.harmony_screen, application, settings)
 }

@@ -224,7 +224,7 @@ describe('browser playback', () => {
     expect(result.ok).toBe(true)
     expect(playback.getPlaybackState().is_metronome_playing).toBe(true)
     expect(FakeAudioContext.last_instance?.oscillator_types).toContain('triangle')
-    expect(FakeAudioContext.last_instance?.buffer_source_count).toBeGreaterThan(0)
+    expect(FakeAudioContext.last_instance?.buffer_source_count).toBe(0)
     expect(states).toContain(true)
 
     await playback.stopMetronome()
@@ -264,4 +264,5 @@ describe('browser playback', () => {
 
     expect(playback.getPlaybackState().is_metronome_playing).toBe(false)
   })
+
 })
