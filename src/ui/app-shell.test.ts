@@ -117,6 +117,28 @@ describe('application shell', () => {
     expect(container.querySelector('#harmony-title')?.textContent).toBe('Progression harmony')
   })
 
+  it('given_global_scale_context_when_changing_scale_then_updates_explore_and_harmony_without_duplicate_visible_selector', () => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    const application = createExploreApplication()
+    const settings = createSettings()
+    renderAppShell(container, application, createPlaybackFake(), settings, undefined, { default_screen: 'explore', modules: { explore: true, ear_gym: false, guided_start: false, diagnostics: false, harmony: true } })
+
+    expect(container.querySelector('#global-scale-selector')).not.toBeNull()
+    expect(container.querySelector<HTMLButtonElement>('#explore-screen #scale-selector')).toBeNull()
+    container.querySelector<HTMLButtonElement>('#navigate-harmony')?.click()
+    container.querySelector<HTMLButtonElement>('#global-scale-selector')?.click()
+    const root_select = container.querySelector<HTMLSelectElement>('#global-root-select')
+    if (root_select) root_select.value = '0'
+    container.querySelector<HTMLSelectElement>('#global-formula-select')!.value = 'major'
+    container.querySelector<HTMLButtonElement>('#global-apply-scale-selector')?.click()
+
+    expect(application.getState().root_pitch_class).toBe(0)
+    expect(container.querySelector('#global-scale-selector')?.textContent).toContain('C Major')
+    expect(container.querySelector('#harmony-degree-heading')?.textContent ?? container.querySelector('.harmony-degree-heading')?.textContent).toContain('C')
+    expect(settings.getSettings().last_root).toBe(0)
+  })
+
   it('given_narrow_viewport_when_rendering_shell_then_keeps_guided_content_within_container', () => {
     const container = document.createElement('div')
     document.body.append(container)
@@ -333,7 +355,7 @@ describe('application shell', () => {
     expect(close_button?.querySelector('.modal-close-icon')).not.toBeNull()
     expect(container.querySelectorAll('#settings-modal .modal-field')).toHaveLength(5)
     expect(container.querySelectorAll('#settings-modal .settings-group')).toHaveLength(6)
-    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(10)
+    expect(container.querySelectorAll('#settings-modal .control-button')).toHaveLength(8)
     expect(container.querySelectorAll('#settings-modal .control-select')).toHaveLength(3)
     expect(container.querySelectorAll('#settings-modal .control-range')).toHaveLength(2)
     expect(container.querySelectorAll('#settings-modal .control-choice')).toHaveLength(9)
@@ -345,7 +367,7 @@ describe('application shell', () => {
     expect(container.querySelector('#open-bass-tuning')?.textContent).toBe('Tuner')
     expect(container.querySelector('#open-bass-tuning')?.parentElement?.classList.contains('settings-choice-row')).toBe(true)
     expect(container.querySelector('#open-bass-tuning')?.previousElementSibling?.querySelector('input')?.id).toBe('show-bass')
-    expect(container.querySelector('.settings-actions')?.children).toHaveLength(2)
+    expect(container.querySelector('.settings-actions')).toBeNull()
   })
 
   it('given_settings_modal_when_selecting_tempo_then_persists_tempo_choice', () => {
@@ -357,7 +379,7 @@ describe('application shell', () => {
     container.querySelector<HTMLButtonElement>('#open-settings')?.click()
     const tempo_select = container.querySelector<HTMLSelectElement>('#tempo-select')
     if (tempo_select) tempo_select.value = '200'
-    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+    tempo_select?.dispatchEvent(new Event('change', { bubbles: true }))
 
     expect(settings.getSettings().tempo_bpm).toBe(200)
   })
@@ -375,13 +397,12 @@ describe('application shell', () => {
       bpm_control.dispatchEvent(new Event('input', { bubbles: true }))
     }
     container.querySelector<HTMLButtonElement>('#increase-metronome-bpm')?.click()
-    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
 
     expect(settings.getSettings().metronome_bpm).toBe(31)
     expect(container.querySelector('#metronome-bpm-value')?.textContent).toBe('31 BPM')
   })
 
-  it('given_settings_modal_when_canceling_metronome_bpm_change_then_preserves_saved_value', () => {
+  it('given_settings_modal_when_changing_metronome_bpm_then_persists_without_footer_actions', () => {
     const container = document.createElement('div')
     document.body.append(container)
     const settings = createSettings()
@@ -393,9 +414,7 @@ describe('application shell', () => {
       bpm_control.value = '200'
       bpm_control.dispatchEvent(new Event('input', { bubbles: true }))
     }
-    container.querySelector<HTMLButtonElement>('#cancel-settings')?.click()
-
-    expect(settings.getSettings().metronome_bpm).toBe(120)
+    expect(settings.getSettings().metronome_bpm).toBe(200)
   })
 
   it('given_settings_modal_when_hiding_scale_information_then_persists_visibility_choice', () => {
@@ -406,8 +425,7 @@ describe('application shell', () => {
 
     container.querySelector<HTMLButtonElement>('#open-settings')?.click()
     const control = container.querySelector<HTMLInputElement>('#show-scale-description')
-    if (control) control.checked = false
-    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+    if (control) { control.checked = false; control.dispatchEvent(new Event('change', { bubbles: true })) }
 
     expect(settings.getSettings().show_scale_description).toBe(false)
     expect(container.querySelector<HTMLElement>('#scale-description')?.hidden).toBe(true)
@@ -520,7 +538,6 @@ describe('application shell', () => {
       context_control.checked = true
       context_control.dispatchEvent(new Event('change', { bubbles: true }))
     }
-    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
     await Promise.resolve()
 
     expect(playback.getPlaybackState().context).toBe('pedal')
@@ -533,8 +550,7 @@ describe('application shell', () => {
     renderAppShell(container, createExploreApplication(), playback, createSettings())
     container.querySelector<HTMLButtonElement>('#open-settings')?.click()
     const context_control = container.querySelector<HTMLInputElement>('#context-drone')
-    if (context_control) context_control.checked = true
-    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+    if (context_control) { context_control.checked = true; context_control.dispatchEvent(new Event('change', { bubbles: true })) }
 
     expect(playback.getPlaybackState().context).toBe('drone')
     expect(container.querySelector('#audio-controls #context-control')).toBeNull()
@@ -547,8 +563,7 @@ describe('application shell', () => {
 
     container.querySelector<HTMLButtonElement>('#open-settings')?.click()
     const show_guitar = container.querySelector<HTMLInputElement>('#show-guitar')
-    if (show_guitar) show_guitar.checked = false
-    container.querySelector<HTMLButtonElement>('#save-settings')?.click()
+    if (show_guitar) { show_guitar.checked = false; show_guitar.dispatchEvent(new Event('change', { bubbles: true })) }
 
     expect(container.querySelector<HTMLElement>('#guitar-card')?.hidden).toBe(true)
     expect(container.querySelector<HTMLElement>('#piano-card')?.hidden).toBe(false)
