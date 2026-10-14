@@ -16,7 +16,8 @@ cd "$(dirname "$0")/.."
 
 upload() {
   local local_path="$1" remote_path="$2"
-  curl --silent --show-error --fail --ssl-reqd --ftp-create-dirs --netrc-file <(printf 'machine %s login %s password %s\n' "$FTP_HOST" "$FTP_USER" "$FTP_PASSWORD") \
+  # InfinityFree's FTPS rejects some uploads (451) over TLS 1.3, so cap at TLS 1.2.
+  curl --silent --show-error --fail --ssl-reqd --tls-max 1.2 --ftp-create-dirs --netrc-file <(printf 'machine %s login %s password %s\n' "$FTP_HOST" "$FTP_USER" "$FTP_PASSWORD") \
     -T "$local_path" "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_REMOTE_DIR}/${remote_path}"
   echo "uploaded ${remote_path}"
 }

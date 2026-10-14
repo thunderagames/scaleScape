@@ -22,7 +22,7 @@ Vitest installs `public/catalog.json` through `src/test-setup.ts`.
 | `server/api/catalog-repository.php` | Queries that rebuild the catalog shape from the tables |
 | `server/api/config.example.php` | Template for the git-ignored `server/api/config.php` credentials |
 | `server/migrate/run.php` | One-time, token-protected runner for `schema.sql` + `seed.sql` |
-| `scripts/deploy-ftp.sh` | Builds and uploads the app, API, and optionally the migration runner over FTPS (`--ssl-reqd`) |
+| `scripts/deploy-ftp.sh` | Builds and uploads the app, API, and optionally the migration runner over FTPS (`--ssl-reqd --tls-max 1.2`) |
 
 ## Editing Content
 
