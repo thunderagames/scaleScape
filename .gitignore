@@ -5,3 +5,6 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Server credentials (see server/api/config.example.php)
+server/api/config.php

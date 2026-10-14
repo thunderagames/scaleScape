@@ -8,9 +8,9 @@ export interface DegreeChoice {
   readonly label: string
 }
 
-export type ComparisonId = 'natural_minor_dorian' | 'major_mixolydian' | 'major_lydian' | 'natural_minor_phrygian'
+export type ComparisonId = string
 
-interface ComparisonDefinition {
+export interface ComparisonDefinition {
   readonly id: ComparisonId
   readonly formula_a: FormulaId
   readonly formula_b: FormulaId
@@ -39,12 +39,15 @@ export interface EarGymState {
   readonly playing_example: 'a' | 'b' | null
 }
 
-export const COMPARISON_DEFINITIONS: readonly ComparisonDefinition[] = [
-  { id: 'natural_minor_dorian', formula_a: 'natural_minor', formula_b: 'dorian', changed_degree: 6 },
-  { id: 'major_mixolydian', formula_a: 'major', formula_b: 'mixolydian', changed_degree: 7 },
-  { id: 'major_lydian', formula_a: 'major', formula_b: 'lydian', changed_degree: 4 },
-  { id: 'natural_minor_phrygian', formula_a: 'natural_minor', formula_b: 'phrygian', changed_degree: 2 }
-]
+let comparison_definitions: readonly ComparisonDefinition[] = []
+
+export function installComparisonDefinitions(definitions: readonly ComparisonDefinition[]): void {
+  comparison_definitions = definitions
+}
+
+export function getComparisonDefinitions(): readonly ComparisonDefinition[] {
+  return comparison_definitions
+}
 
 function get_note_by_degree(scale_instance: ScaleInstance, degree: number) {
   const note = scale_instance.notes.find((candidate) => candidate.degree === degree)
@@ -52,8 +55,8 @@ function get_note_by_degree(scale_instance: ScaleInstance, degree: number) {
   return note
 }
 
-export function createComparisonExercise(root_pitch_class = 4, comparison_id: ComparisonId = 'natural_minor_dorian'): ComparisonExercise {
-  const definition = COMPARISON_DEFINITIONS.find((candidate) => candidate.id === comparison_id)
+export function createComparisonExercise(root_pitch_class = 4, comparison_id?: ComparisonId): ComparisonExercise {
+  const definition = comparison_id === undefined ? comparison_definitions[0] : comparison_definitions.find((candidate) => candidate.id === comparison_id)
   if (!definition) throw new Error(`Unknown comparison: ${comparison_id}`)
   const scale_a = createScaleInstance(root_pitch_class, definition.formula_a)
   const scale_b = createScaleInstance(root_pitch_class, definition.formula_b)

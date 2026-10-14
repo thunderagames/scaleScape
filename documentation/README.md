@@ -24,6 +24,7 @@ This folder contains the reviewed product planning and technical specification b
 | 16 | [Observability and Logging](16-observability-and-logging.md) | Defines structured diagnostics, performance tracing, privacy, sinks, retention, and persistence-agnostic contracts. |
 | 17 | [Metronome Development Plan](17-metronome-plan.md) | Defines the global metronome scope, interaction model, audio boundary, persistence, and acceptance criteria. |
 | 18 | [Progression Harmony Plan](18-progression-harmony-plan.md) | Defines the planned progression module: degree triads, dual instrument views, first-slice catalog, and open questions. |
+| 19 | [MySQL Content Catalog](19-mysql-content-catalog.md) | Describes the MySQL-backed content catalog, PHP API, JSON fallback, and InfinityFree migration steps. |
 
 ## Document Conventions
 

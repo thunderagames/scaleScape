@@ -1,5 +1,5 @@
 import { getTranslations, type Language, type TranslationDictionary } from './localization'
-import { SCALE_FORMULAS, type FormulaId } from '../theory/scale-formulas'
+import { getScaleFormulas, type FormulaId } from '../theory/scale-formulas'
 import type { EventLoggerPort } from '../observability/event-logger'
 import type { TempoBpm } from '../shared/tempo'
 import type { NoteNamingStyle } from './note-naming'
@@ -57,7 +57,7 @@ function log_diagnostic(diagnostics: EventLoggerPort, event_name: string, attrib
   const bass_tuning_semitones = typeof value.bass_tuning_semitones === 'number' && Number.isInteger(value.bass_tuning_semitones) && value.bass_tuning_semitones >= -12 && value.bass_tuning_semitones <= 12 ? value.bass_tuning_semitones : 0
   const ukulele_tuning_semitones = typeof value.ukulele_tuning_semitones === 'number' && Number.isInteger(value.ukulele_tuning_semitones) && value.ukulele_tuning_semitones >= -12 && value.ukulele_tuning_semitones <= 12 ? value.ukulele_tuning_semitones : 0
   const last_root = typeof value.last_root === 'number' && Number.isInteger(value.last_root) && value.last_root >= 0 && value.last_root <= 11 ? value.last_root : 4
-  const last_formula = typeof value.last_formula === 'string' ? SCALE_FORMULAS.find((formula) => formula.id === value.last_formula)?.id ?? 'dorian' : 'dorian'
+  const last_formula = typeof value.last_formula === 'string' ? getScaleFormulas().find((formula) => formula.id === value.last_formula)?.id ?? 'dorian' : 'dorian'
   const guided_start_completed = value.guided_start_completed === true
   const show_bass = value.show_bass !== false
   const show_ukulele = value.show_ukulele !== false
