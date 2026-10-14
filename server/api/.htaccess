@@ -1,0 +1,3 @@
+<FilesMatch "^(config|config\.example|catalog-repository)\.php$">
+  Require all denied
+</FilesMatch>

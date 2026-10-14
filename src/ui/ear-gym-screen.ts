@@ -1,6 +1,6 @@
 import type { PlaybackPort } from '../audio/playback-port'
 import type { SettingsStore } from '../settings/settings-store'
-import { beginAnswer, COMPARISON_DEFINITIONS, createComparisonExercise, createEarGymState, markExamplePlaying, restartExercise, submitAnswer, type ComparisonId, type EarGymState } from '../exercises/comparison-exercise'
+import { beginAnswer, createComparisonExercise, getComparisonDefinitions, createEarGymState, markExamplePlaying, restartExercise, submitAnswer, type ComparisonId, type EarGymState } from '../exercises/comparison-exercise'
 import { createDiagnosticsLogger, type EventLoggerPort } from '../observability/event-logger'
 import { getVisiblePlaybackInstruments } from './visible-instruments'
 
@@ -128,7 +128,7 @@ export function renderEarGymScreen(container: HTMLElement, playback: PlaybackPor
     }
   }
 
-  COMPARISON_DEFINITIONS.forEach((definition) => { const option = document.createElement('option'); option.value = definition.id; ui.comparison_selector.append(option) })
+  getComparisonDefinitions().forEach((definition) => { const option = document.createElement('option'); option.value = definition.id; ui.comparison_selector.append(option) })
   ui.comparison_selector.addEventListener('change', () => { state = createEarGymState(createComparisonExercise(state.exercise.root_pitch_class, ui.comparison_selector.value as ComparisonId), state.streak); has_started_comparison = false; void playback.stopMelodicPlayback(); render() })
 
   ui.play_example_a.addEventListener('click', () => { void play_example('a') })

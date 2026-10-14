@@ -105,6 +105,8 @@ Pushing to `master` runs [`.github/workflows/pages.yml`](.github/workflows/pages
 
 In the repository's GitHub Pages settings, set **Build and deployment** -> **Source** to **GitHub Actions**. Selecting a branch source publishes the repository root instead of the workflow's `dist` artifact.
 
+GitHub Pages has no PHP or MySQL, so the app there loads the static `catalog.json` backup. On a PHP + MySQL host (currently InfinityFree), `scripts/deploy-ftp.sh` uploads the build plus the catalog API in `server/api/`; see [MySQL Content Catalog](documentation/19-mysql-content-catalog.md) for the database setup and one-time migration.
+
 ## Project Structure
 
 | Path | Responsibility |
@@ -114,7 +116,10 @@ In the repository's GitHub Pages settings, set **Build and deployment** -> **Sou
 | `src/instruments/` | Piano and stringed-instrument view models and tunings |
 | `src/ui/` | Application shell, explorer, Ear Gym, and rendered instrument views |
 | `src/settings/` | Local preference persistence, localization, and note-name display |
-| `src/content/` | Bilingual scale history and usage catalog |
+| `src/content/` | Scale description and progression lookups over the installed catalog |
+| `src/application/content-catalog.ts` | Content catalog parsing and installation |
+| `public/catalog.json` | Static content catalog (backup for the MySQL API) |
+| `database/`, `server/` | MySQL schema/seed and PHP catalog API with one-time migration runner |
 | `src/integrations/` | Web3Forms feedback and optional Umami tracker setup |
 | `src/observability/` | Opt-in local diagnostic event logging and export |
 | `documentation/` | Product, UX, domain, architecture, accessibility, validation, and roadmap references |

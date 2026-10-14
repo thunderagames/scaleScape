@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createScaleInstance } from './scale-instance'
-import { getScaleStepSemitones, SCALE_CATEGORY_ORDER, SCALE_FORMULAS, type FormulaId } from './scale-formulas'
+import { getScaleCategoryOrder, getScaleFormulas, getScaleStepSemitones, type FormulaId } from './scale-formulas'
 
 function enumerateHeptatonicSignatures(): Set<string> {
   const signatures = new Set<string>()
@@ -83,24 +83,24 @@ describe('exotic scale formulas', () => {
   })
 
   it('given_formula_catalog_when_reading_metadata_then_has_a_category_and_complete_octave_structure', () => {
-    SCALE_FORMULAS.forEach((formula) => {
+    getScaleFormulas().forEach((formula) => {
       expect(formula.category).toBeTruthy()
       expect(formula.degree_formula).toHaveLength(formula.degrees.length)
       expect(getScaleStepSemitones(formula).reduce((total, step) => total + step, 0)).toBe(12)
     })
-    expect(SCALE_CATEGORY_ORDER).toContain('probable_scales')
+    expect(getScaleCategoryOrder()).toContain('probable_scales')
   })
 
   it('given_heptatonic_catalog_when_generating_probables_then_covers_missing_unique_sets', () => {
     const all_possible_signatures = enumerateHeptatonicSignatures()
     const known_non_probable_signatures = new Set(
-      SCALE_FORMULAS
+      getScaleFormulas()
         .filter((formula) => formula.category !== 'probable_scales')
         .map((formula) => [...new Set(formula.semitone_offsets)].sort((left, right) => left - right))
         .filter((offsets) => offsets.length === 7 && offsets[0] === 0)
         .map((offsets) => offsets.join('-'))
     )
-    const probable_formulas = SCALE_FORMULAS.filter((formula) => formula.category === 'probable_scales')
+    const probable_formulas = getScaleFormulas().filter((formula) => formula.category === 'probable_scales')
     const probable_signatures = new Set(probable_formulas.map((formula) => formula.semitone_offsets.join('-')))
 
     expect(probable_formulas.length).toBe(462 - known_non_probable_signatures.size)
@@ -148,7 +148,7 @@ describe('exotic scale formulas', () => {
     }
 
     Object.entries(expected_formulas).forEach(([formula_id, degree_formula]) => {
-      const formula = SCALE_FORMULAS.find((candidate) => candidate.id === formula_id)
+      const formula = getScaleFormulas().find((candidate) => candidate.id === formula_id)
       expect(formula?.degree_formula).toEqual(degree_formula)
     })
   })

@@ -174,15 +174,13 @@ export interface TranslationDictionary {
   readonly progression_names: Readonly<Record<string, string>>
 }
 
-const ENGLISH: TranslationDictionary = {
+const ENGLISH: UiTranslations = {
   settings: 'Settings',
   help: 'Help',
   settings_title: 'Configuration',
   language: 'Language',
   english: 'English',
   spanish: 'Spanish',
-   formula_names: { major: 'Major', natural_minor: 'Natural minor', dorian: 'Dorian', phrygian: 'Phrygian', lydian: 'Lydian', mixolydian: 'Mixolydian', locrian: 'Locrian', major_pentatonic: 'Major pentatonic', minor_pentatonic: 'Minor pentatonic', phrygian_dominant: 'Phrygian dominant', hungarian_minor: 'Hungarian minor', byzantine: 'Byzantine', enigmatic: 'Enigmatic', prometheus: 'Prometheus', persian: 'Persian', egyptian: 'Egyptian', oriental: 'Oriental', japanese: 'Japanese', hirajoshi: 'Hirajoshi', romanian: 'Romanian', man_gong: 'Man Gong', ritusen: 'Ritusen', dominant_pentatonic: 'Dominant pentatonic', voodoo: 'Voodoo', neapolitan_major: 'Neapolitan major', neapolitan_minor: 'Neapolitan minor', neapolitan_prometheus: 'Neapolitan Prometheus', petrushka: 'Petrushka', harmonic_minor: 'Harmonic minor', locrian_natural_six: 'Locrian natural 6', ionian_augmented: 'Ionian augmented', lydian_sharp_two: 'Lydian #2', ultralocrian: 'Ultralocrian', melodic_minor: 'Melodic minor', dorian_flat_two: 'Dorian b2', lydian_augmented: 'Lydian augmented', lydian_dominant: 'Lydian dominant', mixolydian_flat_six: 'Mixolydian b6', aeolian_flat_five: 'Aeolian b5', altered: 'Altered', harmonic_major: 'Harmonic major', iwato: 'Iwato', hon_kumoi: 'Hon Kumoi Shiouzhi', kumoi: 'Kumoi (Hirajoshi mode)', chinese_pentatonic: 'Chinese pentatonic', blues: 'Blues', major_blues: 'Major blues', chromatic: 'Chromatic', whole_tone: 'Whole tone', diminished: 'Diminished', augmented: 'Augmented', hungarian_major: 'Hungarian major', kumoi_common: 'Kumoi', insen: 'Insen', pelog: 'Pelog', enigmatic_verdi: 'Enigmatic (Verdi)', prometheus_scriabin: 'Prometheus (Scriabin)', istrian: 'Istrian', baake_tritonic: "Baake's tritonic", far_east: 'Far East', slendro: 'Slendro (approx.)' },
-   scale_categories: { fundamental: 'Fundamental scales', greek_modes: 'Greek modes', pentatonic_blues: 'Pentatonic and blues', symmetric: 'Symmetric scales', exotic_world: 'Exotic and world scales', probable_scales: 'Probable scales' },
   note: 'Note',
   close: 'Close',
   save: 'Save',
@@ -201,7 +199,6 @@ const ENGLISH: TranslationDictionary = {
   guided_comparison: 'Guided comparison',
   comparison_selector: 'Comparison',
   natural_minor_vs_dorian: 'Natural minor vs Dorian',
-  comparison_names: { natural_minor_dorian: 'Natural minor vs Dorian', major_mixolydian: 'Major vs Mixolydian', major_lydian: 'Major vs Lydian', natural_minor_phrygian: 'Natural minor vs Phrygian' },
   interval_prompt: 'Which degree changed between the examples?',
   identify_prompt: 'Choose the degree that changed.',
   begin_answer: 'Identify the changed degree',
@@ -342,19 +339,15 @@ const ENGLISH: TranslationDictionary = {
      ,harmony_piano_map: 'Piano map, C3 to C5'
      ,harmony_color_legend: 'Color guide'
     ,harmony_roles: { chord_tonic: 'chord tonic', chord_tone: 'chord tone', nonchord: 'nonchord tone' }
-    ,progression_genres: { Pop: 'Pop', Rock: 'Rock', Blues: 'Blues', Jazz: 'Jazz', Metal: 'Metal' }
-    ,progression_names: { pop_axis: 'Axis', pop_axis_rotation: 'Axis rotation', pop_1950s: '1950s', pop_circle_turnaround: 'Circle turnaround', rock_three_chord: 'Three-chord', rock_user_example: 'User example', rock_plagal_loop: 'Plagal loop', rock_pachelbel: 'Pachelbel', blues_12_bar: '12-bar skeleton', blues_minor_12_bar: 'Minor 12-bar skeleton', jazz_ii_v_i: 'ii–V–I', jazz_rhythm_turnaround: 'Rhythm turnaround', jazz_circle: 'Circle', metal_aeolian_lift: 'Aeolian lift', metal_aeolian_shuttle: 'Aeolian shuttle', metal_minor_three_chord: 'Minor three-chord', metal_aeolian_walk: 'Aeolian walk' }
   }
 
-const SPANISH: TranslationDictionary = {
+const SPANISH: UiTranslations = {
   settings: 'Ajustes',
   help: 'Ayuda',
   settings_title: 'Configuración',
   language: 'Idioma',
   english: 'Inglés',
   spanish: 'Español',
-   formula_names: { major: 'Mayor', natural_minor: 'Menor natural', dorian: 'Dórico', phrygian: 'Frigio', lydian: 'Lidio', mixolydian: 'Mixolidio', locrian: 'Locrio', major_pentatonic: 'Pentatónica mayor', minor_pentatonic: 'Pentatónica menor', phrygian_dominant: 'Frigia dominante', hungarian_minor: 'Menor húngara', byzantine: 'Bizantina', enigmatic: 'Enigmática', prometheus: 'Prometheus', persian: 'Persa', egyptian: 'Egipcia', oriental: 'Oriental', japanese: 'Japonesa', hirajoshi: 'Hirajoshi', romanian: 'Rumana', man_gong: 'Man Gong', ritusen: 'Ritusen', dominant_pentatonic: 'Pentatónica dominante', voodoo: 'Voodoo', neapolitan_major: 'Napolitana mayor', neapolitan_minor: 'Napolitana menor', neapolitan_prometheus: 'Napolitana Prometheus', petrushka: 'Petrushka', harmonic_minor: 'Menor armónica', locrian_natural_six: 'Locrio 6 natural', ionian_augmented: 'Jónico aumentado', lydian_sharp_two: 'Lidio #2', ultralocrian: 'Ultralocrio', melodic_minor: 'Menor melódica', dorian_flat_two: 'Dórico b2', lydian_augmented: 'Lidio aumentado', lydian_dominant: 'Lidio dominante', mixolydian_flat_six: 'Mixolidio b6', aeolian_flat_five: 'Eólico b5', altered: 'Alterada', harmonic_major: 'Mayor armónica', iwato: 'Iwato', hon_kumoi: 'Hon Kumoi Shiouzhi', kumoi: 'Kumoi (modo de Hirajoshi)', chinese_pentatonic: 'Pentatónica china', blues: 'Blues', major_blues: 'Blues mayor', chromatic: 'Cromática', whole_tone: 'Tonos enteros', diminished: 'Disminuida', augmented: 'Aumentada', hungarian_major: 'Húngara mayor', kumoi_common: 'Kumoi', insen: 'Insen', pelog: 'Pelog', enigmatic_verdi: 'Enigmática (Verdi)', prometheus_scriabin: 'Prometeo (Scriabin)', istrian: 'Ístria', baake_tritonic: 'Tritónica de Baake', far_east: 'Lejano Oriente', slendro: 'Slendro (aproximada)' },
-   scale_categories: { fundamental: 'Escalas fundamentales', greek_modes: 'Modos griegos', pentatonic_blues: 'Pentatónicas y blues', symmetric: 'Escalas simétricas', exotic_world: 'Escalas exóticas y del mundo', probable_scales: 'Escalas probables' },
   note: 'Nota',
   close: 'Cerrar',
   save: 'Guardar',
@@ -373,7 +366,6 @@ const SPANISH: TranslationDictionary = {
   guided_comparison: 'Comparación guiada',
   comparison_selector: 'Comparación',
   natural_minor_vs_dorian: 'Menor natural vs Dórico',
-  comparison_names: { natural_minor_dorian: 'Menor natural vs Dórico', major_mixolydian: 'Mayor vs Mixolidio', major_lydian: 'Mayor vs Lidio', natural_minor_phrygian: 'Menor natural vs Frigio' },
   interval_prompt: '¿Qué grado cambió entre los ejemplos?',
   identify_prompt: 'Elige el grado que cambió.',
   begin_answer: 'Identificar el grado cambiado',
@@ -514,10 +506,26 @@ const SPANISH: TranslationDictionary = {
      ,harmony_piano_map: 'Mapa de piano, Do3 a Do5'
      ,harmony_color_legend: 'Clave de colores'
     ,harmony_roles: { chord_tonic: 'tónica del acorde', chord_tone: 'nota del acorde', nonchord: 'nota no perteneciente al acorde' }
-    ,progression_genres: { Pop: 'Pop', Rock: 'Rock', Blues: 'Blues', Jazz: 'Jazz', Metal: 'Metal' }
-    ,progression_names: { pop_axis: 'Eje', pop_axis_rotation: 'Rotación del eje', pop_1950s: 'Años 50', pop_circle_turnaround: 'Giro circular', rock_three_chord: 'Tres acordes', rock_user_example: 'Ejemplo del usuario', rock_plagal_loop: 'Bucle plagal', rock_pachelbel: 'Pachelbel', blues_12_bar: 'Estructura de 12 compases', blues_minor_12_bar: 'Estructura menor de 12 compases', jazz_ii_v_i: 'ii–V–I', jazz_rhythm_turnaround: 'Giro rítmico', jazz_circle: 'Círculo', metal_aeolian_lift: 'Ascenso eólico', metal_aeolian_shuttle: 'Vaivén eólico', metal_minor_three_chord: 'Tres acordes menores', metal_aeolian_walk: 'Caminata eólica' }
   }
 
+export type CatalogTranslationKey = 'formula_names' | 'scale_categories' | 'comparison_names' | 'progression_genres' | 'progression_names'
+export type CatalogTranslations = Pick<TranslationDictionary, CatalogTranslationKey>
+type UiTranslations = Omit<TranslationDictionary, CatalogTranslationKey>
+
+const EMPTY_CATALOG_TRANSLATIONS: CatalogTranslations = { formula_names: {}, scale_categories: {}, comparison_names: {}, progression_genres: {}, progression_names: {} }
+
+let dictionaries: Readonly<Record<Language, TranslationDictionary>> = {
+  en: { ...ENGLISH, ...EMPTY_CATALOG_TRANSLATIONS },
+  es: { ...SPANISH, ...EMPTY_CATALOG_TRANSLATIONS }
+}
+
+export function installCatalogTranslations(catalog_translations: Readonly<Record<Language, CatalogTranslations>>): void {
+  dictionaries = {
+    en: { ...ENGLISH, ...catalog_translations.en },
+    es: { ...SPANISH, ...catalog_translations.es }
+  }
+}
+
 export function getTranslations(language: Language): TranslationDictionary {
-  return language === 'es' ? SPANISH : ENGLISH
+  return dictionaries[language === 'es' ? 'es' : 'en']
 }

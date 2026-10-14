@@ -1,4 +1,4 @@
-import { SCALE_CATEGORY_ORDER, SCALE_FORMULAS, getStepSemitones, type FormulaId, type NoteRole } from '../theory/scale-formulas'
+import { getScaleCategoryOrder, getScaleFormulas, getStepSemitones, type FormulaId, type NoteRole } from '../theory/scale-formulas'
 import type { ExploreApplication } from '../application/explore-application'
 import type { ScaleState } from '../app-state/scale-state'
 import type { PlaybackInstrument, PlaybackPort } from '../audio/playback-port'
@@ -103,10 +103,10 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
       ui.root_select.innerHTML = ''
       ROOTS.forEach((root, root_pitch_class) => { const option = document.createElement('option'); option.value = String(root_pitch_class); option.textContent = displayNoteName(root, naming); ui.root_select.append(option) })
     }
-    SCALE_CATEGORY_ORDER.forEach((category) => {
+    getScaleCategoryOrder().forEach((category) => {
       const group = document.createElement('optgroup')
       group.label = settings.getTranslations().scale_categories[category]
-      SCALE_FORMULAS.filter((formula) => formula.category === category).forEach((formula) => {
+      getScaleFormulas().filter((formula) => formula.category === category).forEach((formula) => {
         const option = document.createElement('option')
         option.value = formula.id
         option.textContent = formula.name
@@ -200,8 +200,8 @@ export function renderExploreScreen(container: HTMLElement, application: Explore
         ui.scale_help_button.title = translation.help; ui.piano_help_button.title = translation.help; ui.guitar_help_button.title = translation.help
         render_convention_help(ui.scale_help_copy, translation.scale_note_help, translation); render_convention_help(ui.piano_help_copy, translation.instrument_color_help, translation); render_convention_help(ui.guitar_help_copy, translation.instrument_color_help, translation)
       container.querySelector('#instrument-region')?.setAttribute('aria-label', translation.instrument_region)
-       Array.from(ui.formula_select.options).forEach((option) => { const formula = SCALE_FORMULAS.find((candidate) => candidate.id === option.value); if (formula) option.textContent = translation.formula_names[formula.id] ?? formula.name })
-       Array.from(ui.formula_select.querySelectorAll('optgroup')).forEach((group, index) => { const category = SCALE_CATEGORY_ORDER[index]; if (category) group.label = translation.scale_categories[category] })
+       Array.from(ui.formula_select.options).forEach((option) => { const formula = getScaleFormulas().find((candidate) => candidate.id === option.value); if (formula) option.textContent = translation.formula_names[formula.id] ?? formula.name })
+       Array.from(ui.formula_select.querySelectorAll('optgroup')).forEach((group, index) => { const category = getScaleCategoryOrder()[index]; if (category) group.label = translation.scale_categories[category] })
       set_text('#root-label', translation.root); set_text('#mode-label', translation.mode)
       rebuild_root_options(naming)
       const current_state = application.getState()

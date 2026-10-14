@@ -1,4 +1,4 @@
-import { SCALE_CATEGORY_ORDER, SCALE_FORMULAS, type FormulaId } from '../theory/scale-formulas'
+import { getScaleCategoryOrder, getScaleFormulas, type FormulaId, type ScaleCategory } from '../theory/scale-formulas'
 import type { ExploreApplication } from '../application/explore-application'
 import type { PlaybackPort } from '../audio/playback-port'
 import type { SettingsStore } from '../settings/settings-store'
@@ -50,10 +50,10 @@ export function renderScaleContextControl(container: HTMLElement, application: E
       ui.root_select.append(option)
     })
     if (ui.formula_select.options.length === 0) {
-      SCALE_CATEGORY_ORDER.forEach((category) => {
+      getScaleCategoryOrder().forEach((category) => {
         const group = document.createElement('optgroup')
         group.dataset.category = category
-        SCALE_FORMULAS.filter((formula) => formula.category === category).forEach((formula) => {
+        getScaleFormulas().filter((formula) => formula.category === category).forEach((formula) => {
           const option = document.createElement('option')
           option.value = formula.id
           group.append(option)
@@ -62,11 +62,11 @@ export function renderScaleContextControl(container: HTMLElement, application: E
       })
     }
     Array.from(ui.formula_select.options).forEach((option) => {
-      const formula = SCALE_FORMULAS.find((candidate) => candidate.id === option.value)
+      const formula = getScaleFormulas().find((candidate) => candidate.id === option.value)
       if (formula) option.textContent = translation.formula_names[formula.id] ?? formula.name
     })
     Array.from(ui.formula_select.querySelectorAll('optgroup')).forEach((group) => {
-      const category = group.dataset.category as typeof SCALE_CATEGORY_ORDER[number] | undefined
+      const category = group.dataset.category as ScaleCategory | undefined
       if (category) group.label = translation.scale_categories[category]
     })
     const state = application.getState()

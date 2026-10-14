@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { SCALE_FORMULAS } from '../theory/scale-formulas'
+import { getScaleFormulas } from '../theory/scale-formulas'
 import { getScaleDescription } from './scale-descriptions'
 
 describe('scale descriptions', () => {
   it('given_named_scale_catalog_when_reading_descriptions_then_covers_every_non_probable_formula_in_both_languages', () => {
-    const named_formulas = SCALE_FORMULAS.filter((formula) => formula.category !== 'probable_scales')
+    const named_formulas = getScaleFormulas().filter((formula) => formula.category !== 'probable_scales')
 
     named_formulas.forEach((formula) => {
       expect(getScaleDescription(formula.id, 'en')?.history, formula.id).toBeTruthy()
