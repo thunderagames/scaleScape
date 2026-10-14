@@ -42,3 +42,13 @@ InfinityFree does not allow `CREATE DATABASE` over SQL nor remote MySQL connecti
 6. Check `https://<domain>/api/catalog.php` returns JSON.
 
 `server/api/.htaccess` denies direct access to `config.php`, its template, and the repository helper.
+
+## User Accounts
+
+`server/api/auth.php` adds simple username/password accounts and an encrypted per-user data store (tables in `database/auth-schema.sql`, created by the migration runner without touching existing users).
+
+- Passwords are stored only as `password_hash` (bcrypt) hashes; logins use `password_verify` and rehash when the algorithm changes.
+- Sessions use a `HttpOnly`, `SameSite=Strict` cookie (`Secure` on HTTPS), regenerated on sign-in and sign-out. Every POST needs the `X-CSRF-Token` header returned by the latest response.
+- 5 failed attempts per client IP within 15 minutes return `429 too_many_attempts`; unknown usernames are hashed too so timing does not reveal them.
+- `user_data` values are JSON encrypted with AES-256-GCM using `data_encryption_key` from `config.php` (bound to `user_id:key`). Losing or changing that key makes stored data unreadable.
+- The UI (`src/ui/account-panel.ts`, client `src/integrations/auth-client.ts`) adds a profile button under the settings button only when the API answers, so GitHub Pages shows no account UI. `AuthClient.getData()` / `saveData(key, value)` are the entry points for storing future per-user data.

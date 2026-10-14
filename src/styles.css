@@ -41,6 +41,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .settings-floating:hover { border-color: #8ee6c5; background: linear-gradient(145deg, #3d7180, #214653); }
 .settings-icon { width: 1.35rem; height: 1.35rem; fill: none; stroke: #d9f8ed; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; transition: transform 180ms ease; }
 .settings-floating:hover .settings-icon, .settings-floating:focus-visible .settings-icon { transform: rotate(22deg); }
+.account-floating { top: max(106px, calc(106px + env(safe-area-inset-top))); }
+.account-icon { width: 1.35rem; height: 1.35rem; fill: none; stroke: #d9f8ed; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.account-fields { display: grid; gap: 1.25rem; }
+.account-fields[hidden], .account-signed-in[hidden] { display: none; }
 .audio-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; min-width: 0; color: #a9b8c7; font-size: 0.78rem; }
 .audio-controls input[type="range"] { width: 90px; }
 .audio-controls select { min-width: 8rem; }

@@ -105,7 +105,7 @@ Pushing to `master` runs [`.github/workflows/pages.yml`](.github/workflows/pages
 
 In the repository's GitHub Pages settings, set **Build and deployment** -> **Source** to **GitHub Actions**. Selecting a branch source publishes the repository root instead of the workflow's `dist` artifact.
 
-GitHub Pages has no PHP or MySQL, so the app there loads the static `catalog.json` backup. On a PHP + MySQL host (currently InfinityFree), `scripts/deploy-ftp.sh` uploads the build plus the catalog API in `server/api/`; see [MySQL Content Catalog](documentation/19-mysql-content-catalog.md) for the database setup and one-time migration.
+GitHub Pages has no PHP or MySQL, so the app there loads the static `catalog.json` backup. On a PHP + MySQL host (currently InfinityFree), `scripts/deploy-ftp.sh` uploads the build plus the catalog API in `server/api/`; see [MySQL Content Catalog](documentation/19-mysql-content-catalog.md) for the database setup and one-time migration. The same host also serves optional username/password accounts (`server/api/auth.php`), described in that document.
 
 ## Project Structure
 
