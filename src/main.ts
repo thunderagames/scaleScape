@@ -7,6 +7,8 @@ import { APP_CONFIG } from './app-config'
 import { installUmamiTracker } from './integrations/umami'
 import { loadContentCatalog } from './integrations/content-catalog-source'
 import { installContentCatalog, parseContentCatalog } from './application/content-catalog'
+import { createAuthClient } from './integrations/auth-client'
+import { mountAccountPanel } from './ui/account-panel'
 import './styles.css'
 
 const app = document.querySelector<HTMLElement>('#app')
@@ -30,6 +32,7 @@ async function bootstrap(root: HTMLElement): Promise<void> {
   const settings = createSettingsStore('en', diagnostics)
   installUmamiTracker()
   renderAppShell(root, createExploreApplication(settings.getSettings().last_root, settings.getSettings().last_formula), createBrowserPlayback(diagnostics), settings, diagnostics, APP_CONFIG)
+  void mountAccountPanel(root, createAuthClient(), settings)
 }
 
 void bootstrap(app)

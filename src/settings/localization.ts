@@ -172,6 +172,20 @@ export interface TranslationDictionary {
   readonly harmony_roles: Readonly<Record<'chord_tonic' | 'chord_tone' | 'nonchord', string>>
   readonly progression_genres: Readonly<Record<string, string>>
   readonly progression_names: Readonly<Record<string, string>>
+  readonly account: string
+  readonly account_title: string
+  readonly account_username: string
+  readonly account_password: string
+  readonly account_sign_in: string
+  readonly account_create: string
+  readonly account_sign_out: string
+  readonly account_signed_in_as: string
+  readonly account_error_invalid_credentials: string
+  readonly account_error_username_taken: string
+  readonly account_error_invalid_username: string
+  readonly account_error_invalid_password: string
+  readonly account_error_too_many_attempts: string
+  readonly account_error_unavailable: string
 }
 
 const ENGLISH: UiTranslations = {
@@ -339,6 +353,20 @@ const ENGLISH: UiTranslations = {
      ,harmony_piano_map: 'Piano map, C3 to C5'
      ,harmony_color_legend: 'Color guide'
     ,harmony_roles: { chord_tonic: 'chord tonic', chord_tone: 'chord tone', nonchord: 'nonchord tone' }
+    ,account: 'Account'
+    ,account_title: 'Your profile'
+    ,account_username: 'Username'
+    ,account_password: 'Password'
+    ,account_sign_in: 'Sign in'
+    ,account_create: 'Create account'
+    ,account_sign_out: 'Sign out'
+    ,account_signed_in_as: 'Signed in as {username}.'
+    ,account_error_invalid_credentials: 'Wrong username or password.'
+    ,account_error_username_taken: 'That username is already taken.'
+    ,account_error_invalid_username: 'Use 3–32 letters, numbers, dots, dashes or underscores.'
+    ,account_error_invalid_password: 'The password must have 8–128 characters.'
+    ,account_error_too_many_attempts: 'Too many attempts. Try again in 15 minutes.'
+    ,account_error_unavailable: 'The account service is unavailable. Try again later.'
   }
 
 const SPANISH: UiTranslations = {
@@ -506,6 +534,20 @@ const SPANISH: UiTranslations = {
      ,harmony_piano_map: 'Mapa de piano, Do3 a Do5'
      ,harmony_color_legend: 'Clave de colores'
     ,harmony_roles: { chord_tonic: 'tónica del acorde', chord_tone: 'nota del acorde', nonchord: 'nota no perteneciente al acorde' }
+    ,account: 'Cuenta'
+    ,account_title: 'Tu perfil'
+    ,account_username: 'Usuario'
+    ,account_password: 'Contraseña'
+    ,account_sign_in: 'Entrar'
+    ,account_create: 'Crear cuenta'
+    ,account_sign_out: 'Cerrar sesión'
+    ,account_signed_in_as: 'Sesión iniciada como {username}.'
+    ,account_error_invalid_credentials: 'Usuario o contraseña incorrectos.'
+    ,account_error_username_taken: 'Ese usuario ya existe.'
+    ,account_error_invalid_username: 'Usa de 3 a 32 letras, números, puntos, guiones o guiones bajos.'
+    ,account_error_invalid_password: 'La contraseña debe tener entre 8 y 128 caracteres.'
+    ,account_error_too_many_attempts: 'Demasiados intentos. Vuelve a intentarlo en 15 minutos.'
+    ,account_error_unavailable: 'El servicio de cuentas no está disponible. Inténtalo más tarde.'
   }
 
 export type CatalogTranslationKey = 'formula_names' | 'scale_categories' | 'comparison_names' | 'progression_genres' | 'progression_names'

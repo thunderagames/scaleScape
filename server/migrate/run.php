@@ -35,7 +35,9 @@ try {
     echo "schema.sql OK\n";
     scalescape_run_sql_file($db, __DIR__ . '/seed.sql');
     echo "seed.sql OK\n";
-    foreach (['scale_categories', 'scale_formulas', 'scale_formula_notes', 'scale_formula_translations', 'progressions', 'comparisons'] as $table) {
+    scalescape_run_sql_file($db, __DIR__ . '/auth-schema.sql');
+    echo "auth-schema.sql OK\n";
+    foreach (['scale_categories', 'scale_formulas', 'scale_formula_notes', 'scale_formula_translations', 'progressions', 'comparisons', 'users'] as $table) {
         $count = $db->query("SELECT COUNT(*) AS total FROM {$table}")->fetch_assoc()['total'];
         echo "{$table}: {$count}\n";
     }

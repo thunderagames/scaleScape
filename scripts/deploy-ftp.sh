@@ -27,7 +27,7 @@ npm run build
   upload "dist/${file}" "${file}"
 done
 
-for file in catalog.php catalog-repository.php .htaccess; do
+for file in catalog.php catalog-repository.php auth.php .htaccess; do
   upload "server/api/${file}" "api/${file}"
 done
 
@@ -41,4 +41,5 @@ if [[ "${1:-}" == "--with-migration" ]]; then
   upload server/migrate/run.php migrate/run.php
   upload database/schema.sql migrate/schema.sql
   upload database/seed.sql migrate/seed.sql
+  upload database/auth-schema.sql migrate/auth-schema.sql
 fi
