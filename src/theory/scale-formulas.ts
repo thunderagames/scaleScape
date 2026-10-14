@@ -137,6 +137,14 @@ export function getScaleCategoryOrder(): readonly ScaleCategory[] {
   return scale_category_order
 }
 
+const PREFERRED_DEFAULT_FORMULA_ID: FormulaId = 'dorian'
+
+export function getDefaultFormulaId(): FormulaId {
+  return scale_formulas.some((formula) => formula.id === PREFERRED_DEFAULT_FORMULA_ID)
+    ? PREFERRED_DEFAULT_FORMULA_ID
+    : scale_formulas[0]?.id ?? PREFERRED_DEFAULT_FORMULA_ID
+}
+
 export function getFormula(formula_id: FormulaId): ScaleFormula {
   const formula = scale_formulas.find((candidate) => candidate.id === formula_id)
   if (!formula) {

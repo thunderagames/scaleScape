@@ -65,7 +65,7 @@ function is_scale_formula(value: unknown): value is CatalogScaleFormula {
 }
 
 function is_progression(value: unknown): value is CatalogProgression {
-  return is_record(value) && typeof value.id === 'string' && typeof value.genre === 'string' && is_number_array(value.degrees) && has_names(value)
+  return is_record(value) && typeof value.id === 'string' && typeof value.genre === 'string' && is_number_array(value.degrees) && value.degrees.length > 0 && has_names(value)
 }
 
 function is_comparison(value: unknown): value is CatalogComparison {
@@ -88,7 +88,9 @@ export function parseContentCatalog(value: unknown): ContentCatalog | null {
   if (!Array.isArray(scale_formulas) || scale_formulas.length === 0 || !scale_formulas.every(is_scale_formula)) return null
   if (!Array.isArray(progression_genres) || !progression_genres.every(is_named_entry)) return null
   if (!Array.isArray(progressions) || !progressions.every(is_progression)) return null
-  if (!Array.isArray(comparisons) || !comparisons.every(is_comparison)) return null
+  if (!Array.isArray(comparisons) || comparisons.length === 0 || !comparisons.every(is_comparison)) return null
+  const formula_ids = new Set(scale_formulas.map((formula) => formula.id))
+  if (!comparisons.every((comparison) => formula_ids.has(comparison.formula_a) && formula_ids.has(comparison.formula_b))) return null
   return {
     version: typeof value.version === 'number' ? value.version : 1,
     scale_categories,

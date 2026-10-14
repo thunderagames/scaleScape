@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds ScaleScape and uploads it (static app + PHP catalog API) to an FTP host.
+# Builds ScaleScape and uploads it (static app + PHP catalog API) to an FTP host over explicit TLS (FTPS).
 # Usage: FTP_USER=... FTP_PASSWORD=... scripts/deploy-ftp.sh [--with-migration]
 #   --with-migration also uploads server/migrate/run.php with database/schema.sql and seed.sql.
 #   Delete the remote migrate/ folder after running it once.
@@ -16,7 +16,8 @@ cd "$(dirname "$0")/.."
 
 upload() {
   local local_path="$1" remote_path="$2"
-  curl --silent --show-error --fail --ftp-create-dirs --netrc-file <(printf 'machine %s login %s password %s\n' "$FTP_HOST" "$FTP_USER" "$FTP_PASSWORD") \
+  # InfinityFree's FTPS rejects some uploads (451) over TLS 1.3, so cap at TLS 1.2.
+  curl --silent --show-error --fail --ssl-reqd --tls-max 1.2 --ftp-create-dirs --netrc-file <(printf 'machine %s login %s password %s\n' "$FTP_HOST" "$FTP_USER" "$FTP_PASSWORD") \
     -T "$local_path" "ftp://${FTP_HOST}:${FTP_PORT}/${FTP_REMOTE_DIR}/${remote_path}"
   echo "uploaded ${remote_path}"
 }

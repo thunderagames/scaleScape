@@ -1,5 +1,5 @@
 import { getTranslations, type Language, type TranslationDictionary } from './localization'
-import { getScaleFormulas, type FormulaId } from '../theory/scale-formulas'
+import { getDefaultFormulaId, getScaleFormulas, type FormulaId } from '../theory/scale-formulas'
 import type { EventLoggerPort } from '../observability/event-logger'
 import type { TempoBpm } from '../shared/tempo'
 import type { NoteNamingStyle } from './note-naming'
@@ -57,7 +57,7 @@ function log_diagnostic(diagnostics: EventLoggerPort, event_name: string, attrib
   const bass_tuning_semitones = typeof value.bass_tuning_semitones === 'number' && Number.isInteger(value.bass_tuning_semitones) && value.bass_tuning_semitones >= -12 && value.bass_tuning_semitones <= 12 ? value.bass_tuning_semitones : 0
   const ukulele_tuning_semitones = typeof value.ukulele_tuning_semitones === 'number' && Number.isInteger(value.ukulele_tuning_semitones) && value.ukulele_tuning_semitones >= -12 && value.ukulele_tuning_semitones <= 12 ? value.ukulele_tuning_semitones : 0
   const last_root = typeof value.last_root === 'number' && Number.isInteger(value.last_root) && value.last_root >= 0 && value.last_root <= 11 ? value.last_root : 4
-  const last_formula = typeof value.last_formula === 'string' ? getScaleFormulas().find((formula) => formula.id === value.last_formula)?.id ?? 'dorian' : 'dorian'
+  const last_formula = typeof value.last_formula === 'string' ? getScaleFormulas().find((formula) => formula.id === value.last_formula)?.id ?? getDefaultFormulaId() : getDefaultFormulaId()
   const guided_start_completed = value.guided_start_completed === true
   const show_bass = value.show_bass !== false
   const show_ukulele = value.show_ukulele !== false
@@ -91,7 +91,7 @@ function saveSettings(settings: AppSettings, diagnostics: EventLoggerPort): void
 }
 
 export function createSettingsStore(initial_language: Language = 'en', diagnostics: EventLoggerPort = { log: () => undefined }): SettingsStore {
-  const fallback_settings: AppSettings = { language: initial_language, note_naming: 'letter', show_piano: true, show_guitar: true, show_bass: true, show_ukulele: true, show_scale_description: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, metronome_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, ukulele_tuning_semitones: 0, last_root: 4, last_formula: 'dorian', guided_start_completed: false }
+  const fallback_settings: AppSettings = { language: initial_language, note_naming: 'letter', show_piano: true, show_guitar: true, show_bass: true, show_ukulele: true, show_scale_description: true, ear_gym_streak: 0, volume: 0.7, tempo_bpm: 120, metronome_bpm: 120, guitar_tuning_semitones: 0, bass_tuning_semitones: 0, ukulele_tuning_semitones: 0, last_root: 4, last_formula: getDefaultFormulaId(), guided_start_completed: false }
   let settings: AppSettings = loadSettings(fallback_settings, diagnostics)
   const listeners = new Set<(current_settings: AppSettings) => void>()
 

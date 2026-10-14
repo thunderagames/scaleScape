@@ -4,7 +4,8 @@ import { getComparisonDefinitions } from '../exercises/comparison-exercise'
 import { getProgressionCatalog } from '../content/progression-catalog'
 import { getScaleDescription } from '../content/scale-descriptions'
 import { getTranslations } from '../settings/localization'
-import { getScaleCategoryOrder, getScaleFormulas, PROBABLE_SCALES_CATEGORY } from '../theory/scale-formulas'
+import { getDefaultFormulaId, getScaleCategoryOrder, getScaleFormulas, PROBABLE_SCALES_CATEGORY } from '../theory/scale-formulas'
+import { createExploreApplication } from './explore-application'
 import { installContentCatalog, parseContentCatalog, type ContentCatalog } from './content-catalog'
 
 const minimal_catalog: ContentCatalog = {
@@ -36,6 +37,15 @@ describe('content catalog', () => {
     expect(parseContentCatalog({ ...minimal_catalog, scale_formulas: [] })).toBeNull()
     expect(parseContentCatalog({ ...minimal_catalog, scale_formulas: [{ ...minimal_catalog.scale_formulas[0], semitone_offsets: [0, 2] }] })).toBeNull()
     expect(parseContentCatalog({ ...minimal_catalog, comparisons: [{ id: 'x' }] })).toBeNull()
+    expect(parseContentCatalog({ ...minimal_catalog, comparisons: [] })).toBeNull()
+    expect(parseContentCatalog({ ...minimal_catalog, comparisons: [{ ...minimal_catalog.comparisons[0], formula_b: 'missing' }] })).toBeNull()
+    expect(parseContentCatalog({ ...minimal_catalog, progressions: [{ ...minimal_catalog.progressions[0], degrees: [] }] })).toBeNull()
+  })
+
+  it('given_catalog_without_dorian_when_installing_then_defaults_to_first_formula', () => {
+    installContentCatalog(minimal_catalog)
+    expect(getDefaultFormulaId()).toBe('major')
+    expect(createExploreApplication().getState().formula_id).toBe('major')
   })
 
   it('given_catalog_when_installing_then_feeds_theory_content_exercises_and_translations', () => {
