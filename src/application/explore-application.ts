@@ -1,5 +1,5 @@
 import { createInitialScaleState, createScaleState, type ScaleState } from '../app-state/scale-state'
-import type { FormulaId } from '../theory/scale-formulas'
+import { getDefaultFormulaId, type FormulaId } from '../theory/scale-formulas'
 
 export interface ExploreApplication {
   getState(): ScaleState
@@ -7,7 +7,7 @@ export interface ExploreApplication {
   subscribe(listener: (state: ScaleState) => void): () => void
 }
 
-export function createExploreApplication(initial_root_pitch_class = 4, initial_formula_id: FormulaId = 'dorian'): ExploreApplication {
+export function createExploreApplication(initial_root_pitch_class = 4, initial_formula_id: FormulaId = getDefaultFormulaId()): ExploreApplication {
   let state = createScaleState(initial_root_pitch_class, initial_formula_id, 1)
   const listeners = new Set<(current_state: ScaleState) => void>()
 

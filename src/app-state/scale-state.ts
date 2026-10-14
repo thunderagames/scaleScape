@@ -1,5 +1,5 @@
 import { createScaleInstance, type ScaleInstance } from '../theory/scale-instance'
-import type { FormulaId } from '../theory/scale-formulas'
+import { getDefaultFormulaId, type FormulaId } from '../theory/scale-formulas'
 
 export interface ScaleState {
   readonly root_pitch_class: number
@@ -9,7 +9,7 @@ export interface ScaleState {
 }
 
 export function createInitialScaleState(): ScaleState {
-  return createScaleState(4, 'dorian', 1)
+  return createScaleState(4, getDefaultFormulaId(), 1)
 }
 
 export function createScaleState(root_pitch_class: number, formula_id: FormulaId, generation_id: number): ScaleState {

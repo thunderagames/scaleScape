@@ -2,14 +2,20 @@
 declare(strict_types=1);
 
 // One-time migration runner: creates the catalog tables and loads the seed data.
-// Upload together with schema.sql and seed.sql, open ?token=<migration_token>, then delete this folder.
+// Upload together with schema.sql and seed.sql, open it, submit the migration_token, then delete this folder.
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    header('Content-Type: text/html; charset=utf-8');
+    exit('<form method="post"><label>Migration token <input type="password" name="token" autocomplete="off" required></label> <button type="submit">Run migration</button></form>');
+}
+
 header('Content-Type: text/plain; charset=utf-8');
+header('Cache-Control: no-store');
 
 require __DIR__ . '/../api/catalog-repository.php';
 $config = require __DIR__ . '/../api/config.php';
 
 $token = (string) ($config['migration_token'] ?? '');
-if ($token === '' || !hash_equals($token, (string) ($_GET['token'] ?? ''))) {
+if ($token === '' || !hash_equals($token, (string) ($_POST['token'] ?? ''))) {
     http_response_code(403);
     exit("Forbidden\n");
 }

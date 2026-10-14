@@ -22,7 +22,7 @@ Vitest installs `public/catalog.json` through `src/test-setup.ts`.
 | `server/api/catalog-repository.php` | Queries that rebuild the catalog shape from the tables |
 | `server/api/config.example.php` | Template for the git-ignored `server/api/config.php` credentials |
 | `server/migrate/run.php` | One-time, token-protected runner for `schema.sql` + `seed.sql` |
-| `scripts/deploy-ftp.sh` | Builds and uploads the app, API, and optionally the migration runner |
+| `scripts/deploy-ftp.sh` | Builds and uploads the app, API, and optionally the migration runner over FTPS (`--ssl-reqd`) |
 
 ## Editing Content
 
@@ -37,7 +37,7 @@ InfinityFree does not allow `CREATE DATABASE` over SQL nor remote MySQL connecti
 1. In the control panel, open **MySQL Databases** and create a database (for example `if0_XXXXXXXX_scalescape`). Note the host, user, password, and database name.
 2. Copy `server/api/config.example.php` to `server/api/config.php` and fill in those values plus a long random `migration_token`.
 3. Deploy with the migration runner: `FTP_USER=... FTP_PASSWORD=... scripts/deploy-ftp.sh --with-migration`.
-4. Open `https://<domain>/migrate/run.php?token=<migration_token>` once; it prints table counts and `DONE`.
+4. Open `https://<domain>/migrate/run.php`, submit the `migration_token` in the form (sent by POST, so it stays out of URLs and logs); it prints table counts and `DONE`.
 5. Delete the remote `htdocs/migrate/` folder and remove `migration_token` from the server config.
 6. Check `https://<domain>/api/catalog.php` returns JSON.
 
